@@ -19,7 +19,8 @@ struct DPFKey {
            block *s,
            block *t,
            block *sigma,
-           block *tau[2],
+           block *tau1,
+           block *tau2,
            GroupElement *gamma) : 
                 height(height), 
                 Bout(Bout), 

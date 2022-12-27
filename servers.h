@@ -14,15 +14,38 @@
 #include <string.h>
 #include <fstream>
 
-#define PARTY 1
-#define PARTY_TRUSTED 2
-#define CLIENT 3
+#include "deps/cryptoTools/cryptoTools/Common/Defines.h"
+#include "deps/EzPC/group_element.h"
+
+#define PARTY0 1
+#define PARTY1 2
+#define PARTY_TRUSTED 3
+#define CLIENT 4
 
 class Party {
 public:
-    int partyzero, partyone;
-    bool usefile = false; // false until broadcast/transcript is determined
-    std::fstream file;
+    int sendsocket, recvsocket;
+
     u_int64_t bytesSent;
     u_int64_t bytesRecieved;
+
+    Party(std::string ip, int port);
+    Party(int sendsocket, int recvsocket):
+          sendsocket(sendsocket),
+          recvsocket(recvsocket) {}
+
+    void close();
+    void send_ge(const GroupElement &ge, int bitwidth);
+    void send_block(const osuCrypto::block &b);
+    void send_input(const GroupElement &g);
+    
+    // void send_block_pair(blockPair &bp);
+    // void send_muxinput(MUXinput &mi);
+
+    GroupElement recv_ge();
+    osuCrypto::block recv_block();
+    GroupElement recv_input();
+
+    // blockPair recv_blockpair();
+    // MUXinput recv_muxinput(); 
 };
