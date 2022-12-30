@@ -17,7 +17,7 @@ inline u8 lsb(const block &b)
     return _mm_cvtsi128_si64x(b) & 1;
 }
 
-std::pair<DPFKey, DPFKey> keyGenDPF(int height, int Bout, int groupSize,
+std::pair<dpf_key, dpf_key> dpf_keygen(int height, int Bout, int groupSize,
                         GroupElement *ran, GroupElement idx);
 
-void evalDCF(int party, GroupElement *ran, GroupElement idx, const DPFKey &key);
+void dpf_eval(int party, GroupElement *ran, GroupElement idx, const dpf_key &key);

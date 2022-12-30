@@ -1,26 +1,26 @@
 #pragma once
 
-#include "deps/cryptoTools/cryptoTools/Common/Defines.h"
+#include <cryptoTools/Common/Defines.h>
 #include "deps/EzPC/group_element.h"
 
 using namespace osuCrypto;
 
-struct DPFKey {
+struct dpf_key {
     int height, Bout, groupSize;
     block *s;
     block *t;
     block *sigma;
+    block *tau0;
     block *tau1;
-    block *tau2;
     GroupElement *gamma;
 
-    DPFKey() {}
-    DPFKey(int height, int Bout, int groupSize,
+    dpf_key() {}
+    dpf_key(int height, int Bout, int groupSize,
            block *s,
            block *t,
            block *sigma,
+           block *tau0,
            block *tau1,
-           block *tau2,
            GroupElement *gamma) : 
                 height(height), 
                 Bout(Bout), 
@@ -28,16 +28,16 @@ struct DPFKey {
                 s(s), 
                 t(t), 
                 sigma(sigma), 
-                tau1(tau1), 
-                tau2(tau2) 
+                tau0(tau0), 
+                tau1(tau1) 
             {};
 };
 
-inline void freeDPFkey(DPFKey &key){
+inline void free_dpf_key(dpf_key &key){
     delete[] key.s;
     delete[] key.t;
     delete[] key.sigma;
+    delete[] key.tau0;
     delete[] key.tau1;
-    delete[] key.tau2;
     delete[] key.gamma;
 }

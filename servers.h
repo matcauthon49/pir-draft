@@ -17,17 +17,17 @@
 #include "deps/cryptoTools/cryptoTools/Common/Defines.h"
 #include "deps/EzPC/group_element.h"
 
-#define PARTY0 1
-#define PARTY1 2
-#define PARTY_TRUSTED 3
-#define CLIENT 4
+#define PARTY0 0
+#define PARTY1 1
+#define PARTY_TRUSTED 2
+#define CLIENT 3
 
 class Party {
 public:
     int sendsocket, recvsocket;
 
-    u_int64_t bytesSent;
-    u_int64_t bytesRecieved;
+    u_int64_t bytes_sent;
+    u_int64_t bytes_recieved;
 
     Party(std::string ip, int port);
     Party(int sendsocket, int recvsocket):
