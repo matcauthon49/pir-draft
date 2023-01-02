@@ -9,7 +9,39 @@ void convert(const int inp_bitwidth,
              GroupElement *out_group_element)
              {};
 
-void dpf_prg();
+void prg_eval_all_and_xor(block *input_nodes, int len, block *output_nodes, block *xor_output) {
+
+    // set plaintexts
+    static const block notOneBlock = toBlock(~0, ~1);
+    static const block notThreeBlock = toBlock(~0, ~3);
+    static const block TwoBlock = toBlock(0, 2);
+    static const block ThreeBlock = toBlock(0, 3);
+
+    const static block pt[4] = {ZeroBlock, OneBlock, TwoBlock, ThreeBlock};
+
+    for (int i = 0; i < len; i++) {
+
+        // set key
+        block k = input_nodes[i];
+        AES aes_key(k);
+
+        // init ct block
+        block ct[4];
+
+        // encrypt
+        aes_key.ecbEncFourBlocks(pt, ct);
+        output_nodes[4*i] = ct[0];
+        output_nodes[4*i+1] = ct[1];
+        output_nodes[4*i+2] = ct[2];
+        output_nodes[4*i+3] = ct[3];
+
+        // set xor
+        xor_output[0] = xor_output[0] ^ ct[0];
+        xor_output[1] = xor_output[1] ^ ct[1];
+        xor_output[2] = xor_output[2] ^ ct[2];
+        xor_output[3] = xor_output[3] ^ ct[3];
+    }    
+};
 
 std::pair<dpf_key, dpf_key> dpf_keygen(int height, 
                                        const int group_bitwidth, 
@@ -17,14 +49,6 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height,
                                        GroupElement *alpha, 
                                        GroupElement *index)
 {
-    static const block notOneBlock = toBlock(~0, ~1);
-    static const block notThreeBlock = toBlock(~0, ~3);
-    static const block TwoBlock = toBlock(0, 2);
-    static const block ThreeBlock = toBlock(0, 3);
-
-    // set AES plaintext
-    const static block pt[4] = {ZeroBlock, OneBlock, TwoBlock, ThreeBlock};
-
     // sample hat{S}_i^{0,0}, the PRG keys
     auto keys = prng.get<std::array<block, 2>>();
 
