@@ -31,15 +31,15 @@ void prg_eval_all_and_xor(block *input_nodes, int len, block *output_nodes, bloc
         // encrypt
         aes_key.ecbEncFourBlocks(pt, ct);
         output_nodes[4*i] = ct[0];
-        output_nodes[4*i+1] = ct[1];
+        output_nodes[4*i+1] = toBlock(0,lsb(ct[1]));
         output_nodes[4*i+2] = ct[2];
-        output_nodes[4*i+3] = ct[3];
+        output_nodes[4*i+3] = toBlock(0,lsb(ct[3]));
 
         // set xor
         xor_output[0] = xor_output[0] ^ ct[0];
-        xor_output[1] = xor_output[1] ^ ct[1];
+        xor_output[1] = xor_output[1] ^ toBlock(0,lsb(ct[1]));
         xor_output[2] = xor_output[2] ^ ct[2];
-        xor_output[3] = xor_output[3] ^ ct[3];
+        xor_output[3] = xor_output[3] ^ toBlock(0,lsb(ct[3]));
     }    
 };
 
