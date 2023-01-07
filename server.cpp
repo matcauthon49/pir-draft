@@ -1,16 +1,4 @@
-#include <string>
-#include <iostream>
-
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <fstream>
+#include "server.h"
 
 #define PORT 8080
 
@@ -76,17 +64,4 @@ Server::Server(std::string ip, int port) {
 
 void Server::close() {
     ::close(s_sock);
-}
-
-int main() {
-
-    Server *s =  new Server("127.0.0.1", PORT);
-    s->close();
-
-    char buffer[1024] = {0};
-    recv(s->s_sock, buffer, 1024, MSG_WAITALL);
-
-    std::cout << buffer;
-
-    return 0;
 }

@@ -1,16 +1,6 @@
-#include <string>
-#include <iostream>
+#pragma once
 
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <fstream>
+#include "client.h"
 
 #define PORT 8080
 
@@ -61,18 +51,4 @@ void Client::close() {
 void Client::send_msg(char* msg) {
     char buffer[1024] = {0};
     send(c_sock, msg, strlen(msg), 0);
-}
-
-int main() {
-
-    int * i;
-    *i = 431212;
-
-    char* hello = "Hello, Client here.";
-
-    Client *c = new Client("127.0.0.1", PORT);
-    c->send_msg(hello);
-    c->close();
-
-    return 0;
 }

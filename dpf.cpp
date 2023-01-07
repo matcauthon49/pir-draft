@@ -2,6 +2,13 @@
 
 using namespace osuCrypto;
 
+struct dpf_layer {
+    size_t size;
+    size_t level;
+    block *nodes;
+    block z[4];
+};
+
 void convert(const int inp_bitwidth, 
              const int out_bitwidth, 
              const int no_of_group_elements, 
@@ -9,24 +16,16 @@ void convert(const int inp_bitwidth,
              GroupElement *out_group_element)
              {};
 
-void prg_eval_all_and_xor(block *input_nodes, int len, block *output_nodes, block *xor_output) {
+void prg_eval_all_and_xor(dpf_layer *dpfl, block *ct, const block *pt) {
 
-    // set plaintexts
-    static const block notOneBlock = toBlock(~0, ~1);
-    static const block notThreeBlock = toBlock(~0, ~3);
-    static const block TwoBlock = toBlock(0, 2);
-    static const block ThreeBlock = toBlock(0, 3);
+    block* output_nodes = (block*)malloc(4*sizeof(block));
 
-    const static block pt[4] = {ZeroBlock, OneBlock, TwoBlock, ThreeBlock};
-
-    for (int i = 0; i < len; i++) {
+    #pragma omp parallel
+    for (int i = 0; i < (dpfl->size); i++) {
 
         // set key
-        block k = input_nodes[i];
+        block k = dpfl->nodes[i];
         AES aes_key(k);
-
-        // init ct block
-        block ct[4];
 
         // encrypt
         aes_key.ecbEncFourBlocks(pt, ct);
@@ -36,11 +35,17 @@ void prg_eval_all_and_xor(block *input_nodes, int len, block *output_nodes, bloc
         output_nodes[4*i+3] = toBlock(0,lsb(ct[3]));
 
         // set xor
-        xor_output[0] = xor_output[0] ^ ct[0];
-        xor_output[1] = xor_output[1] ^ toBlock(0,lsb(ct[1]));
-        xor_output[2] = xor_output[2] ^ ct[2];
-        xor_output[3] = xor_output[3] ^ toBlock(0,lsb(ct[3]));
-    }    
+        dpfl->z[0] = dpfl->z[0] ^ ct[0];
+        dpfl->z[1] = dpfl->z[1] ^ toBlock(0,lsb(ct[1]));
+        dpfl->z[2] = dpfl->z[2] ^ ct[2];
+        dpfl->z[3] = dpfl->z[3] ^ toBlock(0,lsb(ct[3]));
+    }
+
+    free(dpfl->nodes);
+    dpfl->nodes = output_nodes;
+
+    dpfl->size *= 4;
+    dpfl->level += 1;
 };
 
 std::pair<dpf_key, dpf_key> dpf_keygen(int height, 
@@ -56,9 +61,7 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height,
     GroupElement beta[2][2] = {{0, alpha[0]}, {1, alpha[1]}};
 
     // initiate outputs
-    block s[2];
-    s[0] = keys[0];
-    s[1] = keys[1];
+    const static block s[2] = {keys[0], keys[1]};
 
     block t[2] = {
         toBlock(0, 0), 
@@ -69,13 +72,44 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height,
     block tau0[height];
     block tau1[height];
 
+    // set AES Plaintext
+    static const block TwoBlock = toBlock(0, 2);
+    static const block ThreeBlock = toBlock(0, 3);
+
+    const static block pt[4] = {ZeroBlock, OneBlock, TwoBlock, ThreeBlock};
+
     // set AES ciphertext
     block ct[4];
 
+#ifdef DPF_PROFILE
+    printf("START DPF LEVEL 0 %d\n", current_timestamp());
+#endif
+
+    // set dpf_layers
+    dpf_layer *dpfl0;
+    dpf_layer *dpfl1;
+
+    dpfl0->size = 1;
+    dpfl0->level = 0;
+    dpfl0->nodes = (block*)malloc(sizeof(block));
+        dpfl0 -> nodes[0] = s[0];
+
+    dpfl1->size = 1;
+    dpfl1->level = 0;
+    dpfl1->nodes = (block*)malloc(sizeof(block));
+        dpfl1 -> nodes[0] = s[1];
+
+
     for (int i = 0; i < height; i++) {
 
-        // set z box
-        block z[2][4];
+#ifdef DPF_PROFILE
+    printf("START DPF LEVEL %d%d\n", dpfl0->level, current_timestamp());
+#endif
+
+        prg_eval_all_and_xor(dpfl0, ct, pt);
+        prg_eval_all_and_xor(dpfl1, ct, pt);
+
+        
 
     }
 };
