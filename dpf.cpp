@@ -24,7 +24,7 @@ void convert(const int inp_bitwidth,
 
 void prg_eval_all_and_xor(dpf_layer *dpfl, block *ct, const block *pt) {
 
-    block* output_nodes = (block*)malloc(4*sizeof(block));
+    block* output_nodes = (block*)malloc(4*dpfl->size*sizeof(block));
 
     if (dpfl->level==0) {
         dpfl->z[0] = ZeroBlock;
@@ -121,9 +121,11 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height,
         prg_eval_all_and_xor(dpfl0, ct, pt);
         prg_eval_all_and_xor(dpfl1, ct, pt);
 
-        const uint8_t sig = static_cast<uint8_t>(index->value >> (group_bitwidth - 1 - i)) & 1;
+        const uint8_t sig = (static_cast<uint8_t>((index[0].value ^ index[1].value) >> (group_bitwidth - 1 - i)) & 1 ^ 1 == 0) ? 0 : 2;
 
-        sigma[i] = toBlock(0,0);
+        sigma[i] = dpfl0->z[sig] ^ dpfl1->z[sig];
+        tau0[i] = dpfl0->z[0] ^ toBlock(index[0].value) ^ dpfl1->z[0] ^ toBlock(index[0].value) ^ toBlock(1);
+        tau1[i] = dpfl0->z[1] ^ toBlock(index[2].value) ^ dpfl1->z[1] ^ toBlock(index[2].value) ^ toBlock(1);
 
     }
 };
