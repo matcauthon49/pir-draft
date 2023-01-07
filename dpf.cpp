@@ -9,6 +9,12 @@ struct dpf_layer {
     block z[4];
 };
 
+void free_dpf_layer(dpf_layer *dpfl) {
+    free(dpfl->nodes);
+    free(dpfl->z);
+    free(dpfl);
+};
+
 void convert(const int inp_bitwidth, 
              const int out_bitwidth, 
              const int no_of_group_elements, 
@@ -20,7 +26,7 @@ void prg_eval_all_and_xor(dpf_layer *dpfl, block *ct, const block *pt) {
 
     block* output_nodes = (block*)malloc(4*sizeof(block));
 
-    #pragma omp parallel
+    #pragma omp parallel for
     for (int i = 0; i < (dpfl->size); i++) {
 
         // set key
@@ -105,11 +111,8 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height,
 #ifdef DPF_PROFILE
     printf("START DPF LEVEL %d%d\n", dpfl0->level, current_timestamp());
 #endif
-
         prg_eval_all_and_xor(dpfl0, ct, pt);
         prg_eval_all_and_xor(dpfl1, ct, pt);
-
-        
 
     }
 };
