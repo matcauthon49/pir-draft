@@ -26,6 +26,13 @@ void prg_eval_all_and_xor(dpf_layer *dpfl, block *ct, const block *pt) {
 
     block* output_nodes = (block*)malloc(4*sizeof(block));
 
+    if (dpfl->level==0) {
+        dpfl->z[0] = ZeroBlock;
+        dpfl->z[1] = ZeroBlock;
+        dpfl->z[2] = ZeroBlock;
+        dpfl->z[3] = ZeroBlock;
+    }
+
     #pragma omp parallel for
     for (int i = 0; i < (dpfl->size); i++) {
 
@@ -113,6 +120,10 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height,
 #endif
         prg_eval_all_and_xor(dpfl0, ct, pt);
         prg_eval_all_and_xor(dpfl1, ct, pt);
+
+        const uint8_t sig = static_cast<uint8_t>(index->value >> (group_bitwidth - 1 - i)) & 1;
+
+        sigma[i] = toBlock(0,0);
 
     }
 };
