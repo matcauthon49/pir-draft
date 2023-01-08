@@ -1,2 +1,4 @@
 .vscode/
 tests/
+src/build/
+cmake-3.13.4

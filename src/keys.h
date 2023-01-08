@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cryptoTools/Common/Defines.h>
-#include "deps/EzPC/group_element.h"
+#include <group_element.h>
 
 using namespace osuCrypto;
 
