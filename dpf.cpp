@@ -1,5 +1,7 @@
 #include "dpf.h"
 
+#define HEIGHT 1
+
 using namespace osuCrypto;
 
 struct dpf_layer {
@@ -21,6 +23,24 @@ void free_dpf_layer(dpf_layer *dpfl) {
     free(dpfl);
 };
 
+struct dpf_input_pack {
+    GroupElement *alpha;
+    GroupElement index;
+    block *hats;
+    block *sigma;
+    uint8_t *hatt;
+    uint8_t *tau[2];
+};
+
+void free_dpf_input_pack(dpf_input_pack *dpfip) {
+    free(dpfip->alpha);
+    free(dpfip->sigma);
+    free(dpfip->tau);
+    free(dpfip->hats);
+    free(dpfip->hats);
+    free(dpfip);
+};
+
 void convert(const int inp_bitwidth, 
              const int out_bitwidth, 
              const int no_of_group_elements, 
@@ -28,7 +48,7 @@ void convert(const int inp_bitwidth,
              GroupElement *out_group_element)
              {};
 
-void prg_eval_all_and_xor(dpf_layer *dpfl, block *ct, const block *pt) {
+void prg_eval_all_and_xor(dpf_layer *dpfl, block *keynodes, block *ct, const block *pt) {
 
     block* output_nodes = (block*)malloc(2*dpfl->size*sizeof(block));
     uint8_t* output_t = (uint8_t*)malloc(2*dpfl->size*sizeof(uint8_t));
@@ -44,7 +64,7 @@ void prg_eval_all_and_xor(dpf_layer *dpfl, block *ct, const block *pt) {
     for (int i = 0; i < (dpfl->size); i++) {
 
         // set key
-        block k = dpfl->nodes[i];
+        block k = keynodes[i];
         AES aes_key(k);
 
         // encrypt
@@ -64,8 +84,7 @@ void prg_eval_all_and_xor(dpf_layer *dpfl, block *ct, const block *pt) {
     free(dpfl->nodes);
     dpfl->nodes = output_nodes;
 
-    free(dpfl->prevt);
-    dpfl->prevt = dpfl->currt;
+    free(dpfl->currt);
     dpfl->currt = output_t;
 
     dpfl->size *= 2;
@@ -73,16 +92,15 @@ void prg_eval_all_and_xor(dpf_layer *dpfl, block *ct, const block *pt) {
 };
 
 std::pair<dpf_key, dpf_key> dpf_keygen(int height, 
-                                       const int group_bitwidth, 
-                                       int no_of_group_elements,
-                                       GroupElement *alpha, 
-                                       GroupElement *index)
+                                       const int group_bitwidth,
+                                       dpf_input_pack *dpfip0, 
+                                       dpf_input_pack *dpfip1)
 {
     // sample hat{S}_i^{0,0}, the PRG keys
     auto keys = prng.get<std::array<block, 2>>();
 
     // set beta
-    GroupElement beta[2][2] = {{0, alpha[0]}, {1, alpha[1]}};
+    GroupElement beta[2][2] = {{0, *dpfip0->alpha}, {1, *dpfip1->alpha}};
 
     // initiate outputs
     const static block s[2] = {keys[0], keys[1]};
@@ -91,10 +109,6 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height,
         toBlock(0, 0), 
         toBlock(0, 1)
     };
-
-    block sigma[height];
-    block tau0[height];
-    block tau1[height];
 
     // set AES Plaintext
     static const block TwoBlock = toBlock(0, 2);
@@ -133,14 +147,48 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height,
 #ifdef DPF_PROFILE_
     printf("START DPF LEVEL %d%d\n", dpfl0->level, current_timestamp());
 #endif
-        prg_eval_all_and_xor(dpfl0, ct, pt);
-        prg_eval_all_and_xor(dpfl1, ct, pt);
+        prg_eval_all_and_xor(dpfl0, dpfip0->hats, ct, pt);
+        prg_eval_all_and_xor(dpfl1, dpfip1->hats, ct, pt);
 
-        const uint8_t sig = static_cast<uint8_t>((index[0]+index[1]).value >> (group_bitwidth - 1 - i)) & 1 ^ 1;
+        const uint8_t sig = static_cast<uint8_t>((dpfip0->index + dpfip1->index).value >> (group_bitwidth - 1 - i)) & 1;
+        const uint8_t sig0 = static_cast<uint8_t>(dpfip0->index.value >> (group_bitwidth - 1 - i)) & 1;
+        const uint8_t sig1 = static_cast<uint8_t>(dpfip1->index.value >> (group_bitwidth - 1 - i)) & 1;
 
-        sigma[i] = dpfl0->zs[sig] ^ dpfl1->zs[sig];
-        tau0[i] = dpfl0->zs[0] ^ toBlock(index[0].value) ^ dpfl1->zs[0] ^ toBlock(index[0].value) ^ toBlock(1);
-        tau1[i] = dpfl0->zs[1] ^ toBlock(index[1].value) ^ dpfl1->zs[1] ^ toBlock(index[1].value) ^ toBlock(1);
+        dpfip0->sigma[i] = dpfl0->zs[1^sig] ^ dpfl1->zs[1^sig];
+        dpfip1->sigma[i] = dpfl0->zs[1^sig] ^ dpfl1->zs[1^sig];
+
+        dpfip0->tau[0][i] = dpfl0->zt[0] ^ sig0 ^ dpfl1->zt[0] ^ sig1 ^ 1;
+        dpfip1->tau[0][i] = dpfl0->zt[0] ^ sig0 ^ dpfl1->zt[0] ^ sig1 ^ 1;
+
+        dpfip0->tau[1][i] = dpfl0->zt[1] ^ sig1 ^ dpfl1->zt[1] ^ sig1;
+        dpfip1->tau[1][i] = dpfl0->zt[1] ^ sig1 ^ dpfl1->zt[1] ^ sig1;
+
+        free(dpfip0->hats);
+        free(dpfip1->hats);
+        free(dpfip0->hatt);
+        free(dpfip1->hatt);
+
+        dpfip0->hats = (block*)malloc(dpfl0->size*sizeof(block));
+        dpfip1->hats = (block*)malloc(dpfl1->size*sizeof(block));
+        dpfip0->hatt = (uint8_t*)malloc(dpfl0->size*sizeof(uint8_t));
+        dpfip1->hatt = (uint8_t*)malloc(dpfl1->size*sizeof(uint8_t));
+
+        #pragma omp parallel for
+        for (int j = 0; j < dpfl0->size; j++) {
+            dpfip0->hats[j] = (dpfl0->nodes[j] ^ dpfl0->prevt[j/2]) * dpfip0->sigma[i];
+            dpfip1->hats[j] = (dpfl1->nodes[j] ^ dpfl1->prevt[j/2]) * dpfip1->sigma[i];
+            dpfip0->hatt[j] = (dpfl0->currt[j] ^ dpfl0->prevt[j/2]) * dpfip0->tau[j&1][i];
+            dpfip1->hatt[j] = (dpfl1->currt[j] ^ dpfl1->prevt[j/2]) * dpfip1->tau[j&1][i];
+        }
+
+#ifdef DPF_PROFILE_
+    printf("END DPF LEVEL %d%d\n", dpfl0->level, current_timestamp());
+#endif
 
     }
+
+#ifdef DPF_PROFILE_
+    printf("DPF START OFFLINE COMPUTATION %d\n", current_timestamp());
+#endif
+
 };
