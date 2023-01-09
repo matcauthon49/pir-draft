@@ -10,7 +10,10 @@ deps/cryptoTools/cryptoTools/Crypto/AES.cpp
 deps/cryptoTools/cryptoTools/Crypto/PRNG.cpp
 dpf.cpp
 )
-
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(dpf PUBLIC OpenMP::OpenMP_CXX)
+endif()
 
 # #find_package(Threads REQUIRED)
 target_include_directories(dpf
@@ -22,7 +25,7 @@ target_include_directories(dpf PRIVATE
 deps/cryptoTools
 deps/EzPC)
 
-target_compile_options(dpf PRIVATE -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -march=native -maes -msse2 -msse4.1)
+target_compile_options(dpf PRIVATE -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -march=native -maes -msse2 -msse4.1 -fopenmp)
 install(
     TARGETS dpf 
     EXPORT DPFTargets
@@ -48,5 +51,8 @@ deps/cryptoTools
 deps/EzPC
 ${CMAKE_CURRENT_SOURCE_DIR}
 )
-target_link_libraries(test PRIVATE dpf)
-target_compile_options(test PRIVATE -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -march=native -maes -msse2 -msse4.1)
+target_link_libraries(test PRIVATE dpf )
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(test PUBLIC OpenMP::OpenMP_CXX)
+endif()
+target_compile_options(test PRIVATE -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -march=native -maes -msse2 -msse4.1 -fopenmp)

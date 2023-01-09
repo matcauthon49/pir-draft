@@ -2,16 +2,13 @@
 #include <array>
 #include <vector>
 #include <utility>
-// #include "deps/cryptoTools/cryptoTools/Common/Defines.h"
 #include <cryptoTools/Common/Defines.h>
-// #include "deps/cryptoTools/cryptoTools/Crypto/AES.h"
 #include <cryptoTools/Crypto/AES.h>
-// #include "deps/cryptoTools/cryptoTools/Crypto/PRNG.h"
 #include <cryptoTools/Crypto/PRNG.h>
-// #include "cryptoTools/cryptoTools/gsl/span"
 #include <cryptoTools/gsl/span>
 #include <group_element.h>
 #include <keys.h>
+#include<omp.h>
 
 using namespace osuCrypto;
 struct dpf_layer {
@@ -35,4 +32,4 @@ inline u8 lsb(const block &b)
 
 // void dpf_eval(int party, GroupElement *ran, GroupElement idx, const dpf_key &key);
 
-void prg_eval_all_and_xor(dpf_layer *dpfl, block *ct, const block *pt);
+void prg_eval_all_and_xor(dpf_layer *dpfl, block* keynodes, block *ct, const block *pt);

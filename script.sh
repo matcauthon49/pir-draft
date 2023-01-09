@@ -4,12 +4,15 @@ sudo apt install -y gcc-9 g++-9
 
 sudo apt install -y build-essential cmake libgmp-dev libglib2.0-dev libssl-dev \
                     libboost-all-dev m4 zip bubblewrap \
-                    graphviz tmux bc time
-
+                    graphviz tmux bc time libomp-dev
+#Check openmp is installed.
+echo |cpp -fopenmp -dM |grep -i open
 #Install gcc 9
 sudo apt install -y gcc-9 g++-9
 sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 60 --slave /usr/bin/g++ g++ /usr/bin/g++-9
 sudo update-alternatives --config gcc
+
+
 
 build_cmake () {
   echo "Building and installing cmake from source"
@@ -38,6 +41,9 @@ fi
 
 ROOT="$(pwd)"
 cd src
+
+#Defining number of threads to use in parallelization
+export OMP_NUM_THREADS=8
 cmake CMakelists.txt -B build
 cd build
 make
