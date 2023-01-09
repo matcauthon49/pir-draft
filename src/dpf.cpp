@@ -1,5 +1,9 @@
 #include "dpf.h"
 
+#define ELEMENTNO 2
+#define INPBW 128
+#define OUTBW 64
+
 using namespace osuCrypto;
 
 struct dpf_layer {
@@ -237,5 +241,19 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height,
     printf("DPF START OFFLINE COMPUTATION %d\n", current_timestamp());
 #endif
 
-    GroupElement w[2];
+    uint64_t **hats_converted0 = (uint64_t**)malloc(sizeof(uint64_t[ELEMENTNO]));
+    uint64_t **hats_converted1 = (uint64_t**)malloc(sizeof(uint64_t[ELEMENTNO]));
+
+    convert(INPBW, OUTBW, dpfl0->size, ELEMENTNO, dpfip0->hats, hats_converted0);
+    convert(INPBW, OUTBW, dpfl1->size, ELEMENTNO, dpfip1->hats, hats_converted1);
+
+    GroupElement w[2] = {GroupElement(0), GroupElement(0)};
+
+    for (int i = 0; i < dpfl0->size; i++) {
+        w[0] = w[0] + GroupElement(*hats_converted0[i]);
+        w[1] = w[1] + GroupElement(*hats_converted1[i]);
+    }
+
+    uint8_t T[2] = {0,0};
+
 };
