@@ -8,7 +8,7 @@
 #include <cryptoTools/gsl/span>
 #include <group_element.h>
 #include <keys.h>
-#include<omp.h>
+#include <omp.h>
 
 using namespace osuCrypto;
 struct dpf_layer {

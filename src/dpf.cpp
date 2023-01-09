@@ -39,24 +39,69 @@ void free_dpf_input_pack(dpf_input_pack *dpfip) {
     free(dpfip);
 };
 
-void convert(const int inp_bitwidth, 
+inline int bytesize(const int bitsize) {
+    return (bitsize % 8) == 0 ? bitsize / 8 : (bitsize / 8)  + 1;
+}
+
+uint64_t *convert_elem(const int inp_bitwidth, 
              const int out_bitwidth, 
              const int no_of_group_elements, 
-             const block inp_block, 
-             GroupElement *out_group_element)
-             {};
+             const block inp_block)
+{
+    uint64_t out[no_of_group_elements];
+
+    const int bys = bytesize(inp_bitwidth);
+    const int totalBys = bys * no_of_group_elements;
+
+    if (bys * no_of_group_elements <= 16) {
+        uint8_t *bptr = (uint8_t *)&inp_block;
+        for(int i = 0; i < no_of_group_elements; i++) {
+            out[i] = *(uint64_t *)(bptr + i * bys);
+        }
+    }
+
+    else {
+        int numblocks = totalBys % 16 == 0 ? totalBys / 16 : (totalBys / 16) + 1;
+
+        AES aes(inp_block);
+        block pt[numblocks];
+        block ct[numblocks];
+
+        for(int i = 0; i < numblocks; i++) {
+            pt[i] = toBlock(0, i);
+        }
+
+        aes.ecbEncBlocks(pt, numblocks, ct);
+        uint8_t *bptr = (uint8_t *)ct;
+
+        for(int i = 0; i < no_of_group_elements; i++) {
+            out[i] = *(uint64_t *)(bptr + i * bys);
+        }
+    }
+};
+
+void convert(const int inp_bitwidth, 
+             const int out_bitwidth,
+             const int size,
+             const int no_of_group_elements, 
+             const block *inp,
+             uint64_t **out)
+{
+    #pragma omp parallel for
+     for (int i = 0; i < size; i++) {
+        out[i] = convert_elem(inp_bitwidth, out_bitwidth, no_of_group_elements, inp[i]);
+     }
+};
 
 void prg_eval_all_and_xor(dpf_layer *dpfl, block *keynodes, block *ct, const block *pt) {
 
     block* output_nodes = (block*)malloc(2*dpfl->size*sizeof(block));
     uint8_t* output_t = (uint8_t*)malloc(2*dpfl->size*sizeof(uint8_t));
 
-    if (dpfl->level==0) {
         dpfl->zs[0] = ZeroBlock;
         dpfl->zs[1] = ZeroBlock;
         dpfl->zt[0] = 0;
         dpfl->zt[1] = 0;
-    }
 
     #pragma omp parallel for
     for (int i = 0; i < (dpfl->size); i++) {
@@ -179,6 +224,9 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height,
             dpfip1->hatt[j] = (dpfl1->currt[j] ^ dpfl1->prevt[j/2]) * dpfip1->tau[j&1][i];
         }
 
+        dpfl0->prevt = dpfip0->hatt;
+        dpfl1->prevt = dpfip1->hatt;
+
 #ifdef DPF_PROFILE_
     printf("END DPF LEVEL %d%d\n", dpfl0->level, current_timestamp());
 #endif
@@ -189,4 +237,5 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height,
     printf("DPF START OFFLINE COMPUTATION %d\n", current_timestamp());
 #endif
 
+    GroupElement w[2];
 };
