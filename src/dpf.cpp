@@ -17,7 +17,6 @@ void free_dpf_layer(dpf_layer *dpfl) {
 };
 
 
-
 void free_dpf_input_pack(dpf_input_pack *dpfip) {
     free(dpfip->alpha);
     free(dpfip->sigma);
@@ -256,15 +255,15 @@ void dpf_keygen(int height, const int group_bitwidth, dpf_input_pack *dpfip0, dp
 
         //These are causing double free so there is some error in assignment.
         //Comment these and then you can see that t value differs only on index point which means the computations are correct.
-        // free(dpfip0->hats);
-        // free(dpfip1->hats);
-        // free(dpfip0->hatt);
-        // free(dpfip1->hatt);
+
+        free(dpfip0->hats);
+        free(dpfip1->hats);
 
         dpfip0->hats = (block*)malloc(dpfl0->size*sizeof(block));
         dpfip1->hats = (block*)malloc(dpfl1->size*sizeof(block));
         dpfip0->hatt = (uint8_t*)malloc(dpfl0->size*sizeof(uint8_t));
         dpfip1->hatt = (uint8_t*)malloc(dpfl1->size*sizeof(uint8_t));
+
         std::cout<<"Level: "<<i<<"\n";
         std::cout<<"Input Bit: "<<static_cast<uint32_t>(sig)<<"\n";
         // #pragma omp parallel for
