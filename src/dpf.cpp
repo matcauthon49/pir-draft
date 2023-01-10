@@ -1,28 +1,19 @@
 #include "dpf.h"
-
+//Divyu: To print statements for debugging
+#include<iostream>
 #define ELEMENTNO 2
 #define INPBW 128
 #define OUTBW 64
 
 using namespace osuCrypto;
 
-struct dpf_layer {
-    size_t size;
-    size_t level;
-    block *nodes;
-    uint8_t *prevt;
-    uint8_t *currt;
-    block zs[2];
-    uint8_t zt[2];
-};
 
 void free_dpf_layer(dpf_layer *dpfl) {
     free(dpfl->nodes);
     free(dpfl->prevt);
     free(dpfl->currt);
-    free(dpfl->zs);
-    free(dpfl->zt);
-    free(dpfl);
+    //Divyu: Made these changes.
+    delete dpfl;
 };
 
 struct dpf_input_pack {
@@ -107,27 +98,57 @@ void prg_eval_all_and_xor(dpf_layer *dpfl, block *keynodes, block *ct, const blo
         dpfl->zt[0] = 0;
         dpfl->zt[1] = 0;
 
-    #pragma omp parallel for
-    for (int i = 0; i < (dpfl->size); i++) {
 
-        // set key
-        block k = keynodes[i];
-        AES aes_key(k);
+    //Parallelizing aes calls
+    int num_threads = 4;
+    block thread_zs[2][num_threads] = {{ZeroBlock}};
+    uint8_t thread_zt[2][num_threads] = {{0}};
 
-        // encrypt
-        aes_key.ecbEncFourBlocks(pt, ct);
-        output_nodes[2*i] = ct[0];
-        output_nodes[2*i+1] = ct[2];
-        output_t[2*i] = lsb(ct[1]);
-        output_t[2*i+1] = lsb(ct[3]);
+    #pragma omp parallel num_threads(4)
+    {
+        int thread_id = omp_get_thread_num();
 
-        // set xor
-        dpfl->zs[0] = dpfl->zs[0] ^ ct[0];
-        dpfl->zs[1] = dpfl->zs[1] ^ ct[2];
-        dpfl->zt[0] = dpfl->zt[0] ^ lsb(ct[1]);
-        dpfl->zt[1] = dpfl->zt[1] ^ lsb(ct[3]);
+        //Divyu: Need local pt and ct for each thread to eliminate race condition.
+        // set AES Plaintext
+        static const block ZeroBlock = toBlock(0, 0);
+        static const block OneBlock = toBlock(0, 1);
+        static const block TwoBlock = toBlock(0, 2);
+        static const block ThreeBlock = toBlock(0, 3);
+        const static block ptt[4] = {ZeroBlock, OneBlock, TwoBlock, ThreeBlock};
+        block ctt[4];
+
+        #pragma omp for  schedule(static, 1)
+        for(int i=0; i<dpfl->size; i++) {
+            // set key
+            block k = keynodes[i];
+            AES aes_key(k);
+
+            // encrypt
+            aes_key.ecbEncFourBlocks(pt, ctt);
+            output_nodes[2*i] = ctt[0];
+            output_nodes[2*i+1] = ctt[2];
+            output_t[2*i] = lsb(ctt[1]);
+            output_t[2*i+1] = lsb(ctt[3]);
+
+            //set xor
+            thread_zs[0][thread_id] = thread_zs[0][thread_id] ^ ctt[0];
+            thread_zs[1][thread_id] = thread_zs[1][thread_id] ^ ctt[2];
+            thread_zt[0][thread_id] = thread_zt[0][thread_id] ^ lsb(ctt[1]);
+            thread_zt[1][thread_id] = thread_zt[1][thread_id] ^ lsb(ctt[3]);
+
+        }
+            #pragma omp for
+            for(int i=0; i<num_threads; i++) {
+                dpfl->zs[0] = dpfl->zs[0] ^ thread_zs[0][i];
+                dpfl->zs[1] = dpfl->zs[1] ^ thread_zs[1][i];
+                dpfl->zt[0] = dpfl->zt[0] ^ thread_zt[0][i];
+                dpfl->zt[1] = dpfl->zt[1] ^ thread_zt[1][i];
+            }
     }
 
+
+
+    
     free(dpfl->nodes);
     dpfl->nodes = output_nodes;
 
@@ -138,6 +159,7 @@ void prg_eval_all_and_xor(dpf_layer *dpfl, block *keynodes, block *ct, const blo
     dpfl->level += 1;
 };
 
+// Divyu: Commented for now.
 std::pair<dpf_key, dpf_key> dpf_keygen(int height, 
                                        const int group_bitwidth,
                                        dpf_input_pack *dpfip0, 

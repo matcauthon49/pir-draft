@@ -32,4 +32,6 @@ inline u8 lsb(const block &b)
 
 // void dpf_eval(int party, GroupElement *ran, GroupElement idx, const dpf_key &key);
 
+void free_dpf_layer(dpf_layer* dpfl);
+
 void prg_eval_all_and_xor(dpf_layer *dpfl, block* keynodes, block *ct, const block *pt);
