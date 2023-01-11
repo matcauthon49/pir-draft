@@ -25,7 +25,7 @@ target_include_directories(dpf PRIVATE
 deps/cryptoTools
 deps/EzPC)
 
-target_compile_options(dpf PRIVATE -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -march=native -maes -msse2 -msse4.1 -fopenmp)
+target_compile_options(dpf PRIVATE -std=c++17 -Wall -Wno-parentheses-equality -Wno-ignored-attributes -march=native -maes -msse2 -msse4.1 -fopenmp)
 install(
     TARGETS dpf 
     EXPORT DPFTargets

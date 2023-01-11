@@ -8,19 +8,19 @@ using namespace osuCrypto;
 struct dpf_key {
     int height, Bout, groupSize;
     block *s;
-    block *t;
+    uint8_t *t;
     block *sigma;
-    block *tau0;
-    block *tau1;
+    uint8_t *tau0;
+    uint8_t *tau1;
     GroupElement *gamma;
 
     dpf_key() {}
     dpf_key(int height, int Bout, int groupSize,
            block *s,
-           block *t,
+           uint8_t *t,
            block *sigma,
-           block *tau0,
-           block *tau1,
+           uint8_t *tau0,
+           uint8_t *tau1,
            GroupElement *gamma) : 
                 height(height), 
                 Bout(Bout), 
