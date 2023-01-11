@@ -41,7 +41,7 @@ public:
     void send_block(block &b, int party);
     void send_uint8(uint8_t &i, int party);
     void send_size(size_t &i, int party);
-    void send_input_check_pack(input_check_pack *icp, int bl, int party);
+    void send_input_check_pack(input_check_pack icp, int bl, int party);
 
     GroupElement recv_ge(int bl, int party);
 };

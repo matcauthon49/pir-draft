@@ -241,3 +241,19 @@ GroupElement Server::recv_ge(int bl, int party) {
     }
 }
 
+void Server::send_input_check_pack(input_check_pack icp, int bl, int party){
+    send_ge(icp.index, bl, party);
+    send_ge(icp.payload, bl, party);
+    send_block(icp.init_s, party);
+
+    send_size(icp.size, party);
+
+    for (int i = 0; i < icp.size; i++) {
+        send_block(icp.z[0][i], party);
+        send_block(icp.z[1][i], party);
+    }
+
+    for (int i = 0; i < icp.size; i++) {
+        send_block(icp.sigma[i], party);
+    }
+}

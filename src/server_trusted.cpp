@@ -251,3 +251,29 @@ GroupElement ServerTrusted::recv_ge(int bl, int party) {
     }
 }
 
+void ServerTrusted::send_input_check_pack_2(input_check_pack_2 icp, int bl, int party){
+    send_ge(icp.index[0], bl, party);
+    send_ge(icp.index[1], bl, party);
+
+    send_ge(icp.payload[0], bl, party);
+    send_ge(icp.payload[1], bl, party);
+
+    send_block(icp.init_s[0], party);
+    send_block(icp.init_s[1], party);
+
+    send_size(icp.size, party);
+
+    for (int i = 0; i < icp.size; i++) {
+        send_block(icp.z0[0][i], party);
+        send_block(icp.z0[1][i], party);
+    }
+
+    for (int i = 0; i < icp.size; i++) {
+        send_block(icp.z1[0][i], party);
+        send_block(icp.z1[1][i], party);
+    }
+    
+    for (int i = 0; i < icp.size; i++) {
+        send_block(icp.sigma[i], party);
+    }
+};
