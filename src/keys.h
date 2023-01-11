@@ -42,22 +42,22 @@ inline void free_dpf_key(dpf_key &key){
     delete[] key.gamma;
 }
 
-struct xor_check_pack {
+struct input_check_pack {
+    GroupElement index;
+    GroupElement payload;
+    block init_s;
     block *z[2];
     block *sigma;
     size_t size;
 };
 
-struct xor_check_pack_2 {
+struct input_check_pack_2 {
+    block init_s[2];
+    GroupElement index[2];
+    GroupElement payload[2];
     block *z0[2];
     block *z1[2];
     block *sigma;
     size_t size;
 };
-
-bool check_xor(xor_check_pack *x0, 
-               xor_check_pack *x1,
-               xor_check_pack_2 *x2,
-               GroupElement index0, 
-               GroupElement index1);
 
