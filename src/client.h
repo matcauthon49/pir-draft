@@ -32,7 +32,7 @@ public:
     void close();
     void send_ge(const GroupElement &ge, int bitwidth, int party);
 
-    GroupElement recv_ge();
+    GroupElement Client::recv_ge(int bl, int party);
     osuCrypto::block recv_block();
     GroupElement recv_input();
 

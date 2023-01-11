@@ -172,5 +172,36 @@ void Client::send_ge(const GroupElement &ge, int bw, int party) {
         char *buf = (char *)(&ge.value);
         send(sendsocket[party], buf, 1, 0);
         bytes_sent += 1;
+    }
 }
+
+GroupElement Client::recv_ge(int bl, int party) {
+    if (bl > 32) {
+        char buf[8];
+        recv(recvsocket[party], buf, 8, MSG_WAITALL);
+        GroupElement g(*(uint64_t *)buf, bl);
+        bytes_recieved += 8;
+        return g;
+    }
+    else if (bl > 16) {
+        char buf[4];
+        recv(recvsocket[party], buf, 4, MSG_WAITALL);
+        GroupElement g(*(uint64_t *)buf, bl);
+        bytes_recieved += 4;
+        return g;
+    }
+    else if (bl > 8) {
+        char buf[2];
+        recv(recvsocket[party], buf, 2, MSG_WAITALL);
+        GroupElement g(*(uint64_t *)buf, bl);
+        bytes_recieved += 2;
+        return g;
+    }
+    else {
+        char buf[1];
+        recv(recvsocket[party], buf, 1, MSG_WAITALL);
+        GroupElement g(*(uint64_t *)buf, bl);
+        bytes_recieved += 1;
+        return g;
+    }
 }
