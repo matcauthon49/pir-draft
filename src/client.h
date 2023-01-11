@@ -38,6 +38,6 @@ public:
     size_t recv_size(int party);
 
     input_check_pack *recv_input_check_pack(int bl, int party);
-    input_check_pack *recv_input_check_pack_2(int bl, int party);
+    input_check_pack_2 *recv_input_check_pack_2(int bl, int party);
 
 };

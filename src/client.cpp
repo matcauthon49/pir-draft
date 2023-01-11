@@ -245,9 +245,11 @@ input_check_pack *Client::recv_input_check_pack(int bl, int party) {
     for (int i = 0; i < icp->size; i++) {
         icp->sigma[i] = recv_block(party);
     }    
+
+    return icp;
 }
 
-input_check_pack *Client::recv_input_check_pack_2(int bl, int party) {
+input_check_pack_2 *Client::recv_input_check_pack_2(int bl, int party) {
     input_check_pack_2 *icp;
     
     icp->index = new GroupElement[2];
@@ -285,4 +287,6 @@ input_check_pack *Client::recv_input_check_pack_2(int bl, int party) {
     for (int i = 0; i < icp->size; i++) {
         icp->sigma[i] = recv_block(party);
     }    
+
+    return icp;
 }
