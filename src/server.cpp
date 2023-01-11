@@ -1,7 +1,5 @@
 #include "server.h"
 
-#define PORT 8080
-
 // Opens Server and establishes connection.
 Server::Server(std::string ip, int port) {
     std::cerr << "establishing connection...\n";
@@ -89,7 +87,6 @@ Server::Server(std::string ip, int port) {
 };
 
 void Server::wait_for_client(std::string ip, int port) {
-    
     std::cerr << "establishing connection with client...\n";
     const int one = 1;
 
