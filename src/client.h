@@ -33,7 +33,7 @@ public:
     Client(std::string ip[3], int port[3]);
 
     void close();
-    void send_ge(const GroupElement &ge, int bitwidth, int party);
+    void send_ge(GroupElement &ge, int bitwidth, int party);
 
     GroupElement recv_ge(int bl, int party);
     block recv_block(int party);

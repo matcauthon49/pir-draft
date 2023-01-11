@@ -174,7 +174,80 @@ void ServerTrusted::close() {
     ::close(sendsocket[0]);
     ::close(sendsocket[1]);
     ::close(sendsocket[2]);
-    ::close(sendsocket[0]);
+    ::close(recvsocket[0]);
     ::close(recvsocket[1]);
     ::close(recvsocket[2]);
 }
+
+void ServerTrusted::send_ge(GroupElement &ge, int bw, int party) {
+    if (bw > 32) {
+        char *buf = (char *)(&ge.value);
+        send(sendsocket[party], buf, 8, 0);
+        bytes_sent += 8;
+    }
+    else if (bw > 16) {
+        char *buf = (char *)(&ge.value);
+        send(sendsocket[party], buf, 4, 0);
+        bytes_sent += 4;
+    }
+    else if (bw > 8) {
+        char *buf = (char *)(&ge.value);
+        send(sendsocket[party], buf, 2, 0);
+        bytes_sent += 2;
+    }
+    else {
+        char *buf = (char *)(&ge.value);
+        send(sendsocket[party], buf, 1, 0);
+        bytes_sent += 1;
+    }
+}
+
+void ServerTrusted::send_block(block &b, int party) {
+    char *buf = (char *)(&b);
+    send(sendsocket[party], buf, sizeof(block), 0);
+    bytes_sent += sizeof(block);
+}
+
+void ServerTrusted::send_uint8(uint8_t &i, int party) {
+    char *buf = (char *)(&i);
+    send(sendsocket[party], buf, 1, 0);
+    bytes_sent += 1;
+}
+
+void ServerTrusted::send_size(size_t &i, int party) {
+    char *buf = (char *)(&i);
+    send(sendsocket[party], buf, sizeof(size_t), 0);
+    bytes_sent += sizeof(size_t);
+}
+
+GroupElement ServerTrusted::recv_ge(int bl, int party) {
+    if (bl > 32) {
+        char buf[8];
+        recv(recvsocket[party], buf, 8, MSG_WAITALL);
+        GroupElement g(*(uint64_t *)buf, bl);
+        bytes_recieved += 8;
+        return g;
+    }
+    else if (bl > 16) {
+        char buf[4];
+        recv(recvsocket[party], buf, 4, MSG_WAITALL);
+        GroupElement g(*(uint64_t *)buf, bl);
+        bytes_recieved += 4;
+        return g;
+    }
+    else if (bl > 8) {
+        char buf[2];
+        recv(recvsocket[party], buf, 2, MSG_WAITALL);
+        GroupElement g(*(uint64_t *)buf, bl);
+        bytes_recieved += 2;
+        return g;
+    }
+    else {
+        char buf[1];
+        recv(recvsocket[party], buf, 1, MSG_WAITALL);
+        GroupElement g(*(uint64_t *)buf, bl);
+        bytes_recieved += 1;
+        return g;
+    }
+}
+

@@ -51,6 +51,12 @@ struct input_check_pack {
     size_t size;
 };
 
+inline void free_input_check_pack(input_check_pack &icp) {
+    delete[] icp.z[0];
+    delete[] icp.z[1];
+    delete[] icp.sigma;
+}
+
 struct input_check_pack_2 {
     GroupElement *index;
     GroupElement *payload;
@@ -61,3 +67,13 @@ struct input_check_pack_2 {
     size_t size;
 };
 
+inline void free_input_check_pack_2(input_check_pack_2 &icp) {
+    delete[] icp.z0[0];
+    delete[] icp.z0[1];
+    delete[] icp.z1[0];
+    delete[] icp.z1[1];
+    delete[] icp.sigma;
+    delete[] icp.payload;
+    delete[] icp.index;
+    delete[] icp.init_s;
+}

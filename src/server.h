@@ -37,10 +37,11 @@ public:
     void wait_for_client(std::string ip, int port);
 
     void close();
-    void send_ge(const GroupElement &ge, int bitwidth, int party);
-    void send_block(const block &b, int party);
-    void send_uint8(const uint8_t &i, int party);
-    void send_input_check_pack_2(const input_check_pack_2 *icp, int bl, int party);
+    void send_ge(GroupElement &ge, int bitwidth, int party);
+    void send_block(block &b, int party);
+    void send_uint8(uint8_t &i, int party);
+    void send_size(size_t &i, int party);
+    void send_input_check_pack(input_check_pack *icp, int bl, int party);
 
     GroupElement recv_ge(int bl, int party);
 };

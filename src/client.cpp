@@ -150,7 +150,7 @@ void Client::close() {
         ::close(recvsocket[2]);
 }
 
-void Client::send_ge(const GroupElement &ge, int bw, int party) {
+void Client::send_ge(GroupElement &ge, int bw, int party) {
     if (bw > 32) {
         char *buf = (char *)(&ge.value);
         send(sendsocket[party], buf, 8, 0);
