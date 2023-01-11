@@ -41,3 +41,23 @@ inline void free_dpf_key(dpf_key &key){
     delete[] key.tau1;
     delete[] key.gamma;
 }
+
+struct xor_check_pack {
+    block *z[2];
+    block *sigma;
+    size_t size;
+};
+
+struct xor_check_pack_2 {
+    block *z0[2];
+    block *z1[2];
+    block *sigma;
+    size_t size;
+};
+
+bool check_xor(xor_check_pack *x0, 
+               xor_check_pack *x1,
+               xor_check_pack_2 *x2,
+               GroupElement index0, 
+               GroupElement index1);
+
