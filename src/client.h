@@ -22,12 +22,12 @@
 
 class Client {
 public:
-    int sendsocket, recvsocket;
+    int sendsocket[3], recvsocket[3];
 
     u_int64_t bytes_sent;
     u_int64_t bytes_recieved;
 
-    Client(std::string ip, int port);
+    Client(std::string ip[3], int port[3]);
     Client(int sendsocket, int recvsocket):
           sendsocket(sendsocket),
           recvsocket(recvsocket) {}
