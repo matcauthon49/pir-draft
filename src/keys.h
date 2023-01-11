@@ -52,9 +52,9 @@ struct input_check_pack {
 };
 
 struct input_check_pack_2 {
-    block init_s[2];
-    GroupElement index[2];
-    GroupElement payload[2];
+    GroupElement *index;
+    GroupElement *payload;
+    block *init_s;
     block *z0[2];
     block *z1[2];
     block *sigma;

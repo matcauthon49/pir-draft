@@ -14,6 +14,7 @@
 
 #include "deps/cryptoTools/cryptoTools/Common/Defines.h"
 #include "deps/EzPC/group_element.h"
+#include "keys.h"
 
 #define PARTY0 0
 #define PARTY1 1
@@ -32,10 +33,11 @@ public:
     void close();
     void send_ge(const GroupElement &ge, int bitwidth, int party);
 
-    GroupElement Client::recv_ge(int bl, int party);
-    osuCrypto::block recv_block();
-    GroupElement recv_input();
+    GroupElement recv_ge(int bl, int party);
+    block recv_block(int party);
+    size_t recv_size(int party);
 
-    // blockPair recv_blockpair();
-    // MUXinput recv_muxinput(); 
+    input_check_pack *recv_input_check_pack(int bl, int party);
+    input_check_pack *recv_input_check_pack_2(int bl, int party);
+
 };
