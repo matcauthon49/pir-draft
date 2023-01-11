@@ -2,10 +2,11 @@
 
 #include "client.h"
 
-#define PORT 8080
+using namespace osuCrypto;
 
 // Opens Client and establishes connection.
 Client::Client(std::string ip[3], int port[3]) {
+
  std::cerr << "trying to connect with server...";
     {
         recvsocket[0] = socket(AF_INET, SOCK_STREAM, 0);
@@ -138,7 +139,7 @@ Client::Client(std::string ip[3], int port[3]) {
         setsockopt(sendsocket[2], IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
     }
     
-    std::cerr << "All connections complete" << std::endl;
+    std::cerr << "All connections complete." << std::endl;
 };
 
 // Closes the socket.
@@ -149,4 +150,27 @@ void Client::close() {
         ::close(recvsocket[1]);
         ::close(sendsocket[2]);
         ::close(recvsocket[2]);
+}
+
+void Client::send_ge(const GroupElement &ge, int bw, int party) {
+    if (bw > 32) {
+        char *buf = (char *)(&ge.value);
+        send(sendsocket[party], buf, 8, 0);
+        bytes_sent += 8;
+    }
+    else if (bw > 16) {
+        char *buf = (char *)(&ge.value);
+        send(sendsocket[party], buf, 4, 0);
+        bytes_sent += 4;
+    }
+    else if (bw > 8) {
+        char *buf = (char *)(&ge.value);
+        send(sendsocket[party], buf, 2, 0);
+        bytes_sent += 2;
+    }
+    else {
+        char *buf = (char *)(&ge.value);
+        send(sendsocket[party], buf, 1, 0);
+        bytes_sent += 1;
+}
 }

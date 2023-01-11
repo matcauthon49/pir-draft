@@ -30,12 +30,7 @@ public:
     Client(std::string ip[3], int port[3]);
 
     void close();
-    void send_ge(const GroupElement &ge, int bitwidth);
-    void send_block(const osuCrypto::block &b);
-    void send_input(const GroupElement &g);
-    
-    // void send_block_pair(blockPair &bp);
-    // void send_muxinput(MUXinput &mi);
+    void send_ge(const GroupElement &ge, int bitwidth, int party);
 
     GroupElement recv_ge();
     osuCrypto::block recv_block();
