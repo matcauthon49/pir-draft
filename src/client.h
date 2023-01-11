@@ -21,6 +21,8 @@
 #define PARTY_TRUSTED 2
 #define CLIENT 3
 
+using namespace osuCrypto;
+
 class Client {
 public:
     int sendsocket[3], recvsocket[3];

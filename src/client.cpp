@@ -2,8 +2,6 @@
 
 #include "client.h"
 
-using namespace osuCrypto;
-
 // Opens Client and establishes connection.
 Client::Client(std::string ip[3], int port[3]) {
 

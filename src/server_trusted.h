@@ -25,22 +25,22 @@
 
 using namespace osuCrypto;
 
-class Server {
+class ServerTrusted {
 public:
-    int sendsocket[2], recvsocket[2];
+    int sendsocket[3], recvsocket[3];
 
     u_int64_t bytes_sent;
     u_int64_t bytes_recieved;
 
-    Server(std::string ip, int port);
-    
+    ServerTrusted(std::string ip[2], int port[2]);
+
     void wait_for_client(std::string ip, int port);
 
     void close();
     void send_ge(const GroupElement &ge, int bitwidth, int party);
     void send_block(const block &b, int party);
-    void send_uint8(const uint8_t &i, int party);
-    void send_input_check_pack_2(const input_check_pack_2 *icp, int bl, int party);
+    void send_input_check_pack(const input_check_pack *icp, int bl, int party);
 
+    dpf_key recv_dpf_key(int bl, int party);
     GroupElement recv_ge(int bl, int party);
 };
