@@ -28,9 +28,6 @@ public:
     u_int64_t bytes_recieved;
 
     Client(std::string ip[3], int port[3]);
-    Client(int sendsocket, int recvsocket):
-          sendsocket(sendsocket),
-          recvsocket(recvsocket) {}
 
     void close();
     void send_ge(const GroupElement &ge, int bitwidth);

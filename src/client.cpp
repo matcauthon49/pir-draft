@@ -10,7 +10,7 @@ Client::Client(std::string ip[3], int port[3]) {
     {
         recvsocket[0] = socket(AF_INET, SOCK_STREAM, 0);
         if (recvsocket < 0) {
-            perror("socket");
+            perror("recvsocket 0 failed");
             exit(1);
         }
         struct sockaddr_in addr;
@@ -19,12 +19,13 @@ Client::Client(std::string ip[3], int port[3]) {
             addr.sin_addr.s_addr = inet_addr(ip[0].c_str());
 
         if (connect(recvsocket[0], (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-            perror("connect");
+            perror("recv connection with P0 failed");
             exit(1);
         }
 
         const int one = 1;
         setsockopt(recvsocket[0], IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
+
     }
 
     sleep(1);
@@ -32,7 +33,7 @@ Client::Client(std::string ip[3], int port[3]) {
     {
         sendsocket[0] = socket(AF_INET, SOCK_STREAM, 0);
         if (sendsocket < 0) {
-            perror("socket");
+            perror("sendsocket 0 failed");
             exit(1);
         }
         struct sockaddr_in addr;
@@ -41,7 +42,7 @@ Client::Client(std::string ip[3], int port[3]) {
             addr.sin_addr.s_addr = inet_addr(ip[0].c_str());
 
         if (connect(sendsocket[0], (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-            perror("connect");
+            perror("send connection with P0 failed");
             exit(1);
         }
 
@@ -49,10 +50,12 @@ Client::Client(std::string ip[3], int port[3]) {
         setsockopt(sendsocket[0], IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
     }
 
+    sleep(1);
+
     {
         recvsocket[1] = socket(AF_INET, SOCK_STREAM, 0);
         if (recvsocket < 0) {
-            perror("socket");
+            perror("recvsocket 1 failed");
             exit(1);
         }
         struct sockaddr_in addr;
@@ -61,7 +64,7 @@ Client::Client(std::string ip[3], int port[3]) {
             addr.sin_addr.s_addr = inet_addr(ip[1].c_str());
 
         if (connect(recvsocket[1], (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-            perror("connect");
+            perror("recv connection with P1 failed");
             exit(1);
         }
 
@@ -74,7 +77,7 @@ Client::Client(std::string ip[3], int port[3]) {
     {
         sendsocket[1] = socket(AF_INET, SOCK_STREAM, 0);
         if (sendsocket < 0) {
-            perror("socket");
+            perror("sendsocket 1 failed");
             exit(1);
         }
         struct sockaddr_in addr;
@@ -83,7 +86,7 @@ Client::Client(std::string ip[3], int port[3]) {
             addr.sin_addr.s_addr = inet_addr(ip[1].c_str());
 
         if (connect(sendsocket[1], (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-            perror("connect");
+            perror("send connection with P1 failed");
             exit(1);
         }
 
@@ -91,10 +94,12 @@ Client::Client(std::string ip[3], int port[3]) {
         setsockopt(sendsocket[1], IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
     }
 
+    sleep(1);
+
     {
         recvsocket[2] = socket(AF_INET, SOCK_STREAM, 0);
         if (recvsocket < 0) {
-            perror("socket");
+            perror("recvsocket 2 failed");
             exit(1);
         }
         struct sockaddr_in addr;
@@ -103,7 +108,7 @@ Client::Client(std::string ip[3], int port[3]) {
             addr.sin_addr.s_addr = inet_addr(ip[2].c_str());
 
         if (connect(recvsocket[2], (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-            perror("connect");
+            perror("recv connection with P2 failed");
             exit(1);
         }
 
@@ -116,7 +121,7 @@ Client::Client(std::string ip[3], int port[3]) {
     {
         sendsocket[2] = socket(AF_INET, SOCK_STREAM, 0);
         if (sendsocket < 0) {
-            perror("socket");
+            perror("sendsocket 2 failed");
             exit(1);
         }
         struct sockaddr_in addr;
@@ -125,7 +130,7 @@ Client::Client(std::string ip[3], int port[3]) {
             addr.sin_addr.s_addr = inet_addr(ip[2].c_str());
 
         if (connect(sendsocket[2], (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-            perror("connect");
+            perror("send connection with P0 failed");
             exit(1);
         }
 
@@ -133,7 +138,7 @@ Client::Client(std::string ip[3], int port[3]) {
         setsockopt(sendsocket[2], IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
     }
     
-    std::cerr << "connected" << std::endl;
+    std::cerr << "All connections complete" << std::endl;
 };
 
 // Closes the socket.
