@@ -12,6 +12,7 @@ int main() {
     prng.SetSeed(toBlock(0, 0), sizeof(block));
 
     std::cout<<"----------------Running Key Gen-----------------\n";
+    time_t start, end;
     int Bout = 8;
     int Bin = 16;
     dpf_input_pack *dpfip[2];
@@ -33,24 +34,31 @@ int main() {
     //     std::cout<<"i: "<<i<<" "<<(dpfip[0]->hats[i])<<" "<<(dpfip[1]->hats[i])<<"\n";
     // }
 
-    // std::cout<<"--------------------Running Eval-------------\n";
-    // GroupElement idx = GroupElement(0, Bin);
-    // GroupElement* g1, *g2;
-    // g1 = dpf_eval(0, idx, k0);
-    // g2 = dpf_eval(1, idx, k1);
-    // std::cout<<(g1[0]+g2[0]).value<<" "<<(g1[1]+g2[1]).value<<"\n";
-    // // std::cout<<s0<<" "<<s1<<"\n";
+    std::cout<<"--------------------Running Eval-------------\n";
+    GroupElement idx = GroupElement(65000, Bin);
+    GroupElement* g1, *g2;
+    // std::cout<<"Party 0:\n";
+    g1 = dpf_eval(0, idx, k0);
+    // std::cout<<"Party 1:\n";
+    g2 = dpf_eval(1, idx, k1);
+    std::cout<<(g1[0]+g2[0]).value<<" "<<(g1[1]+g2[1]).value<<"\n";
+    // std::cout<<s0<<" "<<s1<<"\n";
 
-    // std::cout<<"--------------------Running Eval All-------------\n";
-    // GroupElement **t_vec_0, **t_vec_1;
-    // // std::cout<<"Party0:\n";
-    // t_vec_0 = dpf_eval_all(0, k0);
-    // // std::cout<<"Party1:\n";
-    // t_vec_1 = dpf_eval_all(1, k1);
-
-    // for(int i=0; i<(1<<Bin); i++) {
-    //     std::cout<<"i: "<<i<<" "<<(t_vec_0[i][0]+t_vec_1[i][0]).value<<" "<<(t_vec_0[i][1]+t_vec_1[i][1]).value<<"\n";
-    // }
+    std::cout<<"--------------------Running Eval All-------------\n";
+    GroupElement **t_vec_0, **t_vec_1;
+    // std::cout<<"Party0:\n";
+    t_vec_0 = dpf_eval_all(0, k0);
+    // std::cout<<"Party1:\n";
+    t_vec_1 = dpf_eval_all(1, k1);
+    // int final_ans = 0;
+    // uint64_t count=0;
+    std::cout<<"Printing indexes\n";
+    for(int i=0; i<(1<<Bin); i++) {
+        // std::cout<<"i: "<<i<<" "<<(t_vec_0[i][0]+t_vec_1[i][0]).value<<" "<<(t_vec_0[i][1]+t_vec_1[i][1]).value<<"\n";
+        if((t_vec_0[i][0]+t_vec_1[i][0]).value != 0 || (t_vec_0[i][1]+t_vec_1[i][1]).value != 0)
+           std::cout<<i<<"\n";
+        
+    }
 
     // std::cout<<"----------------Running Convert Function-------------\n";
     // const int out_bitwidth = 33;

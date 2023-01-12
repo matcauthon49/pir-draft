@@ -63,6 +63,12 @@ GroupElement* convert(const int out_bitwidth, const int no_of_group_elements, co
     return out;
 };
 
+void convert_parallel(const int out_bitwidth, const int no_of_group_elements, const int no_of_input_blocks, block* inp_block, GroupElement** out) {
+    #pragma omp parallel for schedule(static, 1)
+    for(int i=0; i<no_of_input_blocks; i++) {
+        out[i] = convert(out_bitwidth, no_of_group_elements, inp_block[i]);
+    }
+};
 
 void prg_eval_all_and_xor(dpf_layer *dpfl, block *keynodes) {
 
@@ -258,7 +264,7 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
         dpfip[0]->hatt = (uint8_t*)malloc(dpfl[0]->size*sizeof(uint8_t));
         dpfip[1]->hatt = (uint8_t*)malloc(dpfl[1]->size*sizeof(uint8_t));
 
-        #pragma omp for
+        #pragma omp for schedule(static, 1)
         for (int j = 0; j < dpfl[0]->size; j++) {
             if(dpfl[0]->prevt[j/2]==1) {
                 dpfip[0]->hats[j] = dpfl[0]->nodes[j] ^ dpfip[0]->sigma[i];
@@ -277,11 +283,6 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
                 dpfip[1]->hats[j] = dpfl[1]->nodes[j];
                 dpfip[1]->hatt[j] = dpfl[1]->currt[j];
             }
-
-            // if(i==height-1){
-            // std::cout<<"j: "<<j<<"\nP0: "<<dpfip[0]->hats[j]<<" "<<static_cast<uint32_t>(dpfip[0]->hatt[j])<<"\n";
-            // std::cout<<"P1: "<<dpfip[1]->hats[j]<<" "<<static_cast<uint32_t>(dpfip[1]->hatt[j])<<"\n";
-            // }
             
         }
 
@@ -304,46 +305,59 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
 
     uint64_t T0 = 0;
     uint64_t T1 = 0;
+    //Divyu: Don't delete this is parallelized code for final correction words which needs some changes.
+    // GroupElement** gamma_indp0 = (GroupElement**)malloc(dpfl[0]->size*sizeof(GroupElement*));
+    // GroupElement** gamma_indp1 = (GroupElement**)malloc(dpfl[1]->size*sizeof(GroupElement*));
+    // std::cout<<"Here\n";
+
+    // convert_parallel(key0->Bout, 2, dpfl[0]->size, dpfip[0]->hats, gamma_indp0);
+    // convert_parallel(key1->Bout, 2, dpfl[1]->size, dpfip[1]->hats, gamma_indp1);
+    // free(dpfip[0]->hats);
+    // free(dpfip[1]->hats);
+    //Try parallelizing this
 
     // int num_threads = 4;
     // GroupElement thread_W0[num_threads][2] = {{GroupElement(0, key0->Bout)}};
     // GroupElement thread_W1[num_threads][2] = {{GroupElement(0, key1->Bout)}};
     // uint64_t thread_T0[num_threads] = {0};
     // uint64_t thread_T1[num_threads] = {0};
-
     // #pragma omp parallel num_threads(4)
     // {
-    //     int thread_id = omp_get_thread_num();
-
-    //     #pragma omp for schedule(static, 1)
+    //     int thread_id = omp_get_num_threads();
+    //     // std::cout<<thread_id<<"\n";
+    //     #pragma omp for
     //     for(int j=0; j<dpfl[0]->size; j++) {
-    //         auto b = dpfip[0]->hats[j];
-    //         auto gamma_ind0 = convert(key0->Bout, 2, b);
+    //                 // int thread_id = omp_get_num_threads();
+    //     // std::cout<<thread_id<<"\n";
+    //         auto gamma_ind0 = convert(key0->Bout, 2, dpfip[0]->hats[j]);
     //         thread_W0[thread_id][0] = thread_W0[thread_id][0] + gamma_ind0[0];
-    //         thread_W0[thread_id][1] = thread_W0[thread_id][1] + gamma_ind0[1];
+    //         thread_W0[thread_id][1] = thread_W1[thread_id][1] + gamma_ind0[1];
 
-    //         b = dpfip[1]->hats[j];
-    //         auto gamma_ind1 = convert(key1->Bout, 2, b);
+    //         auto gamma_ind1 = convert(key1->Bout, 2, dpfip[1]->hats[j]);
     //         thread_W1[thread_id][0] = thread_W1[thread_id][0] + gamma_ind1[0];
     //         thread_W1[thread_id][1] = thread_W1[thread_id][1] + gamma_ind1[1];
 
-    //         thread_T0[thread_id] = thread_T0[thread_id] + dpfip[0]->hatt[j];
-    //         thread_T1[thread_id] = thread_T1[thread_id] +  dpfip[1]->hatt[j];
+    //         thread_T0[thread_id] = thread_T0[thread_id] + static_cast<uint64_t>(dpfip[0]->hatt[j]);
+    //         thread_T1[thread_id] = thread_T1[thread_id] + static_cast<uint64_t>(dpfip[1]->hatt[j]);
+    //         // free(gamma_indp0[j]);
+    //         // free(gamma_indp1[j]);
     //     }
     // }
 
     // for(int j=0; j<num_threads; j++) {
+    //     std::cout<<"W0[0] "<<j<<" "<<thread_W0[j][0]<<"\n";
     //     W0[0] = W0[0] + thread_W0[j][0];
     //     W0[1] = W0[1] + thread_W0[j][1];
     //     W1[0] = W1[0] + thread_W1[j][0];
     //     W1[1] = W1[1] + thread_W1[j][1];
     //     T0 = T0 + thread_T0[j];
     //     T1 = T1 + thread_T1[j];
-
     // }
 
-    // Calculation of W0, W1
-    #pragma omp parallel for
+    //Above commented code I had written for parallelization of summing below but it doesn't seem to work.
+    //Invokes only thread 4 but sums in thread 1 variable which is weird.
+    //convert is parallelized and the sum loop is serialized for now.
+    // #pragma omp parallel for
     for(int j=0; j<dpfl[0]->size; j++) {
         auto gamma_ind0 = convert(key0->Bout, 2, dpfip[0]->hats[j]);
         W0[0] = W0[0] + gamma_ind0[0];
@@ -354,7 +368,13 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
         W1[1] = W1[1] + gamma_ind1[1];
         T0 = T0 + dpfip[0]->hatt[j];
         T1 = T1 + dpfip[1]->hatt[j];
+        free(gamma_ind0);
+        free(gamma_ind1); 
     }
+    // free(gamma_indp0);
+    // free(gamma_indp1);
+    free(dpfip[0]->hatt);
+    free(dpfip[1]->hatt);
 
     uint8_t t1 = (T0<T1)?1:0;
     key0->gamma = (GroupElement*)malloc(2*sizeof(GroupElement));
@@ -430,14 +450,14 @@ GroupElement* dpf_eval(int party, GroupElement idx, const dpf_key &key) {
         }
     }
 
-
+    free(gamma_ind);
     return out;
 };
 
 GroupElement** dpf_eval_all(int party, const dpf_key &key) {
 
     //Intialize dpf layer
-    dpf_layer* dpfl = new dpf_layer;
+    dpf_layer* dpfl = (dpf_layer*)malloc(sizeof(dpf_layer));
     dpfl->size = 1;
     dpfl->level = 0;
     dpfl->nodes = NULL;
@@ -470,32 +490,38 @@ GroupElement** dpf_eval_all(int party, const dpf_key &key) {
     }
 
     GroupElement** out = (GroupElement**) malloc(dpfl->size*sizeof(GroupElement*));
-
+    GroupElement** gamma_ind = (GroupElement**)malloc(dpfl->size*sizeof(GroupElement*));
+    convert_parallel(key.Bout, 2, dpfl->size, hats, gamma_ind);
     #pragma omp parallel for
     for(int j=0; j<dpfl->size; j++) {
         out[j] = (GroupElement*)malloc(2*sizeof(GroupElement));
-        auto gamma_ind = convert(key.Bout, 2, hats[j]);
+        // auto gamma_ind = convert(key.Bout, 2, hats[j]);
         if(party==0) {
             if(hatt[j]==0) {
-                out[j][0] = gamma_ind[0];
-                out[j][1] = gamma_ind[1];
+                out[j][0] = gamma_ind[j][0];
+                out[j][1] = gamma_ind[j][1];
             }
             else {
-                out[j][0] = gamma_ind[0] + (key.gamma)[0];
-                out[j][1] = gamma_ind[1] + (key.gamma)[1];
+                out[j][0] = gamma_ind[j][0] + (key.gamma)[0];
+                out[j][1] = gamma_ind[j][1] + (key.gamma)[1];
             }
         }
         else {
             if(hatt[j]==0) {
-                out[j][0] = GroupElement(0, key.Bout) - gamma_ind[0];
-                out[j][1] = GroupElement(0, key.Bout) - gamma_ind[1];
+                out[j][0] = GroupElement(0, key.Bout) - gamma_ind[j][0];
+                out[j][1] = GroupElement(0, key.Bout) - gamma_ind[j][1];
             }
             else {
-                out[j][0] = GroupElement(0, key.Bout) - gamma_ind[0] - (key.gamma)[0];
-                out[j][1] = GroupElement(0, key.Bout) - gamma_ind[1] - (key.gamma)[1];
+                out[j][0] = GroupElement(0, key.Bout) - gamma_ind[j][0] - (key.gamma)[0];
+                out[j][1] = GroupElement(0, key.Bout) - gamma_ind[j][1] - (key.gamma)[1];
 
             }
         }
+        free(gamma_ind[j]);
     }
+    free(hats);
+    free(hatt);
+    free_dpf_layer(dpfl);
+    free(gamma_ind);
     return out;
 };

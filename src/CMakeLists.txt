@@ -45,7 +45,8 @@ install(DIRECTORY
     DESTINATION include
 )
 
-add_executable(test main.cpp)
+add_executable(test)
+target_sources(test PRIVATE ${PROJECT_SOURCE_DIR}/tests/main.cpp)
 target_include_directories(test PRIVATE
 deps/cryptoTools
 deps/EzPC

@@ -37,6 +37,7 @@ inline u8 lsb(const block &b)
 }
 
 GroupElement* convert(const int out_bitwidth, const int no_of_group_elements, const block &inp_block);
+void convert_parallel(const int out_bitwidth, const int no_of_group_elements, const int no_of_input_blocks, block* inp_block, GroupElement** out);
 
 std::pair<dpf_key, dpf_key> dpf_keygen(int height, int Bout, dpf_input_pack **dpfip);
 
