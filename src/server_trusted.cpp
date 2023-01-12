@@ -251,7 +251,7 @@ GroupElement ServerTrusted::recv_ge(int bl, int party) {
     }
 }
 
-void ServerTrusted::send_input_check_pack_2(input_check_pack_2 icp, int bl, int party){
+void ServerTrusted::send_input_check_pack_2(input_check_pack_2 &icp, int bl, int party){
     send_ge(icp.index[0], bl, party);
     send_ge(icp.index[1], bl, party);
 
@@ -276,4 +276,8 @@ void ServerTrusted::send_input_check_pack_2(input_check_pack_2 icp, int bl, int 
     for (int i = 0; i < icp.size; i++) {
         send_block(icp.sigma[i], party);
     }
+};
+
+void send_dpf_key(dpf_key &dpfk, int party) {
+    
 };
