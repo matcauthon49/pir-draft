@@ -6,6 +6,8 @@ Server::Server(std::string ip[2], int port[2], int sid) {
     const int one = 1;
 
     server_id = sid;
+    bytes_recieved = 0;
+    bytes_sent = 0;
 
     {
         int mysocket;
@@ -92,7 +94,7 @@ Server::Server(std::string ip[2], int port[2], int sid) {
 
 };
 
-void Server::wait_for_client(std::string ip, int port) {
+void Server::wait_for_client(std::string ip[2], int port[2]) {
     std::cerr << "establishing connection with client...\n";
     const int one = 1;
 
@@ -111,8 +113,8 @@ void Server::wait_for_client(std::string ip, int port) {
 
         struct sockaddr_in dest_addr;
             dest_addr.sin_family = AF_INET; // specifies internet protocol v4 address
-            dest_addr.sin_port = htons(port); // speficies port and changes to big-endian, TCP byte order
-            dest_addr.sin_addr.s_addr = inet_addr(ip.c_str()); // specifies address
+            dest_addr.sin_port = htons(port[0]); // speficies port and changes to big-endian, TCP byte order
+            dest_addr.sin_addr.s_addr = inet_addr(ip[0].c_str()); // specifies address
 
         if (::bind(mysocket, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) < 0) {
                 perror("binding error");
@@ -128,9 +130,10 @@ void Server::wait_for_client(std::string ip, int port) {
 
         sendsocket[1] = accept(mysocket, (struct sockaddr *)&dest_addr, (socklen_t*)&dest_addrlen);
         setsockopt(sendsocket[1], IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
-    }
 
-    sleep(1);
+        std::cout << server_id << " send connected to Client" <<"\n";
+
+    }
 
     {
         int mysocket;
@@ -147,8 +150,8 @@ void Server::wait_for_client(std::string ip, int port) {
 
         struct sockaddr_in dest_addr;
             dest_addr.sin_family = AF_INET; // specifies internet protocol v4 address
-            dest_addr.sin_port = htons(port); // speficies port and changes to big-endian, TCP byte order
-            dest_addr.sin_addr.s_addr = inet_addr(ip.c_str()); // specifies address
+            dest_addr.sin_port = htons(port[1]); // speficies port and changes to big-endian, TCP byte order
+            dest_addr.sin_addr.s_addr = inet_addr(ip[1].c_str()); // specifies address
 
         if (::bind(mysocket, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) < 0) {
                 perror("binding error");
@@ -165,6 +168,8 @@ void Server::wait_for_client(std::string ip, int port) {
 
         recvsocket[1] = accept(mysocket, (struct sockaddr *)&dest_addr, (socklen_t*)&dest_addrlen);
         setsockopt(recvsocket[1], IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
+
+        std::cout << server_id << " recv connected to Client" <<"\n";
     }
 }
 
@@ -172,7 +177,7 @@ void Server::close(int party) {
     ::close(sendsocket[party]);
     ::close(recvsocket[party]);
 
-    std::cout << server_id << " closed connection with " << party << "\n";
+    std::cout << server_id << " closed connection with " << party+2 << "\n";
 }
 
 void Server::send_ge(GroupElement &ge, int bw, int party) {

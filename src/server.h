@@ -35,7 +35,7 @@ public:
 
     Server(std::string ip[2], int port[2], int sid);
     
-    void wait_for_client(std::string ip, int port);
+    void wait_for_client(std::string ip[2], int port[2]);
 
     void close(int party);
     void send_ge(GroupElement &ge, int bitwidth, int party);

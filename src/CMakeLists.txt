@@ -108,5 +108,15 @@ if(OpenMP_CXX_FOUND)
 endif()
 target_compile_options(p2 PRIVATE -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -march=native -maes -msse2 -msse4.1 -fopenmp)
 
-
-
+add_executable(c)
+target_sources(c PRIVATE ${PROJECT_SOURCE_DIR}/tests/protocol/c.cpp)
+target_include_directories(c PRIVATE
+deps/cryptoTools
+deps/EzPC
+${CMAKE_CURRENT_SOURCE_DIR}
+)
+target_link_libraries(c PRIVATE dpf )
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(c PUBLIC OpenMP::OpenMP_CXX)
+endif()
+target_compile_options(c PRIVATE -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -march=native -maes -msse2 -msse4.1 -fopenmp)

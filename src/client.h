@@ -33,9 +33,9 @@ public:
     u_int64_t bytes_sent;
     u_int64_t bytes_recieved;
 
-    Client(std::string ip[3], int port[3]);
+    Client(std::string ip[6], int port[6], int sid);
 
-    void close();
+    void close(int party);
     void send_ge(GroupElement &ge, int bitwidth, int party);
 
     GroupElement recv_ge(int bl, int party);
