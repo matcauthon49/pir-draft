@@ -7,8 +7,8 @@ using namespace osuCrypto;
 
 struct dpf_key {
     int height, Bout, groupSize;
-    block *s;
-    uint8_t *t;
+    block s;
+    uint8_t t;
     block *sigma;
     uint8_t *tau0;
     uint8_t *tau1;
@@ -16,8 +16,8 @@ struct dpf_key {
 
     dpf_key() {}
     dpf_key(int height, int Bout, int groupSize,
-           block *s,
-           uint8_t *t,
+           block s,
+           uint8_t t,
            block *sigma,
            uint8_t *tau0,
            uint8_t *tau1,
@@ -34,8 +34,6 @@ struct dpf_key {
 };
 
 inline void free_dpf_key(dpf_key &key){
-    delete[] key.s;
-    delete[] key.t;
     delete[] key.sigma;
     delete[] key.tau0;
     delete[] key.tau1;

@@ -44,5 +44,9 @@ public:
     void send_input_check_pack(input_check_pack icp, int bl, int party);
 
     GroupElement recv_ge(int bl, int party);
-    GroupElement recv_dpf_key(int bl, int party);
+    block recv_block(int party);
+    size_t recv_size(int party);
+    uint8_t recv_uint8(int party);
+    int recv_int(int party);
+    dpf_key *recv_dpf_key(int bl, int party);
 };

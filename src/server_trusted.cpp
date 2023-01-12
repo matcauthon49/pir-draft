@@ -220,6 +220,12 @@ void ServerTrusted::send_size(size_t &i, int party) {
     bytes_sent += sizeof(size_t);
 }
 
+void ServerTrusted::send_int(int &i, int party) {
+    char *buf = (char *)(&i);
+    send(sendsocket[party], buf, sizeof(int), 0);
+    bytes_sent += sizeof(int);
+}
+
 GroupElement ServerTrusted::recv_ge(int bl, int party) {
     if (bl > 32) {
         char buf[8];
@@ -278,6 +284,29 @@ void ServerTrusted::send_input_check_pack_2(input_check_pack_2 &icp, int bl, int
     }
 };
 
-void send_dpf_key(dpf_key &dpfk, int party) {
-    
+void ServerTrusted::send_dpf_key(dpf_key &dpfk, int bw, int party, size_t size) {
+    send_int(dpfk.height, party);
+    send_int(dpfk.groupSize, party);
+    send_int(dpfk.Bout, party);
+
+    send_block(dpfk.s, party);
+    send_uint8(dpfk.t, party);
+
+    send_size(size, party);
+
+    for (int i = 0; i < size; i++) {
+        send_block(dpfk.sigma[i], party);
+    }
+
+    for (int i = 0; i < size; i++) {
+        send_uint8(dpfk.tau0[i], party);
+    }
+
+    for (int i = 0; i < size; i++) {
+        send_uint8(dpfk.tau1[i], party);
+    }
+
+    send_ge(dpfk.gamma[0], bw, party);
+    send_ge(dpfk.gamma[1], bw, party);
 };
+

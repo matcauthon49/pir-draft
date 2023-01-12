@@ -22,7 +22,7 @@ void free_dpf_input_pack(dpf_input_pack *dpfip) {
     free(dpfip->sigma);
     free(dpfip->tau);
     free(dpfip->hats);
-    free(dpfip->hats);
+    free(dpfip->hatt);
     free(dpfip);
 };
 
@@ -180,10 +180,8 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
     dpfip[0]->hatt = (uint8_t*)malloc(sizeof(uint8_t));
         dpfip[0]->hatt[0] = 0;
     
-    key0->s = (block*) malloc(sizeof(block));
-    key0->s[0] = keys[0];
-    key0->t = (uint8_t*)malloc(sizeof(uint8_t));
-    key0->t[0] = 0;
+    key0->s = keys[0];
+    key0->t = 0;
     
     //Divyu: Initialising empty sigma, tau[0] and tau[1] for key0.
     dpfip[0]->sigma = (block*)malloc(height*sizeof(block));
@@ -192,8 +190,6 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
     key0->sigma = (block*)malloc(height*sizeof(block));
     key0->tau0 = (uint8_t*)malloc(height*sizeof(uint8_t));
     key0->tau1 = (uint8_t*)malloc(height*sizeof(uint8_t));
-    
-    
     
     //Divyu: Same for P1
     dpfl[1]->size = 1;
@@ -207,10 +203,8 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
         dpfip[1]->hats[0] = keys[1];
     dpfip[1]->hatt = (uint8_t*)malloc(sizeof(uint8_t));
         dpfip[1]->hatt[0] = 1;
-    key1->s = (block*) malloc(sizeof(block));
-    key1->s[0] = keys[1];
-    key1->t = (uint8_t*)malloc(sizeof(uint8_t));
-    key1->t[0] = 1;
+    key1->s = keys[1];
+    key1->t = 1;
 
     
     //Divyu: Initialising empty sigma, tau[0] and tau[1] for key1.
@@ -255,7 +249,6 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
 
         dpfl[0]->prevt = dpfip[0]->hatt;
         dpfl[1]->prevt = dpfip[1]->hatt;
-
         
         free(dpfip[0]->hats);
         free(dpfip[1]->hats);
@@ -387,7 +380,7 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
 
 GroupElement* dpf_eval(int party, GroupElement idx, const dpf_key &key) {
     uint8_t hatt = party;
-    block hats = (key.s)[0];
+    block hats = key.s;
 
     //Set plaintext
         static const block ZeroBlock = toBlock(0, 0);
@@ -451,7 +444,7 @@ GroupElement** dpf_eval_all(int party, const dpf_key &key) {
     dpfl->currt = NULL;
     dpfl->prevt = NULL;
     block* hats = (block*)malloc(sizeof(block));
-    hats[0] = (key.s)[0];
+    hats[0] = key.s;
     uint8_t* hatt = (uint8_t*)malloc(sizeof(uint8_t));
     hatt[0] = party;
 
