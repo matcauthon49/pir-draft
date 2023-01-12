@@ -224,28 +224,28 @@ void Server::send_size(size_t &i, int party) {
 GroupElement Server::recv_ge(int bl, int party) {
     if (bl > 32) {
         char buf[8];
-        recv(recvsocket[party], buf, 8, MSG_WAITALL);
+        recv(recvsocket[party-2], buf, 8, MSG_WAITALL);
         GroupElement g(*(uint64_t *)buf, bl);
         bytes_recieved += 8;
         return g;
     }
     else if (bl > 16) {
         char buf[4];
-        recv(recvsocket[party], buf, 4, MSG_WAITALL);
+        recv(recvsocket[party-2], buf, 4, MSG_WAITALL);
         GroupElement g(*(uint64_t *)buf, bl);
         bytes_recieved += 4;
         return g;
     }
     else if (bl > 8) {
         char buf[2];
-        recv(recvsocket[party], buf, 2, MSG_WAITALL);
+        recv(recvsocket[party-2], buf, 2, MSG_WAITALL);
         GroupElement g(*(uint64_t *)buf, bl);
         bytes_recieved += 2;
         return g;
     }
     else {
         char buf[1];
-        recv(recvsocket[party], buf, 1, MSG_WAITALL);
+        recv(recvsocket[party-2], buf, 1, MSG_WAITALL);
         GroupElement g(*(uint64_t *)buf, bl);
         bytes_recieved += 1;
         return g;
@@ -269,10 +269,9 @@ void Server::send_input_check_pack(input_check_pack icp, int bl, int party){
     }
 }
 
-
 block Server::recv_block(int party) {
     char buf[sizeof(block)];
-    recv(recvsocket[party], buf, sizeof(block), MSG_WAITALL);
+    recv(recvsocket[party-2], buf, sizeof(block), MSG_WAITALL);
     block b = *(block *)buf;
     bytes_recieved += sizeof(block);
     return b;
@@ -280,7 +279,7 @@ block Server::recv_block(int party) {
 
 size_t Server::recv_size(int party) {
     char buf[sizeof(size_t)];
-    recv(recvsocket[party], buf, sizeof(size_t), MSG_WAITALL);
+    recv(recvsocket[party-2], buf, sizeof(size_t), MSG_WAITALL);
     size_t b = *(size_t*)buf;
     bytes_recieved += sizeof(size_t);
     return b;
@@ -288,7 +287,7 @@ size_t Server::recv_size(int party) {
 
 uint8_t Server::recv_uint8(int party) {
     char buf[sizeof(uint8_t)];
-    recv(recvsocket[party], buf, sizeof(uint8_t), MSG_WAITALL);
+    recv(recvsocket[party-2], buf, sizeof(uint8_t), MSG_WAITALL);
     uint8_t b = *(uint8_t *)buf;
     bytes_recieved += sizeof(uint8_t);
     return b;
@@ -296,7 +295,7 @@ uint8_t Server::recv_uint8(int party) {
 
 int Server::recv_int(int party) {
     char buf[sizeof(int)];
-    recv(recvsocket[party], buf, sizeof(int), MSG_WAITALL);
+    recv(recvsocket[party-2], buf, sizeof(int), MSG_WAITALL);
     int b = *(int*)buf;
     bytes_recieved += sizeof(int);
     return b;

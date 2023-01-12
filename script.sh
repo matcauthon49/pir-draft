@@ -47,7 +47,9 @@ export OMP_NUM_THREADS=8
 cmake CMakelists.txt -B build
 cd build
 make
-echo "Running test file (Edit main.cpp in src directory to test functionalities)"
+COLOR='\033[0;35m'
+NC='\033[0m' 
+printf "${COLOR}---${NC} Build Complete ${COLOR}---${NC}\n"
 # ./p0 &
 # ./p1 &
 # ./p2 &

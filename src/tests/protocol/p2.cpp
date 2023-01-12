@@ -1,7 +1,6 @@
 #include "client.h"
 #include "dpf.h"
 #include "keys.h"
-#include "prng.h"
 #include "server.h"
 #include "server_trusted.h"
 
@@ -20,11 +19,21 @@ int main() {
     // p2.close(1);
     // p2.close(2);
 
-    block b0 = ZeroBlock;
-    block b1 = OneBlock;
+    AES *input = new AES[2];
 
-    p2.send_block(b0, 0);
-    p2.send_block(b1, 1);
+    AES aesSeed(toBlock(1, time(NULL)));
+
+    block seed0 = aesSeed.ecbEncBlock(ZeroBlock);
+    p2.send_block(seed0, PARTY0);
+
+    block seed1 = aesSeed.ecbEncBlock(OneBlock);
+    p2.send_block(seed1, PARTY1);
+
+    input[0] = AES(seed0);
+    input[1] = AES(seed1);
+
+    std::cout << input[0].ecbEncBlock(ZeroBlock) << "\n";
+    std::cout << input[1].ecbEncBlock(ZeroBlock) << "\n";
 
     std::cout << "Bytes Sent: " << p2.bytes_sent << "\n";
     std::cout << "Bytes Recieved: " << p2.bytes_recieved << "\n";

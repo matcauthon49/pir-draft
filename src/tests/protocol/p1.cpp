@@ -1,7 +1,6 @@
 #include "client.h"
 #include "dpf.h"
 #include "keys.h"
-#include "prng.h"
 #include "server.h"
 #include "server_trusted.h"
 
@@ -18,8 +17,10 @@ int main() {
     // p1.close(0);
     // p1.close(1);
 
-    block b1 = p1.recv_block(0);
-    std::cout << b1 << "\n";
+    block x = p1.recv_block(PARTY_TRUSTED);
+    AES w = AES(x);
+
+    std::cout << w.ecbEncBlock(ZeroBlock) << "\n";
 
     std::cout << "Bytes Sent: " << p1.bytes_sent << "\n";
     std::cout << "Bytes Recieved: " << p1.bytes_recieved << "\n";
