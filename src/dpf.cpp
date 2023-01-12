@@ -99,7 +99,7 @@ void prg_eval_all_and_xor(dpf_layer *dpfl, block *keynodes) {
         block ctt[4];
 
         #pragma omp for schedule(static, 1)
-        for(int i=0; i<dpfl->size; i++) {
+        for(size_t i=0; i<dpfl->size; i++) {
             // set key
             block k = keynodes[i];
             AES aes_key(k);
@@ -227,7 +227,7 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
     printf("START DPF LEVEL %d%d\n", dpfl[0]->level, current_timestamp());
 #endif
     #pragma omp for
-    for(int j=0; j<2; j++) {
+    for(size_t j=0; j<2; j++) {
         prg_eval_all_and_xor(dpfl[j], dpfip[j]->hats);
     }
 
@@ -265,7 +265,7 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
         dpfip[1]->hatt = (uint8_t*)malloc(dpfl[1]->size*sizeof(uint8_t));
 
         #pragma omp for schedule(static, 1)
-        for (int j = 0; j < dpfl[0]->size; j++) {
+        for (size_t j = 0; j < dpfl[0]->size; j++) {
             if(dpfl[0]->prevt[j/2]==1) {
                 dpfip[0]->hats[j] = dpfl[0]->nodes[j] ^ dpfip[0]->sigma[i];
                 dpfip[0]->hatt[j] = dpfl[0]->currt[j] ^ dpfip[0]->tau[j&1][i];
@@ -326,7 +326,7 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
     //     int thread_id = omp_get_num_threads();
     //     // std::cout<<thread_id<<"\n";
     //     #pragma omp for
-    //     for(int j=0; j<dpfl[0]->size; j++) {
+    //     for(size_t j=0; j<dpfl[0]->size; j++) {
     //                 // int thread_id = omp_get_num_threads();
     //     // std::cout<<thread_id<<"\n";
     //         auto gamma_ind0 = convert(key0->Bout, 2, dpfip[0]->hats[j]);
@@ -344,7 +344,7 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
     //     }
     // }
 
-    // for(int j=0; j<num_threads; j++) {
+    // for(size_t j=0; j<num_threads; j++) {
     //     std::cout<<"W0[0] "<<j<<" "<<thread_W0[j][0]<<"\n";
     //     W0[0] = W0[0] + thread_W0[j][0];
     //     W0[1] = W0[1] + thread_W0[j][1];
@@ -358,7 +358,7 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
     //Invokes only thread 4 but sums in thread 1 variable which is weird.
     //convert is parallelized and the sum loop is serialized for now.
     // #pragma omp parallel for
-    for(int j=0; j<dpfl[0]->size; j++) {
+    for(size_t j=0; j<dpfl[0]->size; j++) {
         auto gamma_ind0 = convert(key0->Bout, 2, dpfip[0]->hats[j]);
         W0[0] = W0[0] + gamma_ind0[0];
         W0[1] = W0[1] + gamma_ind0[1];
@@ -475,7 +475,7 @@ GroupElement** dpf_eval_all(int party, const dpf_key &key) {
         hats = (block*) malloc(dpfl->size*sizeof(block));
         hatt = (uint8_t*)malloc(dpfl->size*sizeof(uint8_t));
         #pragma omp parallel for
-        for(int j=0; j<dpfl->size; j++) {
+        for(size_t j=0; j<dpfl->size; j++) {
             uint8_t tau = (j%2==0)?(key.tau0)[i]:(key.tau1)[i];
 
             if(dpfl->prevt[j/2]==1){
@@ -493,7 +493,7 @@ GroupElement** dpf_eval_all(int party, const dpf_key &key) {
     GroupElement** gamma_ind = (GroupElement**)malloc(dpfl->size*sizeof(GroupElement*));
     convert_parallel(key.Bout, 2, dpfl->size, hats, gamma_ind);
     #pragma omp parallel for
-    for(int j=0; j<dpfl->size; j++) {
+    for(size_t j=0; j<dpfl->size; j++) {
         out[j] = (GroupElement*)malloc(2*sizeof(GroupElement));
         // auto gamma_ind = convert(key.Bout, 2, hats[j]);
         if(party==0) {

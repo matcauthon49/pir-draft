@@ -33,11 +33,11 @@ public:
     u_int64_t bytes_sent;
     u_int64_t bytes_recieved;
 
-    ServerTrusted(std::string ip[2], int port[2]);
+    ServerTrusted(std::string ip[4], int port[4], int sid);
 
     void wait_for_client(std::string ip, int port);
 
-    void close();
+    void close(int party);
     void send_ge(GroupElement &ge, int bitwidth, int party);
     void send_block(block &b, int party);
     void send_size(size_t &i, int party);

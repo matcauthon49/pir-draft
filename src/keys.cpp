@@ -12,7 +12,7 @@ bool check_xor(input_check_pack *x0, input_check_pack *x1, input_check_pack_2 *x
     }
     else if (x0->size == x1->size && x1->size == x2->size) {
         bool out = 1;
-        for (int i = 0; i < x0->size; i++){
+        for (size_t i = 0; i < x0->size; i++){
             uint8_t rj0 = (x0->index.value >> (x0->size - 1 - i)) & 1;
             uint8_t rj1 = (x1->index.value >> (x1->size - 1 - i)) & 1;
 

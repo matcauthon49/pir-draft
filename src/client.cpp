@@ -220,70 +220,70 @@ size_t Client::recv_size(int party) {
     return b;
 }
 
-input_check_pack *Client::recv_input_check_pack(int bl, int party) {
-    input_check_pack *icp;
+input_check_pack Client::recv_input_check_pack(int bl, int party) {
+    input_check_pack icp;
     
-    icp->index = recv_ge(bl, party);
-    icp->payload = recv_ge(bl, party);
-    icp->init_s = recv_block(party);
+    icp.index = recv_ge(bl, party);
+    icp.payload = recv_ge(bl, party);
+    icp.init_s = recv_block(party);
 
     // size must be sent before the rest
-    icp->size = recv_size(party);
+    icp.size = recv_size(party);
 
-    icp->z[0] = (block*)malloc(icp->size*(sizeof(block)));
-    icp->z[1] = (block*)malloc(icp->size*(sizeof(block)));
+    icp.z[0] = (block*)malloc(icp.size*(sizeof(block)));
+    icp.z[1] = (block*)malloc(icp.size*(sizeof(block)));
 
-    for (int i = 0; i < icp->size; i++) {
-        icp->z[0][i] = recv_block(party);
-        icp->z[1][i] = recv_block(party);
+    for (size_t i = 0; i < icp.size; i++) {
+        icp.z[0][i] = recv_block(party);
+        icp.z[1][i] = recv_block(party);
     }
 
-    icp->sigma = (block*)malloc(icp->size*(sizeof(block)));
+    icp.sigma = (block*)malloc(icp.size*(sizeof(block)));
 
-    for (int i = 0; i < icp->size; i++) {
-        icp->sigma[i] = recv_block(party);
+    for (size_t i = 0; i < icp.size; i++) {
+        icp.sigma[i] = recv_block(party);
     }    
 
     return icp;
 }
 
-input_check_pack_2 *Client::recv_input_check_pack_2(int bl, int party) {
-    input_check_pack_2 *icp;
+input_check_pack_2 Client::recv_input_check_pack_2(int bl, int party) {
+    input_check_pack_2 icp;
     
-    icp->index = new GroupElement[2];
-    icp->index[0] = recv_ge(bl, party);
-    icp->index[1] = recv_ge(bl, party);
+    icp.index = new GroupElement[2];
+    icp.index[0] = recv_ge(bl, party);
+    icp.index[1] = recv_ge(bl, party);
 
-    icp->payload = new GroupElement[2];
-    icp->payload[0] = recv_ge(bl, party);
-    icp->payload[1] = recv_ge(bl, party);
+    icp.payload = new GroupElement[2];
+    icp.payload[0] = recv_ge(bl, party);
+    icp.payload[1] = recv_ge(bl, party);
 
-    icp->init_s = new block[2];
-    icp->init_s[0] = recv_block(bl);
-    icp->init_s[1] = recv_block(bl);
+    icp.init_s = new block[2];
+    icp.init_s[0] = recv_block(bl);
+    icp.init_s[1] = recv_block(bl);
 
     // size must be sent before the rest
-    icp->size = recv_size(party);
+    icp.size = recv_size(party);
 
-    icp->z0[0] = (block*)malloc(icp->size*(sizeof(block)));
-    icp->z0[1] = (block*)malloc(icp->size*(sizeof(block)));
+    icp.z0[0] = (block*)malloc(icp.size*(sizeof(block)));
+    icp.z0[1] = (block*)malloc(icp.size*(sizeof(block)));
 
-    for (int i = 0; i < icp->size; i++) {
-        icp->z0[0][i] = recv_block(party);
-        icp->z0[1][i] = recv_block(party);
+    for (size_t i = 0; i < icp.size; i++) {
+        icp.z0[0][i] = recv_block(party);
+        icp.z0[1][i] = recv_block(party);
     }
 
-    icp->z1[0] = (block*)malloc(icp->size*(sizeof(block)));
-    icp->z1[1] = (block*)malloc(icp->size*(sizeof(block)));
+    icp.z1[0] = (block*)malloc(icp.size*(sizeof(block)));
+    icp.z1[1] = (block*)malloc(icp.size*(sizeof(block)));
 
-    for (int i = 0; i < icp->size; i++) {
-        icp->z1[0][i] = recv_block(party);
-        icp->z1[1][i] = recv_block(party);
+    for (size_t i = 0; i < icp.size; i++) {
+        icp.z1[0][i] = recv_block(party);
+        icp.z1[1][i] = recv_block(party);
     }
 
-    icp->sigma = (block*)malloc(icp->size*(sizeof(block)));
-    for (int i = 0; i < icp->size; i++) {
-        icp->sigma[i] = recv_block(party);
+    icp.sigma = (block*)malloc(icp.size*(sizeof(block)));
+    for (size_t i = 0; i < icp.size; i++) {
+        icp.sigma[i] = recv_block(party);
     }    
 
     return icp;

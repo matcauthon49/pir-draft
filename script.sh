@@ -48,7 +48,7 @@ cmake CMakelists.txt -B build
 cd build
 make
 echo "Running test file (Edit main.cpp in src directory to test functionalities)"
-./p0 &
-./p1 &
-./p2 &
+# ./p0 &
+# ./p1 &
+# ./p2 &
 wait

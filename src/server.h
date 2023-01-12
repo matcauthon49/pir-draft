@@ -33,11 +33,11 @@ public:
     u_int64_t bytes_sent;
     u_int64_t bytes_recieved;
 
-    Server(std::string ip, int port);
+    Server(std::string ip[2], int port[2], int sid);
     
     void wait_for_client(std::string ip, int port);
 
-    void close();
+    void close(int party);
     void send_ge(GroupElement &ge, int bitwidth, int party);
     void send_block(block &b, int party);
     void send_uint8(uint8_t &i, int party);
@@ -49,5 +49,5 @@ public:
     size_t recv_size(int party);
     uint8_t recv_uint8(int party);
     int recv_int(int party);
-    dpf_key *recv_dpf_key(int bl, int party);
+    dpf_key recv_dpf_key(int bl, int party);
 };

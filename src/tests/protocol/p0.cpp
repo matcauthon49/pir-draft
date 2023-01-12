@@ -6,8 +6,9 @@
 #include "server_trusted.h"
 
 int main() {
-    std::string ip = "127.0.0.1";
-    int port = 2000;
+    std::string ip[2] = {"127.0.0.1", "127.0.0.1"};
+    int port[2] = {2000, 2001};
 
-    Server p0 = Server(ip, port);
+    Server p0 = Server(ip, port, 0);
+    p0.close(0);
 }
