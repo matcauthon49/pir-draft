@@ -2,14 +2,20 @@ cmake_minimum_required(VERSION 3.13)
 project(PIR)
 
 # include(${CMAKE_CURRENT_LIST_DIR})
-
+#Installing library 
 add_library(dpf STATIC
 deps/cryptoTools/cryptoTools/Common/Defines.cpp
 deps/cryptoTools/cryptoTools/Common/Log.cpp
 deps/cryptoTools/cryptoTools/Crypto/AES.cpp
 deps/cryptoTools/cryptoTools/Crypto/PRNG.cpp
 dpf.cpp
+keys.cpp
+prng.cpp
+server_trusted.cpp 
+server.cpp 
+client.cpp
 )
+
 find_package(OpenMP)
 if(OpenMP_CXX_FOUND)
     target_link_libraries(dpf PUBLIC OpenMP::OpenMP_CXX)
@@ -37,6 +43,10 @@ install(
 install(FILES 
     dpf.h 
     keys.h 
+    prng.h 
+    client.h 
+    server.h 
+    server_trusted.h
     DESTINATION include
 )
 install(DIRECTORY
