@@ -28,6 +28,7 @@ using namespace osuCrypto;
 class Server {
 public:
     int sendsocket[2], recvsocket[2];
+    int server_id;
 
     u_int64_t bytes_sent;
     u_int64_t bytes_recieved;

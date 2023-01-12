@@ -13,7 +13,7 @@ int main() {
 
     std::cout<<"----------------Running Key Gen-----------------\n";
     int Bout = 8;
-    int Bin = 10;
+    int Bin = 16;
     dpf_input_pack *dpfip[2];
     dpfip[0] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
     dpfip[1] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));

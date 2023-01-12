@@ -28,6 +28,7 @@ using namespace osuCrypto;
 class ServerTrusted {
 public:
     int sendsocket[3], recvsocket[3];
+    int server_id;
 
     u_int64_t bytes_sent;
     u_int64_t bytes_recieved;
