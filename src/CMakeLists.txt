@@ -67,3 +67,46 @@ if(OpenMP_CXX_FOUND)
     target_link_libraries(test PUBLIC OpenMP::OpenMP_CXX)
 endif()
 target_compile_options(test PRIVATE -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -march=native -maes -msse2 -msse4.1 -fopenmp)
+
+
+add_executable(p0)
+target_sources(p0 PRIVATE ${PROJECT_SOURCE_DIR}/tests/protocol/p0.cpp)
+target_include_directories(p0 PRIVATE
+deps/cryptoTools
+deps/EzPC
+${CMAKE_CURRENT_SOURCE_DIR}
+)
+target_link_libraries(p0 PRIVATE dpf )
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(p0 PUBLIC OpenMP::OpenMP_CXX)
+endif()
+target_compile_options(p0 PRIVATE -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -march=native -maes -msse2 -msse4.1 -fopenmp)
+
+add_executable(p1)
+target_sources(p1 PRIVATE ${PROJECT_SOURCE_DIR}/tests/protocol/p1.cpp)
+target_include_directories(p1 PRIVATE
+deps/cryptoTools
+deps/EzPC
+${CMAKE_CURRENT_SOURCE_DIR}
+)
+target_link_libraries(p1 PRIVATE dpf )
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(p1 PUBLIC OpenMP::OpenMP_CXX)
+endif()
+target_compile_options(p1 PRIVATE -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -march=native -maes -msse2 -msse4.1 -fopenmp)
+
+add_executable(p2)
+target_sources(p2 PRIVATE ${PROJECT_SOURCE_DIR}/tests/protocol/p2.cpp)
+target_include_directories(p2 PRIVATE
+deps/cryptoTools
+deps/EzPC
+${CMAKE_CURRENT_SOURCE_DIR}
+)
+target_link_libraries(p2 PRIVATE dpf )
+if(OpenMP_CXX_FOUND)
+    target_link_libraries(p2 PUBLIC OpenMP::OpenMP_CXX)
+endif()
+target_compile_options(p2 PRIVATE -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -march=native -maes -msse2 -msse4.1 -fopenmp)
+
+
+
