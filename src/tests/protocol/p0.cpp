@@ -20,6 +20,33 @@ int main() {
     AES w = AES(x);
 
     std::cout << w.ecbEncBlock(ZeroBlock) << "\n";
+
+    dpf_key k0 = p0.recv_dpf_key(32, 2, 16);
+
+    std::cout << "Height = " << k0.height << "\n";
+    std::cout << "Group Size = " << k0.groupSize << "\n";
+    std::cout << "Bout = " << k0.Bout << "\n";
+    std::cout << "S = " << k0.s << "\n";
+    std::cout << "T = " << unsigned(k0.t) << "\n";
+
+    std::cout << ":: Sigma ::" << "\n";
+    for (int i = 0; i < k0.height; i++) {
+        std::cout << k0.sigma[i] << "\n";
+    }
+
+    std::cout << ":: Tau0 ::" << "\n";
+    for (int i = 0; i < k0.height; i++) {
+        std::cout << unsigned(k0.tau0[i]);
+    }
+
+    std::cout << "\n";
+
+    std::cout << ":: Tau1 ::" << "\n";
+    for (int i = 0; i < k0.height; i++) {
+        std::cout << unsigned(k0.tau1[i]);
+    }
+
+    std::cout << "\n";
  
     std::cout << "Bytes Sent: " << p0.bytes_sent << "\n";
     std::cout << "Bytes Recieved: " << p0.bytes_recieved << "\n";

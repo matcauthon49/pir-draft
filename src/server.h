@@ -49,5 +49,6 @@ public:
     size_t recv_size(int party);
     uint8_t recv_uint8(int party);
     int recv_int(int party);
-    dpf_key recv_dpf_key(int bl, int party);
+    char recv_char(int party);
+    dpf_key recv_dpf_key(int bl, int party, int size);
 };

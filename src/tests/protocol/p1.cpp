@@ -17,10 +17,10 @@ int main() {
     // p1.close(0);
     // p1.close(1);
 
-    block x = p1.recv_block(PARTY_TRUSTED);
-    AES w = AES(x);
+    // block x = p1.recv_block(PARTY_TRUSTED);
+    // AES w = AES(x);
 
-    std::cout << w.ecbEncBlock(ZeroBlock) << "\n";
+    // std::cout << w.ecbEncBlock(ZeroBlock) << "\n";
 
     std::cout << "Bytes Sent: " << p1.bytes_sent << "\n";
     std::cout << "Bytes Recieved: " << p1.bytes_recieved << "\n";

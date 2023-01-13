@@ -1,6 +1,6 @@
 #include "server_trusted.h"
 
-int bitlength = 2;
+int bitlength = 32;
 
 // Opens Server and establishes connection.
 ServerTrusted::ServerTrusted(std::string ip[4], int port[4], int sid) {
@@ -301,29 +301,27 @@ void ServerTrusted::send_input_check_pack_2(input_check_pack_2 &icp, int bl, int
     }
 };
 
-void ServerTrusted::send_dpf_key(dpf_key &dpfk, int bw, int party, size_t size) {
-    send_int(dpfk.height, party);
-    send_int(dpfk.groupSize, party);
-    send_int(dpfk.Bout, party);
+void ServerTrusted::send_dpf_key(dpf_key k0, int bw, int party) {
+    send_int(k0.height, 0);
+    send_int(k0.groupSize, 0);
+    send_int(k0.Bout, 0);
 
-    send_block(dpfk.s, party);
-    send_uint8(dpfk.t, party);
+    send_block(k0.s, 0);
+    send_uint8(k0.t, 0);
 
-    send_size(size, party);
-
-    for (size_t i = 0; i < size; i++) {
-        send_block(dpfk.sigma[i], party);
+    for (int i = 0; i < k0.height; i++) {
+        send_block(k0.sigma[i], 0);
     }
 
-    for (size_t i = 0; i < size; i++) {
-        send_uint8(dpfk.tau0[i], party);
+    for (int i = 0; i < k0.height; i++) {
+        send_uint8(k0.tau0[i], 0);
     }
 
-    for (size_t i = 0; i < size; i++) {
-        send_uint8(dpfk.tau1[i], party);
+    for (int i = 0; i < k0.height; i++) {
+        send_uint8(k0.tau1[i], 0);
     }
 
-    send_ge(dpfk.gamma[0], bw, party);
-    send_ge(dpfk.gamma[1], bw, party);
+    // send_ge(dpfk.gamma[0], bw, party);
+    // send_ge(dpfk.gamma[1], bw, party);
 };
 

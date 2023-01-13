@@ -10,7 +10,6 @@ deps/cryptoTools/cryptoTools/Crypto/AES.cpp
 deps/cryptoTools/cryptoTools/Crypto/PRNG.cpp
 dpf.cpp
 keys.cpp
-prng.cpp
 server_trusted.cpp 
 server.cpp 
 client.cpp
@@ -43,7 +42,6 @@ install(
 install(FILES 
     dpf.h 
     keys.h 
-    prng.h 
     client.h 
     server.h 
     server_trusted.h

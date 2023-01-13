@@ -285,6 +285,14 @@ size_t Server::recv_size(int party) {
     return b;
 }
 
+char Server::recv_char(int party) {
+    char buf[1];
+    recv(recvsocket[party-2], buf, 1, MSG_WAITALL);
+    char b = *buf;
+    bytes_recieved += 1;
+    return b;
+}
+
 uint8_t Server::recv_uint8(int party) {
     char buf[sizeof(uint8_t)];
     recv(recvsocket[party-2], buf, sizeof(uint8_t), MSG_WAITALL);
@@ -301,36 +309,30 @@ int Server::recv_int(int party) {
     return b;
 }
 
-dpf_key Server::recv_dpf_key(int bl, int party) {
-    dpf_key dpfk;
+dpf_key Server::recv_dpf_key(int bl, int party, int size) {
     
-    dpfk.height = recv_int(party);
-    dpfk.Bout = recv_int(party);
-    dpfk.groupSize = recv_int(party);
+    int height = recv_int(2);
+    int groupSize = recv_int(2);
+    int Bout = recv_int(2);
+    block s = recv_block(2);
+    uint8_t t = recv_uint8(2);
 
-    dpfk.s = recv_block(party);
-    dpfk.t = recv_uint8(party);
-
-    size_t size = recv_size(party);
-
-    dpfk.sigma = new block[size];
-    for (size_t i = 0; i < size; i++) {
-        dpfk.sigma[i] = recv_block(party);
-    }
-    
-    dpfk.tau0 = new uint8_t[size];
-    for (size_t i = 0; i < size; i++) {
-        dpfk.tau0[i] = recv_uint8(party);
+    block *sigma = new block[height];
+    for (int i = 0; i < height; i++) {
+        sigma[i] = recv_block(2);
     }
 
-    dpfk.tau1 = new uint8_t[size];
-    for (size_t i = 0; i < size; i++) {
-        dpfk.tau1[i] = recv_uint8(party);
+    uint8_t *tau0 = new uint8_t[height];
+    for (int i = 0; i < height; i++) {
+        tau0[i] = recv_uint8(2);
     }
 
-    dpfk.gamma = new GroupElement[2];
-    dpfk.gamma[0] = recv_ge(bl, party);
-    dpfk.gamma[1] = recv_ge(bl, party);
+    uint8_t *tau1 = new uint8_t[height];
+    for (int i = 0; i < height; i++) {
+        tau1[i] = recv_uint8(2);
+    }
 
-    return dpfk;
+    GroupElement *gamma;
+
+    return dpf_key(height, Bout, groupSize, s, t, sigma, tau0, tau1, gamma);
 }

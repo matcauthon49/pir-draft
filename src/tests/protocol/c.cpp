@@ -1,7 +1,6 @@
 #include "client.h"
 #include "dpf.h"
 #include "keys.h"
-#include "prng.h"
 #include "server.h"
 #include "server_trusted.h"
 
@@ -14,4 +13,6 @@ int main() {
     c.close(0);    
     c.close(1);    
     c.close(2);    
+
+    
 }
