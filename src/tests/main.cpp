@@ -5,8 +5,11 @@
 
 
 using namespace osuCrypto;
-PRNG prng;
-int bitlength = 2;
+// PRNG prng;
+//Bitlength is length of output
+int bitlength = 8;
+//Bitwidth is length of index
+int bitwidth = 16;
 PRNG prngShared;
 
 int main() {
@@ -15,11 +18,12 @@ int main() {
     GroupElement g3 = GroupElement(1000);
 
     std::cout << g.bitsize << " " << g2.bitsize << " " << g3.bitsize << "\n";
-    prng.SetSeed(toBlock(0, 0), sizeof(block));
+    // prng.SetSeed(toBlock(0, 0), sizeof(block));
 
     std::cout<<"----------------Running Key Gen-----------------\n";
     // time_t start, end;
-    int Bout = 8;
+    prng.SetSeed(toBlock(0, 1), sizeof(block));
+    int Bout = bitlength;
     int Bin = 5;
     dpf_input_pack *dpfip[2];
     dpfip[0] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));

@@ -6,7 +6,7 @@
 using namespace osuCrypto;
 
 struct dpf_key {
-    int height, Bout, groupSize;
+    int height, Bout;
     block s;
     uint8_t t;
     block *sigma;
@@ -15,7 +15,7 @@ struct dpf_key {
     GroupElement *gamma;
 
     dpf_key() {}
-    dpf_key(int height, int Bout, int groupSize,
+    dpf_key(int height, int Bout,
            block s,
            uint8_t t,
            block *sigma,
@@ -24,7 +24,6 @@ struct dpf_key {
            GroupElement *gamma) : 
                 height(height), 
                 Bout(Bout), 
-                groupSize(groupSize), 
                 s(s), 
                 t(t), 
                 sigma(sigma), 

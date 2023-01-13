@@ -258,9 +258,9 @@ void Server::send_int(int &i, int party) {
     bytes_sent += sizeof(int);
 }
 
-void Server::send_input_check_pack(input_check_pack icp, int bl, int bw, int party){
-    send_ge(icp.index, bl, party);
-    send_ge(icp.payload, bw, party);
+void Server::send_input_check_pack(input_check_pack icp, int bw, int bl, int party){
+    send_ge(icp.index, bw, party);
+    send_ge(icp.payload, bl, party);
     // send_block(icp.init_s, party);
 
     send_size(icp.size, party);
@@ -281,10 +281,10 @@ void Server::send_input_check_pack(input_check_pack icp, int bl, int bw, int par
 
     //Sending Final Correction word
     send_int(icp.T, party);
-    send_ge((icp.W)[0], bw, party);
-    send_ge((icp.W)[1], bw, party);
-    send_ge((icp.gamma)[0], bw, party);
-    send_ge((icp.gamma)[1], bw, party);
+    send_ge((icp.W)[0], bl, party);
+    send_ge((icp.W)[1], bl, party);
+    send_ge((icp.gamma)[0], bl, party);
+    send_ge((icp.gamma)[1], bl, party);
 }
 
 block Server::recv_block(int party) {
@@ -330,7 +330,6 @@ int Server::recv_int(int party) {
 dpf_key Server::recv_dpf_key(int bl, int party) {
     
     int height = recv_int(party);
-    int groupSize = recv_int(party);
     int Bout = recv_int(party);
     block s = recv_block(party);
     uint8_t t = recv_uint8(party);
@@ -351,8 +350,8 @@ dpf_key Server::recv_dpf_key(int bl, int party) {
     }
 
     GroupElement* gamma = new GroupElement[2];
-    gamma[0] = recv_ge(bitlength, 2);
-    gamma[1] = recv_ge(bitlength, 2);
+    gamma[0] = recv_ge(bl, 2);
+    gamma[1] = recv_ge(bl, 2);
 
-    return dpf_key(height, Bout, groupSize, s, t, sigma, tau0, tau1, gamma);
+    return dpf_key(height, Bout, s, t, sigma, tau0, tau1, gamma);
 }

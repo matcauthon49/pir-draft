@@ -273,13 +273,13 @@ GroupElement ServerTrusted::recv_ge(int bl, int party) {
     }
 }
 
-void ServerTrusted::send_input_check_pack_2(input_check_pack_2 &icp, int bl, int bw, int party){
+void ServerTrusted::send_input_check_pack_2(input_check_pack_2 &icp, int bw, int bl, int party){
     //ol is the bit length of gamma
-    send_ge(icp.index[0], bl, party);
-    send_ge(icp.index[1], bl, party);
+    send_ge(icp.index[0], bw, party);
+    send_ge(icp.index[1], bw, party);
 
-    send_ge(icp.payload[0], bw, party);
-    send_ge(icp.payload[1], bw, party);
+    send_ge(icp.payload[0], bl, party);
+    send_ge(icp.payload[1], bl, party);
 
     // send_block(icp.init_s[0], party);
     // send_block(icp.init_s[1], party);
@@ -310,17 +310,16 @@ void ServerTrusted::send_input_check_pack_2(input_check_pack_2 &icp, int bl, int
     //Taking bw to be bitlength of output.
     send_int((icp.T)[0], party);
     send_int((icp.T)[1], party);
-    send_ge((icp.W)[0][0], bw, party);
-    send_ge((icp.W)[0][1], bw, party);
-    send_ge((icp.W)[1][0], bw, party);
-    send_ge((icp.W)[1][1], bw, party);
-    send_ge((icp.gamma)[0], bw, party);
-    send_ge((icp.gamma)[1], bw, party);
+    send_ge((icp.W)[0][0], bl, party);
+    send_ge((icp.W)[0][1], bl, party);
+    send_ge((icp.W)[1][0], bl, party);
+    send_ge((icp.W)[1][1], bl, party);
+    send_ge((icp.gamma)[0], bl, party);
+    send_ge((icp.gamma)[1], bl, party);
 };
 
-void ServerTrusted::send_dpf_key(dpf_key k0, int bw, int party) {
+void ServerTrusted::send_dpf_key(dpf_key k0, int bw, int bl, int party) {
     send_int(k0.height, party);
-    send_int(k0.groupSize, party);
     send_int(k0.Bout, party);
 
     send_block(k0.s, party);
@@ -338,10 +337,7 @@ void ServerTrusted::send_dpf_key(dpf_key k0, int bw, int party) {
         send_uint8(k0.tau1[i], party);
     }
 
-    send_ge(k0.gamma[0], bw, party);
-    send_ge(k0.gamma[1], bw, party);
+    send_ge(k0.gamma[0], bl, party);
+    send_ge(k0.gamma[1], bl, party);
 
-    // send_ge(k0.gamma[0], bw, party);
-    // send_ge(k0.gamma[1], bw, party);
 };
-

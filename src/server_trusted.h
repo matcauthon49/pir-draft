@@ -44,9 +44,9 @@ public:
     void send_uint8(uint8_t &i, int party);
     void send_int(int &i, int party);
 
-    void send_dpf_key(dpf_key dpfk, int bw, int party);
+    void send_dpf_key(dpf_key dpfk, int bw, int bl, int party);
 
-    void send_input_check_pack_2(input_check_pack_2 &icp, int bl, int bw, int party);
+    void send_input_check_pack_2(input_check_pack_2 &icp, int bw, int bl, int party);
 
 
     GroupElement recv_ge(int bl, int party);

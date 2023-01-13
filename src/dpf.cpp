@@ -6,7 +6,7 @@
 #define OUTBW 64
 
 using namespace osuCrypto;
-
+PRNG prng;
 
 void free_dpf_layer(dpf_layer *dpfl) {
     free(dpfl->nodes);
@@ -148,16 +148,18 @@ void prg_eval_all_and_xor(dpf_layer *dpfl, block *keynodes) {
 
 
 std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf_input_pack **dpfip, input_check_pack_2 *ip2)
-{
+{   
+    //Populating input_check_pack for P2
     ip2->index = new GroupElement [2];
     ip2->index[0] = dpfip[0]->index;
     ip2->index[1] = dpfip[1]->index;
-    // std::cout<<"In keygen "<<ip2->index[0].value<<" "<<ip2->index[1].value<<"\n";
     ip2->payload = new GroupElement [2];
     ip2->payload[0] = *dpfip[0]->alpha;
     ip2->payload[1] = *dpfip[1]->alpha;
-    // sample hat{S}_i^{0,0}, the PRG keys
+
+    // sampling hat{S}_i^{0,0}, the PRG keys
     auto keys = prng.get<std::array<block, 2>>();
+
     // set beta
     GroupElement beta[2][2] = {{GroupElement(0, group_bitwidth), *dpfip[0]->alpha}, {GroupElement(1, group_bitwidth), *dpfip[1]->alpha}};
 
@@ -221,7 +223,7 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
     key1->t = 1;
 
     
-    //Divyu: Initialising empty sigma, tau[0] and tau[1] for key1.
+    //Divyu: Initialising empty sigma, tau[0] and tau[1] for key0, key1 and input_check_pack of P2
     ip2->zs0[0] = (block*)malloc(height*sizeof(block));
     ip2->zs0[1] = (block*)malloc(height*sizeof(block));
     ip2->zs1[0] = (block*)malloc(height*sizeof(block));
@@ -252,6 +254,7 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
     for(size_t j=0; j<2; j++) {
         prg_eval_all_and_xor(dpfl[j], dpfip[j]->hats);
     }
+        //Storing inputs to 2PC
         ip2->zs0[0][i] = dpfl[0]->zs[0];
         ip2->zs0[1][i] = dpfl[0]->zs[1];
         ip2->zs1[0][i] = dpfl[1]->zs[0];
@@ -267,7 +270,7 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
         // const uint8_t sig0 = static_cast<uint8_t>(dpfip[0]->index.value >> (group_bitwidth - 1 - i)) & 1;
         // const uint8_t sig1 = static_cast<uint8_t>(dpfip[1]->index.value >> (group_bitwidth - 1 - i)) & 1;
 
-        //Divyu: Computing sigma[i], tau[0][i], tau[1][i].
+        //Divyu: Computing sigma[i], tau[0][i], tau[1][i] and storing in key0, key1 and input check pack of P2
         dpfip[0]->sigma[i] = dpfl[0]->zs[1^sig] ^ dpfl[1]->zs[1^sig];
         dpfip[1]->sigma[i] = dpfl[0]->zs[1^sig] ^ dpfl[1]->zs[1^sig];
         key0->sigma[i] = dpfip[0]->sigma[i];
@@ -410,8 +413,7 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
     ip2->W[0][1] = W0[1];
     ip2->W[1][0] = W1[0];
     ip2->W[1][1] = W1[1];
-    // free(gamma_indp0);
-    // free(gamma_indp1);
+
     free(dpfip[0]->hatt);
     free(dpfip[1]->hatt);
 
