@@ -8,152 +8,229 @@ Client::Client(std::string ip[6], int port[6], int sid) {
     bytes_recieved = 0;
     bytes_sent = 0;
 
+    const int one = 1;
+
     {
-        recvsocket[0] = socket(AF_INET, SOCK_STREAM, 0);
-        if (recvsocket < 0) {
-            perror("recvsocket 0 failed");
-            exit(1);
-        }
-        struct sockaddr_in addr;
-            addr.sin_family = AF_INET;
-            addr.sin_port = htons(port[0]);
-            addr.sin_addr.s_addr = inet_addr(ip[0].c_str());
+        int mysocket0;
 
-        if (connect(recvsocket[0], (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-            perror("recv connection with P0 failed");
+        if ((mysocket0 = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+            perror("socket failed");
+            exit(EXIT_FAILURE);
+        }
+
+        if (setsockopt(mysocket0, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &one, sizeof(one))) {
+            perror("setsockopt error");
             exit(1);
         }
 
-        const int one = 1;
+        struct sockaddr_in dest_addr;
+            dest_addr.sin_family = AF_INET; // specifies internet protocol v4 address
+            dest_addr.sin_port = htons(port[0]); // speficies port and changes to big-endian, TCP byte order
+            dest_addr.sin_addr.s_addr = inet_addr(ip[0].c_str()); // specifies address
+
+        if (::bind(mysocket0, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) < 0) {
+                perror("binding error");
+                exit(1);
+        }
+
+        if (listen(mysocket0, 1) < 0) {
+            perror("listening error");
+            exit(1);
+        }
+
+        int dest_addrlen = sizeof(dest_addr);
+
+        recvsocket[0] = accept(mysocket0, (struct sockaddr *)&dest_addr, (socklen_t*)&dest_addrlen);
         setsockopt(recvsocket[0], IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
 
-        std::cout << "Client recv connected to P0" <<"\n";
+        std::cout << server_id << " recv connected to P0" <<"\n";
 
     }
 
-    sleep(1);
-
     {
-        sendsocket[0] = socket(AF_INET, SOCK_STREAM, 0);
-        if (sendsocket < 0) {
-            perror("sendsocket 0 failed");
-            exit(1);
-        }
-        struct sockaddr_in addr;
-            addr.sin_family = AF_INET;
-            addr.sin_port = htons(port[1]);
-            addr.sin_addr.s_addr = inet_addr(ip[1].c_str());
+        int mysocket;
 
-        if (connect(sendsocket[0], (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-            perror("send connection with P0 failed");
+        if ((mysocket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+            perror("socket failed");
+            exit(EXIT_FAILURE);
+        }
+
+        if (setsockopt(mysocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &one, sizeof(one))) {
+            perror("setsockopt error");
             exit(1);
         }
 
-        const int one = 1;
+        struct sockaddr_in dest_addr;
+            dest_addr.sin_family = AF_INET; // specifies internet protocol v4 address
+            dest_addr.sin_port = htons(port[1]); // speficies port and changes to big-endian, TCP byte order
+            dest_addr.sin_addr.s_addr = inet_addr(ip[1].c_str()); // specifies address
+
+        if (::bind(mysocket, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) < 0) {
+                perror("binding error");
+                exit(1);
+        }
+
+        if (listen(mysocket, 1) < 0) {
+            perror("listening error");
+            exit(1);
+        }
+
+        int dest_addrlen = sizeof(dest_addr);
+
+        sendsocket[0] = accept(mysocket, (struct sockaddr *)&dest_addr, (socklen_t*)&dest_addrlen);
         setsockopt(sendsocket[0], IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
 
-        std::cout << "Client send connected to P0" <<"\n";
+        std::cout << server_id << " send connected to P0" <<"\n";
     }
 
-    sleep(1);
-
     {
-        recvsocket[1] = socket(AF_INET, SOCK_STREAM, 0);
-        if (recvsocket < 0) {
-            perror("recvsocket 1 failed");
-            exit(1);
-        }
-        struct sockaddr_in addr;
-            addr.sin_family = AF_INET;
-            addr.sin_port = htons(port[2]);
-            addr.sin_addr.s_addr = inet_addr(ip[2].c_str());
+        int mysocket;
 
-        if (connect(recvsocket[1], (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-            perror("recv connection with P1 failed");
+        if ((mysocket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+            perror("socket failed");
+            exit(EXIT_FAILURE);
+        }
+
+        if (setsockopt(mysocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &one, sizeof(one))) {
+            perror("setsockopt error");
             exit(1);
         }
 
-        const int one = 1;
+        struct sockaddr_in dest_addr;
+            dest_addr.sin_family = AF_INET; // specifies internet protocol v4 address
+            dest_addr.sin_port = htons(port[2]); // speficies port and changes to big-endian, TCP byte order
+            dest_addr.sin_addr.s_addr = inet_addr(ip[2].c_str()); // specifies address
+
+        if (::bind(mysocket, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) < 0) {
+                perror("binding error");
+                exit(1);
+        }
+
+        if (listen(mysocket, 1) < 0) {
+            perror("listening error");
+            exit(1);
+        }
+
+        int dest_addrlen = sizeof(dest_addr);
+
+        recvsocket[1] = accept(mysocket, (struct sockaddr *)&dest_addr, (socklen_t*)&dest_addrlen);
         setsockopt(recvsocket[1], IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
 
-        std::cout << "Client recv connected to P1" <<"\n";
+        std::cout << server_id << " recv connected to P1" <<"\n";
 
     }
 
-    sleep(1);
-
     {
-        sendsocket[1] = socket(AF_INET, SOCK_STREAM, 0);
-        if (sendsocket < 0) {
-            perror("sendsocket 1 failed");
-            exit(1);
-        }
-        struct sockaddr_in addr;
-            addr.sin_family = AF_INET;
-            addr.sin_port = htons(port[3]);
-            addr.sin_addr.s_addr = inet_addr(ip[3].c_str());
+        int mysocket;
 
-        if (connect(sendsocket[1], (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-            perror("send connection with P1 failed");
+        if ((mysocket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+            perror("socket failed");
+            exit(EXIT_FAILURE);
+        }
+
+        if (setsockopt(mysocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &one, sizeof(one))) {
+            perror("setsockopt error");
             exit(1);
         }
 
-        const int one = 1;
+        struct sockaddr_in dest_addr;
+            dest_addr.sin_family = AF_INET; // specifies internet protocol v4 address
+            dest_addr.sin_port = htons(port[3]); // speficies port and changes to big-endian, TCP byte order
+            dest_addr.sin_addr.s_addr = inet_addr(ip[3].c_str()); // specifies address
+
+        if (::bind(mysocket, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) < 0) {
+                perror("binding error");
+                exit(1);
+        }
+
+        if (listen(mysocket, 1) < 0) {
+            perror("listening error");
+            exit(1);
+        }
+
+        int dest_addrlen = sizeof(dest_addr);
+
+        sendsocket[1] = accept(mysocket, (struct sockaddr *)&dest_addr, (socklen_t*)&dest_addrlen);
         setsockopt(sendsocket[1], IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
 
-        std::cout << "Client send connected to P1" <<"\n";
-
+        std::cout << server_id << " send connected to P1" <<"\n";
     }
 
-    sleep(1);
 
     {
-        recvsocket[2] = socket(AF_INET, SOCK_STREAM, 0);
-        if (recvsocket < 0) {
-            perror("recvsocket 2 failed");
-            exit(1);
-        }
-        struct sockaddr_in addr;
-            addr.sin_family = AF_INET;
-            addr.sin_port = htons(port[4]);
-            addr.sin_addr.s_addr = inet_addr(ip[4].c_str());
+        int mysocket;
 
-        if (connect(recvsocket[2], (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-            perror("recv connection with P2 failed");
+        if ((mysocket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+            perror("socket failed");
+            exit(EXIT_FAILURE);
+        }
+
+        if (setsockopt(mysocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &one, sizeof(one))) {
+            perror("setsockopt error");
             exit(1);
         }
 
-        const int one = 1;
+        struct sockaddr_in dest_addr;
+            dest_addr.sin_family = AF_INET; // specifies internet protocol v4 address
+            dest_addr.sin_port = htons(port[4]); // speficies port and changes to big-endian, TCP byte order
+            dest_addr.sin_addr.s_addr = inet_addr(ip[4].c_str()); // specifies address
+
+        if (::bind(mysocket, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) < 0) {
+                perror("binding error");
+                exit(1);
+        }
+
+        if (listen(mysocket, 1) < 0) {
+            perror("listening error");
+            exit(1);
+        }
+
+        int dest_addrlen = sizeof(dest_addr);
+
+        recvsocket[2] = accept(mysocket, (struct sockaddr *)&dest_addr, (socklen_t*)&dest_addrlen);
         setsockopt(recvsocket[2], IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
 
-        std::cout << "Client recv connected to P2" <<"\n";
-    }
+        std::cout << server_id << " recv connected to P2" <<"\n";
 
-    sleep(1);
+    }
 
     {
-        sendsocket[2] = socket(AF_INET, SOCK_STREAM, 0);
-        if (sendsocket < 0) {
-            perror("sendsocket 2 failed");
-            exit(1);
-        }
-        struct sockaddr_in addr;
-            addr.sin_family = AF_INET;
-            addr.sin_port = htons(port[5]);
-            addr.sin_addr.s_addr = inet_addr(ip[5].c_str());
+        int mysocket;
 
-        if (connect(sendsocket[2], (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-            perror("send connection with P0 failed");
+        if ((mysocket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+            perror("socket failed");
+            exit(EXIT_FAILURE);
+        }
+
+        if (setsockopt(mysocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &one, sizeof(one))) {
+            perror("setsockopt error");
             exit(1);
         }
 
-        const int one = 1;
+        struct sockaddr_in dest_addr;
+            dest_addr.sin_family = AF_INET; // specifies internet protocol v4 address
+            dest_addr.sin_port = htons(port[5]); // speficies port and changes to big-endian, TCP byte order
+            dest_addr.sin_addr.s_addr = inet_addr(ip[5].c_str()); // specifies address
+
+        if (::bind(mysocket, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) < 0) {
+                perror("binding error");
+                exit(1);
+        }
+
+        if (listen(mysocket, 1) < 0) {
+            perror("listening error");
+            exit(1);
+        }
+
+        int dest_addrlen = sizeof(dest_addr);
+
+        sendsocket[2] = accept(mysocket, (struct sockaddr *)&dest_addr, (socklen_t*)&dest_addrlen);
         setsockopt(sendsocket[2], IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
 
-        std::cout << "Client send connected to P2" <<"\n";
+        std::cout << server_id << " send connected to P2" <<"\n";
     }
     
-    std::cerr << "All connections complete." << std::endl;
+    std::cerr << "All connections complete.\n" << std::endl;
 };
 
 // Closes the socket.

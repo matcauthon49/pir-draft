@@ -7,6 +7,8 @@
 int main() {
     std::string ip[2] = {"127.0.0.1", "127.0.0.1"};
     int port[2] = {3000, 3001};
+    std::string ipq[2] = {"127.0.0.1", "127.0.0.1"};
+    int portq[2] = {5000, 5001};
 
     Server p1 = Server(ip, port, 1);
 
@@ -28,9 +30,12 @@ int main() {
     //Eval all
     GroupElement** out1 = dpf_eval_all(1, k1, &icp1);
 
+    p1.connect_to_client(ipq, portq);
+
     //Also have to free out1
     std::cout << "Bytes Sent: " << p1.bytes_sent << "\n";
     std::cout << "Bytes Recieved: " << p1.bytes_recieved << "\n";
 
     p1.close(0);
+    p1.close(1);
 }

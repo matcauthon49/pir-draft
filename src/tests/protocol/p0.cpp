@@ -7,8 +7,11 @@
 int main() {
     std::string ip[2] = {"127.0.0.1", "127.0.0.1"};
     int port[2] = {2000, 2001};
+    std::string ipp[2] = {"127.0.0.1", "127.0.0.1"};
+    int portp[2] = {4000, 4001};
 
     Server p0 = Server(ip, port, 0);
+
     // std::string ipp[2] = {"127.0.0.1", "127.0.0.1"};
     // int portp[2] = {4000, 4001};
 
@@ -79,11 +82,13 @@ int main() {
     //Eval All
     GroupElement** out0 = dpf_eval_all(0, k0, &icp0);
     // std::cout<<"out "<<out0[5][0]<<" "<<out0[5][1]<<"\n";
+
+    p0.connect_to_client(ipp, portp);
  
     //Have to free out0
     std::cout << "Bytes Sent: " << p0.bytes_sent << "\n";
     std::cout << "Bytes Recieved: " << p0.bytes_recieved << "\n";
 
     p0.close(0);
-
+    p0.close(1);
 }

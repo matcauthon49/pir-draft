@@ -11,6 +11,8 @@ int main() {
 
     std::string ip[4] = {"127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1"};
     int port[4] = {2000, 2001, 3000, 3001};
+    std::string ipr[2] = {"127.0.0.1", "127.0.0.1"};
+    int portr[2] = {6000, 6001};
 
     ServerTrusted p2 = ServerTrusted(ip, port, 2);
 
@@ -56,9 +58,12 @@ int main() {
     // std::cout<<"\ngamma0 "<<(k1.gamma)[0].value<<" gamma1 "<<(k1.gamma)[1].value<<"\n";
     // //Eval all
 
+    p2.connect_to_client(ipr, portr);
+
     std::cout << "Bytes Sent: " << p2.bytes_sent << "\n";
     std::cout << "Bytes Recieved: " << p2.bytes_recieved << "\n";
 
     p2.close(0);
     p2.close(1);
+    p2.close(2);
 }
