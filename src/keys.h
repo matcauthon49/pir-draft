@@ -44,35 +44,57 @@ inline void free_dpf_key(dpf_key &key){
 struct input_check_pack {
     GroupElement index;
     GroupElement payload;
-    block init_s;
-    block *z[2];
+    block *zs[2];
+    uint8_t *zt[2];
     block *sigma;
+    uint8_t *tau[2];
     size_t size;
+    //Final Correction Word
+    int T;
+    GroupElement W[2];
+    GroupElement gamma[2];
 };
 
 inline void free_input_check_pack(input_check_pack &icp) {
-    delete[] icp.z[0];
-    delete[] icp.z[1];
+    delete[] icp.zs[0];
+    delete[] icp.zs[1];
+    delete[] icp.zt[0];
+    delete[] icp.zt[1];
     delete[] icp.sigma;
+    delete[] icp.tau[0];
+    delete[] icp.tau[1];
 }
 
 struct input_check_pack_2 {
     GroupElement *index;
     GroupElement *payload;
-    block *init_s;
-    block *z0[2];
-    block *z1[2];
+    block *zs0[2];
+    block *zs1[2];
+    uint8_t *zt0[2];
+    uint8_t *zt1[2];
     block *sigma;
+    uint8_t *tau[2];
     size_t size;
+    //Final Correction Word
+    int T[2];
+    GroupElement W[2][2];
+    GroupElement gamma[2];
 };
 
 inline void free_input_check_pack_2(input_check_pack_2 &icp) {
-    delete[] icp.z0[0];
-    delete[] icp.z0[1];
-    delete[] icp.z1[0];
-    delete[] icp.z1[1];
+    delete[] icp.zs0[0];
+    delete[] icp.zs0[1];
+    delete[] icp.zs1[0];
+    delete[] icp.zs1[1];
+    delete[] icp.zt0[0];
+    delete[] icp.zt0[1];
+    delete[] icp.zt1[0];
+    delete[] icp.zt1[1];
     delete[] icp.sigma;
+    delete[] icp.tau[0];
+    delete[] icp.tau[1];
     delete[] icp.payload;
     delete[] icp.index;
-    delete[] icp.init_s;
 }
+
+bool check_xor(int bw, input_check_pack *x0, input_check_pack *x1, input_check_pack_2 *x2);

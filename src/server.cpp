@@ -252,21 +252,39 @@ GroupElement Server::recv_ge(int bl, int party) {
     }
 }
 
-void Server::send_input_check_pack(input_check_pack icp, int bl, int party){
+void Server::send_int(int &i, int party) {
+    char *buf = (char *)(&i);
+    send(sendsocket[party], buf, sizeof(int), 0);
+    bytes_sent += sizeof(int);
+}
+
+void Server::send_input_check_pack(input_check_pack icp, int bl, int bw, int party){
     send_ge(icp.index, bl, party);
-    send_ge(icp.payload, bl, party);
-    send_block(icp.init_s, party);
+    send_ge(icp.payload, bw, party);
+    // send_block(icp.init_s, party);
 
     send_size(icp.size, party);
 
     for (size_t i = 0; i < icp.size; i++) {
-        send_block(icp.z[0][i], party);
-        send_block(icp.z[1][i], party);
+        send_block(icp.zs[0][i], party);
+        send_block(icp.zs[1][i], party);
+        send_uint8(icp.zt[0][i], party);
+        send_uint8(icp.zt[1][i], party);
     }
 
     for (size_t i = 0; i < icp.size; i++) {
         send_block(icp.sigma[i], party);
+        send_uint8(icp.tau[0][i], party);
+        send_uint8(icp.tau[1][i], party);
     }
+
+
+    //Sending Final Correction word
+    send_int(icp.T, party);
+    send_ge((icp.W)[0], bw, party);
+    send_ge((icp.W)[1], bw, party);
+    send_ge((icp.gamma)[0], bw, party);
+    send_ge((icp.gamma)[1], bw, party);
 }
 
 block Server::recv_block(int party) {

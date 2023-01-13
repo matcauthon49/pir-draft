@@ -234,34 +234,64 @@ size_t Client::recv_size(int party) {
     return b;
 }
 
-input_check_pack Client::recv_input_check_pack(int bl, int party) {
+uint8_t Client::recv_uint8(int party) {
+    char buf[sizeof(uint8_t)];
+    recv(recvsocket[party-2], buf, sizeof(uint8_t), MSG_WAITALL);
+    uint8_t b = *(uint8_t *)buf;
+    bytes_recieved += sizeof(uint8_t);
+    return b;
+}
+
+int Client::recv_int(int party) {
+    char buf[sizeof(int)];
+    recv(recvsocket[party-2], buf, sizeof(int), MSG_WAITALL);
+    int b = *(int*)buf;
+    bytes_recieved += sizeof(int);
+    return b;
+}
+
+input_check_pack Client::recv_input_check_pack(int bl, int bw, int party) {
     input_check_pack icp;
     
     icp.index = recv_ge(bl, party);
-    icp.payload = recv_ge(bl, party);
-    icp.init_s = recv_block(party);
+    icp.payload = recv_ge(bw, party);
+    // icp.init_s = recv_block(party);
 
     // size must be sent before the rest
     icp.size = recv_size(party);
 
-    icp.z[0] = (block*)malloc(icp.size*(sizeof(block)));
-    icp.z[1] = (block*)malloc(icp.size*(sizeof(block)));
+    icp.zs[0] = (block*)malloc(icp.size*(sizeof(block)));
+    icp.zs[1] = (block*)malloc(icp.size*(sizeof(block)));
+    icp.zt[0] = (uint8_t*)malloc(icp.size*(sizeof(uint8_t)));
+    icp.zt[1] = (uint8_t*)malloc(icp.size*(sizeof(uint8_t)));
 
     for (size_t i = 0; i < icp.size; i++) {
-        icp.z[0][i] = recv_block(party);
-        icp.z[1][i] = recv_block(party);
+        icp.zs[0][i] = recv_block(party);
+        icp.zs[1][i] = recv_block(party);
+        icp.zt[0][i] = recv_uint8(party);
+        icp.zt[1][i] = recv_uint8(party);
     }
 
     icp.sigma = (block*)malloc(icp.size*(sizeof(block)));
+    icp.tau[0] = (uint8_t*)malloc(icp.size*(sizeof(uint8_t)));
+    icp.tau[1] = (uint8_t*)malloc(icp.size*(sizeof(uint8_t)));
 
     for (size_t i = 0; i < icp.size; i++) {
         icp.sigma[i] = recv_block(party);
+        icp.tau[0][i] = recv_uint8(party);
+        icp.tau[1][i] = recv_uint8(party);
     }    
 
+    //Receiving Final Correction Word
+    icp.T = recv_int(party);
+    icp.W[0] = recv_ge(bw, party);
+    icp.W[1] = recv_ge(bw, party);
+    icp.gamma[0] = recv_ge(bw, party);
+    icp.gamma[1] = recv_ge(bw, party);
     return icp;
 }
 
-input_check_pack_2 Client::recv_input_check_pack_2(int bl, int party) {
+input_check_pack_2 Client::recv_input_check_pack_2(int bl, int bw, int party) {
     input_check_pack_2 icp;
     
     icp.index = new GroupElement[2];
@@ -269,36 +299,60 @@ input_check_pack_2 Client::recv_input_check_pack_2(int bl, int party) {
     icp.index[1] = recv_ge(bl, party);
 
     icp.payload = new GroupElement[2];
-    icp.payload[0] = recv_ge(bl, party);
-    icp.payload[1] = recv_ge(bl, party);
+    icp.payload[0] = recv_ge(bw, party);
+    icp.payload[1] = recv_ge(bw, party);
 
-    icp.init_s = new block[2];
-    icp.init_s[0] = recv_block(bl);
-    icp.init_s[1] = recv_block(bl);
+    // icp.init_s = new block[2];
+    // icp.init_s[0] = recv_block(bl);
+    // icp.init_s[1] = recv_block(bl);
 
     // size must be sent before the rest
     icp.size = recv_size(party);
 
-    icp.z0[0] = (block*)malloc(icp.size*(sizeof(block)));
-    icp.z0[1] = (block*)malloc(icp.size*(sizeof(block)));
+    icp.zs0[0] = (block*)malloc(icp.size*(sizeof(block)));
+    icp.zs0[1] = (block*)malloc(icp.size*(sizeof(block)));
+    icp.zt0[0] = (uint8_t*)malloc(icp.size*(sizeof(uint8_t)));
+    icp.zt0[1] = (uint8_t*)malloc(icp.size*(sizeof(uint8_t)));
+
 
     for (size_t i = 0; i < icp.size; i++) {
-        icp.z0[0][i] = recv_block(party);
-        icp.z0[1][i] = recv_block(party);
+        icp.zs0[0][i] = recv_block(party);
+        icp.zs0[1][i] = recv_block(party);
+        icp.zt0[0][i] = recv_uint8(party);
+        icp.zt0[1][i] = recv_uint8(party);
     }
 
-    icp.z1[0] = (block*)malloc(icp.size*(sizeof(block)));
-    icp.z1[1] = (block*)malloc(icp.size*(sizeof(block)));
+    icp.zs1[0] = (block*)malloc(icp.size*(sizeof(block)));
+    icp.zs1[1] = (block*)malloc(icp.size*(sizeof(block)));
+    icp.zt1[0] = (uint8_t*)malloc(icp.size*(sizeof(uint8_t)));
+    icp.zt1[1] = (uint8_t*)malloc(icp.size*(sizeof(uint8_t)));
 
     for (size_t i = 0; i < icp.size; i++) {
-        icp.z1[0][i] = recv_block(party);
-        icp.z1[1][i] = recv_block(party);
+        icp.zs1[0][i] = recv_block(party);
+        icp.zs1[1][i] = recv_block(party);
+        icp.zt1[0][i] = recv_uint8(party);
+        icp.zt1[1][i] = recv_uint8(party);
     }
 
     icp.sigma = (block*)malloc(icp.size*(sizeof(block)));
+    icp.tau[0] = (uint8_t*)malloc(icp.size*(sizeof(uint8_t)));
+    icp.tau[1] = (uint8_t*)malloc(icp.size*(sizeof(uint8_t)));
+
     for (size_t i = 0; i < icp.size; i++) {
         icp.sigma[i] = recv_block(party);
-    }    
+        icp.tau[0][i] = recv_uint8(party);
+        icp.tau[1][i] = recv_uint8(party);
+    }
+
+    //Receiving Final Correction Word
+    icp.T[0] = recv_int(party);
+    icp.T[1] = recv_int(party);
+    icp.W[0][0] = recv_ge(bw, party);
+    icp.W[0][1] = recv_ge(bw, party);
+    icp.W[1][0] = recv_ge(bw, party);
+    icp.W[1][1] = recv_ge(bw, party);
+    icp.gamma[0] = recv_ge(bw, party);
+    icp.gamma[1] = recv_ge(bw, party);  
 
     return icp;
 }

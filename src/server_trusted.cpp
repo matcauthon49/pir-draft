@@ -1,7 +1,6 @@
 #include "server_trusted.h"
 
 int bitlength = 32;
-
 // Opens Server and establishes connection.
 ServerTrusted::ServerTrusted(std::string ip[4], int port[4], int sid) {
     std::cerr << "establishing connection...\n";
@@ -274,31 +273,49 @@ GroupElement ServerTrusted::recv_ge(int bl, int party) {
     }
 }
 
-void ServerTrusted::send_input_check_pack_2(input_check_pack_2 &icp, int bl, int party){
+void ServerTrusted::send_input_check_pack_2(input_check_pack_2 &icp, int bl, int bw, int party){
+    //ol is the bit length of gamma
     send_ge(icp.index[0], bl, party);
     send_ge(icp.index[1], bl, party);
 
-    send_ge(icp.payload[0], bl, party);
-    send_ge(icp.payload[1], bl, party);
+    send_ge(icp.payload[0], bw, party);
+    send_ge(icp.payload[1], bw, party);
 
-    send_block(icp.init_s[0], party);
-    send_block(icp.init_s[1], party);
+    // send_block(icp.init_s[0], party);
+    // send_block(icp.init_s[1], party);
 
     send_size(icp.size, party);
 
     for (size_t i = 0; i < icp.size; i++) {
-        send_block(icp.z0[0][i], party);
-        send_block(icp.z0[1][i], party);
+        send_block(icp.zs0[0][i], party);
+        send_block(icp.zs0[1][i], party);
+        send_uint8(icp.zt0[0][i], party);
+        send_uint8(icp.zt0[1][i], party);
     }
 
     for (size_t i = 0; i < icp.size; i++) {
-        send_block(icp.z1[0][i], party);
-        send_block(icp.z1[1][i], party);
+        send_block(icp.zs1[0][i], party);
+        send_block(icp.zs1[1][i], party);
+        send_uint8(icp.zt1[0][i], party);
+        send_uint8(icp.zt1[1][i], party);
     }
     
     for (size_t i = 0; i < icp.size; i++) {
         send_block(icp.sigma[i], party);
+        send_uint8(icp.tau[0][i], party);
+        send_uint8(icp.tau[1][i], party);
     }
+
+    //Sending Final Correction Word
+    //Taking bw to be bitlength of output.
+    send_int((icp.T)[0], party);
+    send_int((icp.T)[1], party);
+    send_ge((icp.W)[0][0], bw, party);
+    send_ge((icp.W)[0][1], bw, party);
+    send_ge((icp.W)[1][0], bw, party);
+    send_ge((icp.W)[1][1], bw, party);
+    send_ge((icp.gamma)[0], bw, party);
+    send_ge((icp.gamma)[1], bw, party);
 };
 
 void ServerTrusted::send_dpf_key(dpf_key k0, int bw, int party) {

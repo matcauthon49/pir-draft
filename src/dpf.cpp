@@ -147,8 +147,15 @@ void prg_eval_all_and_xor(dpf_layer *dpfl, block *keynodes) {
 
 
 
-std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf_input_pack **dpfip)
+std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf_input_pack **dpfip, input_check_pack_2 *ip2)
 {
+    ip2->index = new GroupElement [2];
+    ip2->index[0] = dpfip[0]->index;
+    ip2->index[1] = dpfip[1]->index;
+    // std::cout<<"In keygen "<<ip2->index[0].value<<" "<<ip2->index[1].value<<"\n";
+    ip2->payload = new GroupElement [2];
+    ip2->payload[0] = *dpfip[0]->alpha;
+    ip2->payload[1] = *dpfip[1]->alpha;
     // sample hat{S}_i^{0,0}, the PRG keys
     auto keys = prng.get<std::array<block, 2>>();
     // set beta
@@ -166,6 +173,7 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
     key1->height = height;
     key0->Bout = group_bitwidth;
     key1->Bout = group_bitwidth;
+    ip2->size = height;
 
     // set dpf_layers
     dpf_layer* dpfl[2];
@@ -214,12 +222,26 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
 
     
     //Divyu: Initialising empty sigma, tau[0] and tau[1] for key1.
+    ip2->zs0[0] = (block*)malloc(height*sizeof(block));
+    ip2->zs0[1] = (block*)malloc(height*sizeof(block));
+    ip2->zs1[0] = (block*)malloc(height*sizeof(block));
+    ip2->zs1[1] = (block*)malloc(height*sizeof(block));
+    ip2->zt0[0] = (uint8_t*)malloc(height*sizeof(uint8_t));
+    ip2->zt0[1] = (uint8_t*)malloc(height*sizeof(uint8_t));
+    ip2->zt1[0] = (uint8_t*)malloc(height*sizeof(uint8_t));
+    ip2->zt1[1] = (uint8_t*)malloc(height*sizeof(uint8_t));
+
     dpfip[1]->sigma = (block*)malloc(height*sizeof(block));
     dpfip[1]->tau[0] = (uint8_t*)malloc(height*sizeof(uint8_t));
     dpfip[1]->tau[1] = (uint8_t*)malloc(height*sizeof(uint8_t));
+
     key1->sigma = (block*)malloc(height*sizeof(block));
     key1->tau0 = (uint8_t*)malloc(height*sizeof(uint8_t));
     key1->tau1 = (uint8_t*)malloc(height*sizeof(uint8_t));
+
+    ip2->sigma = (block*)malloc(height*sizeof(block));
+    ip2->tau[0] = (uint8_t*)malloc(height*sizeof(uint8_t));
+    ip2->tau[1] = (uint8_t*)malloc(height*sizeof(uint8_t));
 
 
     for (int i = 0; i < height; i++) {
@@ -230,6 +252,14 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
     for(size_t j=0; j<2; j++) {
         prg_eval_all_and_xor(dpfl[j], dpfip[j]->hats);
     }
+        ip2->zs0[0][i] = dpfl[0]->zs[0];
+        ip2->zs0[1][i] = dpfl[0]->zs[1];
+        ip2->zs1[0][i] = dpfl[1]->zs[0];
+        ip2->zs1[1][i] = dpfl[1]->zs[1];
+        ip2->zt0[0][i] = dpfl[0]->zt[0];
+        ip2->zt0[1][i] = dpfl[0]->zt[1];
+        ip2->zt1[0][i] = dpfl[1]->zt[0];
+        ip2->zt1[1][i] = dpfl[1]->zt[1];
 
         uint8_t sig = (((dpfip[0]->index + dpfip[1]->index).value >> (height - 1 - i)) & 1);
         //sig0 & sig1 are only useful if index is boolean shared. With arithmetic shares, there
@@ -242,16 +272,19 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
         dpfip[1]->sigma[i] = dpfl[0]->zs[1^sig] ^ dpfl[1]->zs[1^sig];
         key0->sigma[i] = dpfip[0]->sigma[i];
         key1->sigma[i] = dpfip[1]->sigma[i];
+        ip2->sigma[i] = key0->sigma[i];
 
         dpfip[0]->tau[0][i] = dpfl[0]->zt[0] ^ dpfl[1]->zt[0] ^ sig ^ 1;
         dpfip[1]->tau[0][i] = dpfl[0]->zt[0] ^ dpfl[1]->zt[0] ^ sig ^ 1;
         key0->tau0[i] = dpfip[0]->tau[0][i];
         key1->tau0[i] = dpfip[1]->tau[0][i];
+        ip2->tau[0][i] = key0->tau0[i];
 
         dpfip[0]->tau[1][i] = dpfl[0]->zt[1] ^ dpfl[1]->zt[1] ^ sig;
         dpfip[1]->tau[1][i] = dpfl[0]->zt[1] ^ dpfl[1]->zt[1] ^ sig;
         key0->tau1[i] = dpfip[0]->tau[1][i];
         key1->tau1[i] = dpfip[1]->tau[1][i];
+        ip2->tau[1][i] = key0->tau1[i];
 
         dpfl[0]->prevt = dpfip[0]->hatt;
         dpfl[1]->prevt = dpfip[1]->hatt;
@@ -303,8 +336,8 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
     W1[0] = GroupElement(0, key1->Bout);
     W1[1] = GroupElement(0, key1->Bout);
 
-    uint64_t T0 = 0;
-    uint64_t T1 = 0;
+    int T0 = 0;
+    int T1 = 0;
     //Divyu: Don't delete this is parallelized code for final correction words which needs some changes.
     // GroupElement** gamma_indp0 = (GroupElement**)malloc(dpfl[0]->size*sizeof(GroupElement*));
     // GroupElement** gamma_indp1 = (GroupElement**)malloc(dpfl[1]->size*sizeof(GroupElement*));
@@ -371,12 +404,19 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
         free(gamma_ind0);
         free(gamma_ind1); 
     }
+    ip2->T[0] = T0;
+    ip2->T[1] = T1;
+    ip2->W[0][0] = W0[0];
+    ip2->W[0][1] = W0[1];
+    ip2->W[1][0] = W1[0];
+    ip2->W[1][1] = W1[1];
     // free(gamma_indp0);
     // free(gamma_indp1);
     free(dpfip[0]->hatt);
     free(dpfip[1]->hatt);
 
     uint8_t t1 = (T0<T1)?1:0;
+    std::cout<<"In keygen "<<static_cast<uint32_t>(t1)<<"\n";
     key0->gamma = (GroupElement*)malloc(2*sizeof(GroupElement));
     key1->gamma = (GroupElement*)malloc(2*sizeof(GroupElement));
     if(t1) {
@@ -391,7 +431,8 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
         key0->gamma[1] = beta[0][1] + beta[1][1] -W0[1] + W1[1];
         key1->gamma[1] = beta[0][1] + beta[1][1] -W0[1] + W1[1];
     }
-    
+    ip2->gamma[0] = key0->gamma[0];
+    ip2->gamma[1] = key0->gamma[1];
     free_dpf_layer(dpfl[0]);
     free_dpf_layer(dpfl[1]);
 
@@ -454,8 +495,8 @@ GroupElement* dpf_eval(int party, GroupElement idx, const dpf_key &key) {
     return out;
 };
 
-GroupElement** dpf_eval_all(int party, const dpf_key &key) {
-
+GroupElement** dpf_eval_all(int party, const dpf_key &key, input_check_pack *icp) {
+    icp->size = key.height;
     //Intialize dpf layer
     dpf_layer* dpfl = (dpf_layer*)malloc(sizeof(dpf_layer));
     dpfl->size = 1;
@@ -468,12 +509,32 @@ GroupElement** dpf_eval_all(int party, const dpf_key &key) {
     uint8_t* hatt = (uint8_t*)malloc(sizeof(uint8_t));
     hatt[0] = party;
 
+    icp->zs[0] = (block*)malloc(key.height*sizeof(block));
+    icp->zs[1] = (block*)malloc(key.height*sizeof(block));
+    icp->zt[0] = (uint8_t*)malloc(key.height*sizeof(uint8_t));
+    icp->zt[1] = (uint8_t*)malloc(key.height*sizeof(uint8_t));
+    icp->sigma = (block*)malloc(key.height*sizeof(block));
+    icp->tau[0] = (uint8_t*)malloc(key.height*sizeof(uint8_t));
+    icp->tau[1] = (uint8_t*)malloc(key.height*sizeof(uint8_t));
+
+
     for(int i=0; i<key.height; i++) {
         prg_eval_all_and_xor(dpfl, hats);
+        icp->sigma[i] = (key.sigma)[i];
+        icp->tau[0][i] = (key.tau0)[i];
+        icp->tau[1][i] = (key.tau1)[i];
+
+        icp->zs[0][i] = dpfl->zs[0];
+        icp->zs[1][i] = dpfl->zs[1];
+        icp->zt[0][i] = dpfl->zt[0];
+        icp->zt[1][i] = dpfl->zt[1];
+
         dpfl->prevt = hatt;
         free(hats);
         hats = (block*) malloc(dpfl->size*sizeof(block));
         hatt = (uint8_t*)malloc(dpfl->size*sizeof(uint8_t));
+        
+
         #pragma omp parallel for
         for(size_t j=0; j<dpfl->size; j++) {
             uint8_t tau = (j%2==0)?(key.tau0)[i]:(key.tau1)[i];
@@ -489,11 +550,26 @@ GroupElement** dpf_eval_all(int party, const dpf_key &key) {
         }
     }
 
+
     GroupElement** out = (GroupElement**) malloc(dpfl->size*sizeof(GroupElement*));
     GroupElement** gamma_ind = (GroupElement**)malloc(dpfl->size*sizeof(GroupElement*));
     convert_parallel(key.Bout, 2, dpfl->size, hats, gamma_ind);
+    icp->T = 0;
+    icp->W[0] = GroupElement(0, key.Bout);
+    icp->W[1] = GroupElement(0, key.Bout);
+
+    for(size_t j=0; j<dpfl->size; j++) {
+        icp->T = icp->T + hatt[j];
+        icp->W[0] = icp->W[0] + gamma_ind[j][0];
+        icp->W[1] = icp->W[1] + gamma_ind[j][1];
+    }
+
+    icp->gamma[0] = (key.gamma)[0];
+    icp->gamma[1] = (key.gamma)[1];
+
     #pragma omp parallel for
     for(size_t j=0; j<dpfl->size; j++) {
+
         out[j] = (GroupElement*)malloc(2*sizeof(GroupElement));
         // auto gamma_ind = convert(key.Bout, 2, hats[j]);
         if(party==0) {

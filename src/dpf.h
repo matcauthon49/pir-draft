@@ -39,11 +39,11 @@ inline u8 lsb(const block &b)
 GroupElement* convert(const int out_bitwidth, const int no_of_group_elements, const block &inp_block);
 void convert_parallel(const int out_bitwidth, const int no_of_group_elements, const int no_of_input_blocks, block* inp_block, GroupElement** out);
 
-std::pair<dpf_key, dpf_key> dpf_keygen(int height, int Bout, dpf_input_pack **dpfip);
+std::pair<dpf_key, dpf_key> dpf_keygen(int height, int Bout, dpf_input_pack **dpfip, input_check_pack_2 *ip2);
 
 GroupElement* dpf_eval(int party, GroupElement idx, const dpf_key &key);
 
-GroupElement** dpf_eval_all(int party, const dpf_key &key);
+GroupElement** dpf_eval_all(int party, const dpf_key &key, input_check_pack *icp);
 
 void free_dpf_layer(dpf_layer* dpfl);
 

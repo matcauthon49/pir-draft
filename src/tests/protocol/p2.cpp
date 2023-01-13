@@ -55,7 +55,7 @@ int main() {
     dpfip[1]->alpha[0] = GroupElement(6, Bout);
     // std::cout<<"Here\n";
     dpf_key k0, k1;
-    std::tie(k0, k1) = dpf_keygen(Bin, Bout, dpfip);
+    // std::tie(k0, k1) = dpf_keygen(Bin, Bout, dpfip);
 
     p2.send_dpf_key(k0, bitlength, 0);
 
