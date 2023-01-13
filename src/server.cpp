@@ -309,30 +309,32 @@ int Server::recv_int(int party) {
     return b;
 }
 
-dpf_key Server::recv_dpf_key(int bl, int party, int size) {
+dpf_key Server::recv_dpf_key(int bl, int party) {
     
-    int height = recv_int(2);
-    int groupSize = recv_int(2);
-    int Bout = recv_int(2);
-    block s = recv_block(2);
-    uint8_t t = recv_uint8(2);
+    int height = recv_int(party);
+    int groupSize = recv_int(party);
+    int Bout = recv_int(party);
+    block s = recv_block(party);
+    uint8_t t = recv_uint8(party);
 
     block *sigma = new block[height];
     for (int i = 0; i < height; i++) {
-        sigma[i] = recv_block(2);
+        sigma[i] = recv_block(party);
     }
 
     uint8_t *tau0 = new uint8_t[height];
     for (int i = 0; i < height; i++) {
-        tau0[i] = recv_uint8(2);
+        tau0[i] = recv_uint8(party);
     }
 
     uint8_t *tau1 = new uint8_t[height];
     for (int i = 0; i < height; i++) {
-        tau1[i] = recv_uint8(2);
+        tau1[i] = recv_uint8(party);
     }
 
-    GroupElement *gamma;
+    GroupElement* gamma = new GroupElement[2];
+    gamma[0] = recv_ge(bitlength, 2);
+    gamma[1] = recv_ge(bitlength, 2);
 
     return dpf_key(height, Bout, groupSize, s, t, sigma, tau0, tau1, gamma);
 }

@@ -43,7 +43,7 @@ public:
     void send_size(size_t &i, int party);
     void send_uint8(uint8_t &i, int party);
     void send_int(int &i, int party);
-    void send_dpf_key(dpf_key dpfk, int party, int bw);
+    void send_dpf_key(dpf_key dpfk, int bw, int party);
     void send_input_check_pack_2(input_check_pack_2 &icp, int bl, int party);
 
     GroupElement recv_ge(int bl, int party);

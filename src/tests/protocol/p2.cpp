@@ -42,7 +42,7 @@ int main() {
 
     std::cout<<"----------------Running Key Gen-----------------\n";
 
-    int Bout = 10;
+    int Bout = bitlength;
     int Bin = 16;
     dpf_input_pack *dpfip[2];
     dpfip[0] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
@@ -57,7 +57,14 @@ int main() {
     dpf_key k0, k1;
     std::tie(k0, k1) = dpf_keygen(Bin, Bout, dpfip);
 
-    p2.send_dpf_key(k0, 0, 100);
+    p2.send_dpf_key(k0, bitlength, 0);
+
+    // GroupElement g = GroupElement(10);
+    // p2.send_ge(g, bitlength, 0);
+
+
+    std::cout << k0.gamma[0] << "\n";
+    std::cout << k0.gamma[1] << "\n";
 
     std::cout << "Bytes Sent: " << p2.bytes_sent << "\n";
     std::cout << "Bytes Recieved: " << p2.bytes_recieved << "\n";

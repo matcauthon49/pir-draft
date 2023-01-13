@@ -29,7 +29,8 @@ struct dpf_key {
                 t(t), 
                 sigma(sigma), 
                 tau0(tau0), 
-                tau1(tau1) 
+                tau1(tau1),
+                gamma(gamma)
             {};
 };
 

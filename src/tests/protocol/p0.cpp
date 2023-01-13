@@ -21,7 +21,7 @@ int main() {
 
     std::cout << w.ecbEncBlock(ZeroBlock) << "\n";
 
-    dpf_key k0 = p0.recv_dpf_key(32, 2, 16);
+    dpf_key k0 = p0.recv_dpf_key(bitlength, 2);
 
     std::cout << "Height = " << k0.height << "\n";
     std::cout << "Group Size = " << k0.groupSize << "\n";
@@ -47,6 +47,13 @@ int main() {
     }
 
     std::cout << "\n";
+
+    // std::cout << ":: Gamma ::" << "\n";
+    // for (int i = 0; i < 2; i++) {
+    //     std::cout << k0.gamma[i];
+    // }
+
+    std::cout << k0.gamma[0] << "\n" << k0.gamma[1] << "\n";
  
     std::cout << "Bytes Sent: " << p0.bytes_sent << "\n";
     std::cout << "Bytes Recieved: " << p0.bytes_recieved << "\n";
