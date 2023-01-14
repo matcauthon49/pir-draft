@@ -35,8 +35,14 @@ int main() {
     input_check_pack_2 ip2;
     dpf_key k0, k1;
 
+    clock_t begin = clock();
     std::tie(k0, k1) = dpf_keygen(Bin, Bout, dpfip, &ip2);
-    //Sending key, index and payload to P0
+    clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+    std::cout << "TIME TAKEN FOR KEYGEN: " << elapsed_secs << "\n";
+
+    //Sending key, index and payload to P2
     p2.send_ge(dpfip[0]->index, Bin, 0);
     p2.send_ge(dpfip[0]->alpha[0], Bout, 0);
     p2.send_dpf_key(k0, Bin, Bout, 0);
@@ -59,6 +65,68 @@ int main() {
     // //Eval all
 
     p2.connect_to_client(ipr, portr);
+
+    p2.send_input_check_pack_2(ip2, bitlength, bitlength, 2);
+
+    // std::cout << "P2 Index: " << ip2.index << "\n";
+    // std::cout << "P2 Payload: " << ip2.payload << "\n";
+
+    // std::cout << "P2 zs0[0]: " << "\n";
+    // for (int i = 0; i < ip2.size; i++) {
+    //     std::cout << ip2.zs0[0][i] << "\n";
+    // }
+    // std::cout << "P2 zs0[1]: " << "\n";
+    // for (int i = 0; i < ip2.size; i++) {
+    //     std::cout << ip2.zs0[1][i] << "\n";
+    // }
+
+    // std::cout << "P2 zs1[0]: " << "\n";
+    // for (int i = 0; i < ip2.size; i++) {
+    //     std::cout << ip2.zs1[0][i] << "\n";
+    // }
+    // std::cout << "P2 zs1[1]: " << "\n";
+    // for (int i = 0; i < ip2.size; i++) {
+    //     std::cout << ip2.zs1[1][i] << "\n";
+    // }
+
+    // std::cout << "P2 zt0[0]: ";
+    // for (int i = 0; i < ip2.size; i++) {
+    //     std::cout << unsigned(ip2.zt0[0][i]);
+    // }
+    // std::cout << "\n";
+    // std::cout << "P2 zt0[1]: ";
+    // for (int i = 0; i < ip2.size; i++) {
+    //     std::cout << unsigned(ip2.zt0[1][i]);
+    // }
+    // std::cout << "\n";
+    // std::cout << "P2 zt1[0]: ";
+    // for (int i = 0; i < ip2.size; i++) {
+    //     std::cout << unsigned(ip2.zt1[0][i]);
+    // }
+    // std::cout << "\n";
+    // std::cout << "P2 zt1[1]: ";
+    // for (int i = 0; i < ip2.size; i++) {
+    //     std::cout << unsigned(ip2.zt1[1][i]);
+    // }
+
+    // std::cout << "\n";
+    // std::cout << "P2 Sigma: " << "\n";
+    // for (int i = 0; i < ip2.size; i++) {
+    //     std::cout << ip2.sigma[i] << "\n";
+    // }
+    // std::cout << "P2 Tau0: ";
+    // for (int i = 0; i < ip2.size; i++) {
+    //     std::cout << unsigned(ip2.tau[0][i]);
+    // }
+    // std::cout << "\n";
+    // std::cout << "P2 Tau1: ";
+    // for (int i = 0; i < ip2.size; i++) {
+    //     std::cout << unsigned(ip2.tau[1][i]);
+    // }
+    // std::cout << "\n";
+    // std::cout << "P2 T: " << ip2.T << "\n";
+    // std::cout << "P2 W: " << ip2.W[0] << " " << ip2.W[1] << "\n";
+    // std::cout << "P2 Gamma: " << ip2.gamma[0] << " " << ip2.gamma[1] << "\n";
 
     std::cout << "Bytes Sent: " << p2.bytes_sent << "\n";
     std::cout << "Bytes Recieved: " << p2.bytes_recieved << "\n";

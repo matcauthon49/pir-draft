@@ -96,4 +96,4 @@ inline void free_input_check_pack_2(input_check_pack_2 &icp) {
     delete[] icp.index;
 }
 
-bool check_xor(int bw, input_check_pack *x0, input_check_pack *x1, input_check_pack_2 *x2);
+bool check_xor(int bw, input_check_pack x0, input_check_pack x1, input_check_pack_2 x2);

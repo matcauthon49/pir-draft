@@ -31,6 +31,49 @@ int main() {
     GroupElement** out1 = dpf_eval_all(1, k1, &icp1);
 
     p1.connect_to_client(ipq, portq);
+    p1.send_input_check_pack(icp1, bitlength, bitlength, 3);
+
+    // Print ICP
+    // std::cout << "P1 Index: " << icp1.index << "\n";
+    // std::cout << "P1 Payload: " << icp1.payload << "\n";
+
+    // std::cout << "P1 zs[0]: " << "\n";
+    // for (int i = 0; i < icp1.size; i++) {
+    //     std::cout << icp1.zs[0][i] << "\n";
+    // }
+    // std::cout << "P1 zs[1]: " << "\n";
+    // for (int i = 0; i < icp1.size; i++) {
+    //     std::cout << icp1.zs[1][i] << "\n";
+    // }
+
+    // std::cout << "P1 zt[0]: ";
+    // for (int i = 0; i < icp1.size; i++) {
+    //     std::cout << unsigned(icp1.zt[0][i]);
+    // }
+    // std::cout << "\n";
+    // std::cout << "P1 zt[1]: ";
+    // for (int i = 0; i < icp1.size; i++) {
+    //     std::cout << unsigned(icp1.zt[1][i]);
+    // }
+    // std::cout << "\n";
+    // std::cout << "P1 Sigma: " << "\n";
+    // for (int i = 0; i < icp1.size; i++) {
+    //     std::cout << icp1.sigma[i] << "\n";
+    // }
+    // std::cout << "P1 Tau0: ";
+    // for (int i = 0; i < icp1.size; i++) {
+    //     std::cout << unsigned(icp1.tau[0][i]);
+    // }
+    // std::cout << "\n";
+    // std::cout << "P1 Tau1: ";
+    // for (int i = 0; i < icp1.size; i++) {
+    //     std::cout << unsigned(icp1.tau[1][i]);
+    // }
+    // std::cout << "\n";
+    // std::cout << "P1 T: " << icp1.T << "\n";
+    // std::cout << "P1 W: " << icp1.W[0] << " " << icp1.W[1] << "\n";
+    // std::cout << "P1 Gamma: " << icp1.gamma[0] << " " << icp1.gamma[1] << "\n";
+
 
     //Also have to free out1
     std::cout << "Bytes Sent: " << p1.bytes_sent << "\n";

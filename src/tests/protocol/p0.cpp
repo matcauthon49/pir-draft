@@ -84,6 +84,49 @@ int main() {
     // std::cout<<"out "<<out0[5][0]<<" "<<out0[5][1]<<"\n";
 
     p0.connect_to_client(ipp, portp);
+    p0.send_input_check_pack(icp0, bitlength, bitlength, 3);
+
+    
+    // Print ICP
+    // std::cout << "P0 Index: " << icp0.index << "\n";
+    // std::cout << "P0 Payload: " << icp0.payload << "\n";
+
+    // std::cout << "P0 zs[0]: " << "\n";
+    // for (int i = 0; i < icp0.size; i++) {
+    //     std::cout << icp0.zs[0][i] << "\n";
+    // }
+    // std::cout << "P0 zs[1]: " << "\n";
+    // for (int i = 0; i < icp0.size; i++) {
+    //     std::cout << icp0.zs[1][i] << "\n";
+    // }
+
+    // std::cout << "P0 zt[0]: ";
+    // for (int i = 0; i < icp0.size; i++) {
+    //     std::cout << unsigned(icp0.zt[0][i]);
+    // }
+    // std::cout << "\n";
+    // std::cout << "P0 zt[1]: ";
+    // for (int i = 0; i < icp0.size; i++) {
+    //     std::cout << unsigned(icp0.zt[1][i]);
+    // }
+    // std::cout << "\n";
+    // std::cout << "P0 Sigma: " << "\n";
+    // for (int i = 0; i < icp0.size; i++) {
+    //     std::cout << icp0.sigma[i] << "\n";
+    // }
+    // std::cout << "P0 Tau0: ";
+    // for (int i = 0; i < icp0.size; i++) {
+    //     std::cout << unsigned(icp0.tau[0][i]);
+    // }
+    // std::cout << "\n";
+    // std::cout << "P0 Tau1: ";
+    // for (int i = 0; i < icp0.size; i++) {
+    //     std::cout << unsigned(icp0.tau[1][i]);
+    // }
+    // std::cout << "\n";
+    // std::cout << "P0 T: " << icp0.T << "\n";
+    // std::cout << "P0 W: " << icp0.W[0] << " " << icp0.W[1] << "\n";
+    // std::cout << "P0 Gamma: " << icp0.gamma[0] << " " << icp0.gamma[1] << "\n";
  
     //Have to free out0
     std::cout << "Bytes Sent: " << p0.bytes_sent << "\n";

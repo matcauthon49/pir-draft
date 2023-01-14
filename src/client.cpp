@@ -313,7 +313,7 @@ size_t Client::recv_size(int party) {
 
 uint8_t Client::recv_uint8(int party) {
     char buf[sizeof(uint8_t)];
-    recv(recvsocket[party-2], buf, sizeof(uint8_t), MSG_WAITALL);
+    recv(recvsocket[party], buf, sizeof(uint8_t), MSG_WAITALL);
     uint8_t b = *(uint8_t *)buf;
     bytes_recieved += sizeof(uint8_t);
     return b;
@@ -321,7 +321,7 @@ uint8_t Client::recv_uint8(int party) {
 
 int Client::recv_int(int party) {
     char buf[sizeof(int)];
-    recv(recvsocket[party-2], buf, sizeof(int), MSG_WAITALL);
+    recv(recvsocket[party], buf, sizeof(int), MSG_WAITALL);
     int b = *(int*)buf;
     bytes_recieved += sizeof(int);
     return b;
@@ -337,15 +337,21 @@ input_check_pack Client::recv_input_check_pack(int bl, int bw, int party) {
     // size must be sent before the rest
     icp.size = recv_size(party);
 
-    icp.zs[0] = (block*)malloc(icp.size*(sizeof(block)));
-    icp.zs[1] = (block*)malloc(icp.size*(sizeof(block)));
-    icp.zt[0] = (uint8_t*)malloc(icp.size*(sizeof(uint8_t)));
-    icp.zt[1] = (uint8_t*)malloc(icp.size*(sizeof(uint8_t)));
+    icp.zs[0] = new block[icp.size];
+    icp.zs[1] = new block[icp.size];
+    icp.zt[0] = new uint8_t[icp.size];
+    icp.zt[1] = new uint8_t[icp.size];
 
     for (size_t i = 0; i < icp.size; i++) {
         icp.zs[0][i] = recv_block(party);
+    }
+    for (size_t i = 0; i < icp.size; i++) {
         icp.zs[1][i] = recv_block(party);
+    }
+    for (size_t i = 0; i < icp.size; i++) {
         icp.zt[0][i] = recv_uint8(party);
+    }
+    for (size_t i = 0; i < icp.size; i++) {
         icp.zt[1][i] = recv_uint8(party);
     }
 

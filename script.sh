@@ -50,11 +50,11 @@ make
 COLOR='\033[0;35m'
 NC='\033[0m' 
 printf "${COLOR}---${NC} Build Complete ${COLOR}---${NC}\n"
-./p0 &
-sleep 1
-./p1 &
-sleep 1
-./p2 &
-sleep 1
-./c
+# ./p0 &
+# sleep 1
+# ./p1 &
+# sleep 1
+# ./p2 &
+# sleep 1
+# ./c
 wait

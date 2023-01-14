@@ -246,8 +246,14 @@ void Server::send_input_check_pack(input_check_pack icp, int bw, int bl, int par
 
     for (size_t i = 0; i < icp.size; i++) {
         send_block(icp.zs[0][i], party);
+    }
+    for (size_t i = 0; i < icp.size; i++) {
         send_block(icp.zs[1][i], party);
+    }
+    for (size_t i = 0; i < icp.size; i++) {
         send_uint8(icp.zt[0][i], party);
+    }
+    for (size_t i = 0; i < icp.size; i++) {
         send_uint8(icp.zt[1][i], party);
     }
 
