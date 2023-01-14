@@ -59,7 +59,9 @@ int main() {
     // //Eval all
 
     p2.connect_to_client(ipr, portr);
-
+    GroupElement temp(4, 10);
+    std::cout<<"Groupelem "<<temp.value<<"\n";
+    p2.send_ge(temp, 10, 3);
     std::cout << "Bytes Sent: " << p2.bytes_sent << "\n";
     std::cout << "Bytes Recieved: " << p2.bytes_recieved << "\n";
 
