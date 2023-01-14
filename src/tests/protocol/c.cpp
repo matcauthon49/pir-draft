@@ -6,7 +6,7 @@
 
 int main() {
 
-    GroupElement index = GroupElement(1);
+    
 
     std::string ip[6] = {"127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1"};
     int port[6] = {4000, 4001, 5000, 5001, 6000, 6001};
@@ -172,12 +172,12 @@ int main() {
 
     c.send_uint8(out, 0);
     c.send_uint8(out, 1);
-
+    GroupElement index = GroupElement(10, ip2.size);    
     if (output) {
 
-        GroupElement rotated_index = ip2.index[0] + ip2.index[1] + index;
-        c.send_ge(rotated_index, bitlength, 0);
-        c.send_ge(rotated_index, bitlength, 1);
+        GroupElement rotated_index = index - (ip2.index)[0] - (ip2.index)[1];
+        c.send_ge(rotated_index, ip2.size, 0);
+        c.send_ge(rotated_index, ip2.size, 1);
 
         // std::cout << "Rotated Index: " << rotated_index << "\n";
 
@@ -186,12 +186,12 @@ int main() {
         GroupElement o1 = c.recv_ge(bitlength, 1);
         GroupElement ohat1 = c.recv_ge(bitlength, 1);
 
-        if (icp0.payload * (o0 + o1) != ohat0 + ohat1) {
+        if ((icp0.payload + icp1.payload) * (o0 + o1) != (ohat0 + ohat1)) {
             std::cerr << "Incorrect dpf evaluation\n";
             return -1;
         }
 
-        GroupElement dbout = ohat0 + ohat1;
+        GroupElement dbout = o0 + o1;
 
         std::cout << "\nOutput: " << dbout << ".\n\n"; 
 

@@ -5,10 +5,10 @@
 #include "server_trusted.h"
 
 int main() {
-
-    GroupElement *database;
-    int database_size;
-
+    int database_size = (1<<16);
+    GroupElement database[database_size];
+    for(int i=0; i<database_size; i++)
+        database[i] = GroupElement(i, bitlength);
     std::string ip[2] = {"127.0.0.1", "127.0.0.1"};
     int port[2] = {2000, 2001};
     std::string ipp[2] = {"127.0.0.1", "127.0.0.1"};
@@ -86,6 +86,8 @@ int main() {
     //Eval All
     GroupElement** out0 = dpf_eval_all(0, k0, &icp0);
     // std::cout<<"out "<<out0[5][0]<<" "<<out0[5][1]<<"\n";
+    // for(int i=0; i<8; i++)
+    //     std::cout<<"P0 "<<i<<" "<<out0[i][0]<<" "<<out0[i][1]<<"\n";
 
     p0.connect_to_client(ipp, portp);
     p0.send_input_check_pack(icp0, bitlength, bitlength, 3);
@@ -135,19 +137,22 @@ int main() {
 
     if (accept) {
 
-        GroupElement rotated_index = p0.recv_ge(bitlength, 3);
-        // std::cout << "Rotated Index: " << rotated_index << "\n";
+        GroupElement rotated_index = p0.recv_ge(icp0.size, 3);
+        // std::cout << "Rotated Index: " << rotated_index.value << "\n";
 
-        GroupElement o = GroupElement(0);
-        GroupElement hato = GroupElement(0);
+        GroupElement o = GroupElement(0, bitlength);
+        GroupElement hato = GroupElement(0, bitlength);
         for (int i = 0; i < database_size; i++) {
-            o = o + out0[0][i] * database[i+rotated_index.value];
-            hato = hato + out0[1][i] * database[i+rotated_index.value];
+            GroupElement ind = GroupElement(i, icp0.size) + rotated_index;
+            // std::cout<<"P0 "<<ind.value<<"\n";
+            o = o + out0[i][0] * database[ind.value];
+            hato = hato + out0[i][1] * database[ind.value];
         }
 
-        p0.send_ge(o, bitlength, 3);
+        // std::cout<<"P0 final "<<o.value<<" "<<hato.value<<"\n";
 
-        //Also have to free out1
+        p0.send_ge(o, bitlength, 3);
+        p0.send_ge(hato, bitlength, 3);
         std::cout << "Bytes Sent: " << p0.bytes_sent << "\n";
         std::cout << "Bytes Recieved: " << p0.bytes_recieved << "\n";
 

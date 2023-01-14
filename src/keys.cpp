@@ -53,7 +53,7 @@ bool check_xor(int bw, input_check_pack x0, input_check_pack x1, input_check_pac
         out &= (x1.gamma[1] == x2.gamma[1]);
         uint8_t t1 = (x0.T < x1.T)?1:0;
         // std::cout<<out<<"\n";
-        std::cout<<"gamma 0 = "<<x0.gamma[0]<<" "<<"gamma 1 = "<<x0.gamma[1]<<"\n";
+        // std::cout<<"gamma 0 = "<<x0.gamma[0]<<" "<<"gamma 1 = "<<x0.gamma[1]<<"\n";
         if(t1) {
             out &= (x0.gamma[0] == (x0.W[0] - beta[0][0] -beta[1][0] - x1.W[0]));
             out &= (x0.gamma[1] == (x0.W[1] - beta[0][1] - beta[1][1] - x1.W[1]));

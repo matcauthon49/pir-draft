@@ -27,12 +27,12 @@ int main() {
 
     dpfip[0] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
     dpfip[1] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
-    dpfip[0]->index = GroupElement(2, Bin);
-    dpfip[1]->index = GroupElement(3, Bin);
+    dpfip[0]->index = GroupElement(65000, Bin);
+    dpfip[1]->index = GroupElement(500, Bin);
     dpfip[0]->alpha = (GroupElement*)malloc(sizeof(GroupElement));
-    dpfip[0]->alpha[0] = GroupElement(15, Bout);
+    dpfip[0]->alpha[0] = GroupElement(100, Bout);
     dpfip[1]->alpha = (GroupElement*)malloc(sizeof(GroupElement));
-    dpfip[1]->alpha[0] = GroupElement(6, Bout);
+    dpfip[1]->alpha[0] = GroupElement(100, Bout);
 
     input_check_pack_2 ip2;
     dpf_key k0, k1;

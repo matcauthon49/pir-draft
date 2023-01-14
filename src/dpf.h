@@ -11,6 +11,8 @@
 #include <omp.h>
 
 using namespace osuCrypto;
+extern int Bin;
+extern int Bout;
 struct dpf_layer {
     size_t size;
     size_t level;

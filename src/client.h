@@ -37,7 +37,7 @@ public:
 
     void close(int party);
     void send_ge(GroupElement &ge, int bitwidth, int party);
-    void Client::send_uint8(uint8_t &i, int party);
+    void send_uint8(uint8_t &i, int party);
 
     GroupElement recv_ge(int bl, int party);
     block recv_block(int party);
