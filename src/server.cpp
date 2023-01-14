@@ -104,7 +104,7 @@ void Server::connect_to_client(std::string ip[2], int port[2]) {
     {
         sendsocket[1] = socket(AF_INET, SOCK_STREAM, 0);
         if (recvsocket < 0) {
-            perror("recvsocket 0 failed");
+            perror("sendsocket 1 failed");
             exit(1);
         }
         struct sockaddr_in addr;
@@ -113,11 +113,11 @@ void Server::connect_to_client(std::string ip[2], int port[2]) {
             addr.sin_addr.s_addr = inet_addr(ip[0].c_str());
 
         if (connect(sendsocket[1], (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-            perror("recv connection with Client failed");
+            perror("send connection with Client failed");
             exit(1);
         }
         else {
-            std::cout << "recv connection with Client successful" <<"\n";
+            std::cout << "send connection with Client successful" <<"\n";
         }
 
         const int one = 1;
@@ -162,41 +162,41 @@ void Server::close(int party) {
 void Server::send_ge(GroupElement &ge, int bw, int party) {
     if (bw > 32) {
         char *buf = (char *)(&ge.value);
-        send(sendsocket[party], buf, 8, 0);
+        send(sendsocket[party-2], buf, 8, 0);
         bytes_sent += 8;
     }
     else if (bw > 16) {
         char *buf = (char *)(&ge.value);
-        send(sendsocket[party], buf, 4, 0);
+        send(sendsocket[party-2], buf, 4, 0);
         bytes_sent += 4;
     }
     else if (bw > 8) {
         char *buf = (char *)(&ge.value);
-        send(sendsocket[party], buf, 2, 0);
+        send(sendsocket[party-2], buf, 2, 0);
         bytes_sent += 2;
     }
     else {
         char *buf = (char *)(&ge.value);
-        send(sendsocket[party], buf, 1, 0);
+        send(sendsocket[party-2], buf, 1, 0);
         bytes_sent += 1;
     }
 }
 
 void Server::send_block(block &b, int party) {
     char *buf = (char *)(&b);
-    send(sendsocket[party], buf, sizeof(block), 0);
+    send(sendsocket[party-2], buf, sizeof(block), 0);
     bytes_sent += sizeof(block);
 }
 
 void Server::send_uint8(uint8_t &i, int party) {
     char *buf = (char *)(&i);
-    send(sendsocket[party], buf, 1, 0);
+    send(sendsocket[party-2], buf, 1, 0);
     bytes_sent += 1;
 }
 
 void Server::send_size(size_t &i, int party) {
     char *buf = (char *)(&i);
-    send(sendsocket[party], buf, sizeof(size_t), 0);
+    send(sendsocket[party-2], buf, sizeof(size_t), 0);
     bytes_sent += sizeof(size_t);
 }
 
@@ -233,7 +233,7 @@ GroupElement Server::recv_ge(int bl, int party) {
 
 void Server::send_int(int &i, int party) {
     char *buf = (char *)(&i);
-    send(sendsocket[party], buf, sizeof(int), 0);
+    send(sendsocket[party-2], buf, sizeof(int), 0);
     bytes_sent += sizeof(int);
 }
 
@@ -329,8 +329,8 @@ dpf_key Server::recv_dpf_key(int bl, int party) {
     }
 
     GroupElement* gamma = new GroupElement[2];
-    gamma[0] = recv_ge(bl, 2);
-    gamma[1] = recv_ge(bl, 2);
+    gamma[0] = recv_ge(bl, party);
+    gamma[1] = recv_ge(bl, party);
 
     return dpf_key(height, Bout, s, t, sigma, tau0, tau1, gamma);
 }
