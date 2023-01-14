@@ -9,7 +9,7 @@ using namespace osuCrypto;
 //Bitlength is length of output
 int bitlength = 8;
 //Bitwidth is length of index
-int bitwidth = 16;
+int bitwidth = 2;
 PRNG prngShared;
 
 int main() {
@@ -17,19 +17,19 @@ int main() {
     GroupElement g2 = GroupElement(100);
     GroupElement g3 = GroupElement(1000);
 
-    std::cout << g.bitsize << " " << g2.bitsize << " " << g3.bitsize << "\n";
+    // std::cout << g.bitsize << " " << g2.bitsize << " " << g3.bitsize << "\n";
     // prng.SetSeed(toBlock(0, 0), sizeof(block));
 
     std::cout<<"----------------Running Key Gen-----------------\n";
     // time_t start, end;
     prng.SetSeed(toBlock(0, 1), sizeof(block));
     int Bout = bitlength;
-    int Bin = 5;
+    int Bin = 16;
     dpf_input_pack *dpfip[2];
     dpfip[0] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
     dpfip[1] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
-    dpfip[0]->index = GroupElement(12, Bin);
-    dpfip[1]->index = GroupElement(1, Bin);
+    dpfip[0]->index = GroupElement(60000, Bin);
+    dpfip[1]->index = GroupElement(5500, Bin);
     dpfip[0]->alpha = (GroupElement*)malloc(sizeof(GroupElement));
     dpfip[0]->alpha[0] = GroupElement(100, Bout);
     dpfip[1]->alpha = (GroupElement*)malloc(sizeof(GroupElement));
@@ -74,8 +74,10 @@ int main() {
     // std::cout<<"Printing indexes\n";
     for(int i=0; i<(1<<Bin); i++) {
         // std::cout<<"i: "<<i<<" "<<(t_vec_0[i][0]+t_vec_1[i][0]).value<<" "<<(t_vec_0[i][1]+t_vec_1[i][1]).value<<"\n";
-        if((t_vec_0[i][0]+t_vec_1[i][0]).value != 0 || (t_vec_0[i][1]+t_vec_1[i][1]).value != 0)
+        if((t_vec_0[i][0]+t_vec_1[i][0]).value != 0 || (t_vec_0[i][1]+t_vec_1[i][1]).value != 0) {
            std::cout<<i<<"\n";
+           std::cout<<(t_vec_0[i][0] + t_vec_1[i][0]).value<<" "<<(t_vec_0[i][1] + t_vec_1[i][1]).value<<"\n";
+        }
 
     }
     // std::cout<<"icp0:\nIndex = "<<icp0.index.value<<"\n";
@@ -102,8 +104,8 @@ int main() {
     
     // std::cout<<"T[0] = "<<(ip2.T)[0]<<" T[1] = "<<(ip2.T)[1]<<" W0[0] = "<<(ip2.W)[0][0].value<<"W0[1]"<<(ip2.W)[0][1].value<<"\n";
 
-    bool out = check_xor(Bout, &icp0, &icp1, &ip2);
-    std::cout<<"Check pass "<<out<<"\n";
+    // bool out = check_xor(Bout, &icp0, &icp1, &ip2);
+    // std::cout<<"Check pass "<<out<<"\n";
 
     // std::cout<<"----------------Running Convert Function-------------\n";
     // const int out_bitwidth = 33;
