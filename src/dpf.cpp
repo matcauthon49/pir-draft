@@ -518,6 +518,7 @@ GroupElement** dpf_eval_all(int party, const dpf_key &key, input_check_pack *icp
     #pragma omp parallel num_threads(4)
     {
         int thread_id = omp_get_thread_num();
+        #pragma omp for schedule(static, 1)
         for(size_t j=0; j<dpfl->size; j++) {
             auto gamma_ind = convert(key.Bout, 2, hats[j]);
             thread_T[thread_id] = thread_T[thread_id] +  hatt[j];

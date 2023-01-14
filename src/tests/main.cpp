@@ -80,32 +80,32 @@ int main() {
         }
 
     }
-    // std::cout<<"icp0:\nIndex = "<<icp0.index.value<<"\n";
-    // std::cout<<"Payload = "<<icp0.payload.value<<"\n";
-    // std::cout<<"Size = "<<icp0.size<<"\n";
-    // for(int i=0; i<icp0.size; i++) {
-    //     std::cout<<"i = "<<i<<" zs[0] = "<<(icp0.zs)[0][i]<<" zs[1] = "<<(icp0.zs)[1][i]<<" sigma = "<<(icp0.sigma)[i][i]<<"\n";
-    // }
-    // std::cout<<"T = "<<(icp0.T)<<" W[0] = "<<(icp0.W)[0].value<<" W[1] = "<<(icp0.W)[1].value<<" gamma = "<<(icp0.gamma)[0].value<<"\n\n\n";
+    std::cout<<"icp0:\nIndex = "<<icp0.index.value<<"\n";
+    std::cout<<"Payload = "<<icp0.payload.value<<"\n";
+    std::cout<<"Size = "<<icp0.size<<"\n";
+    for(int i=0; i<icp0.size; i++) {
+        std::cout<<"i = "<<i<<" zs[0] = "<<(icp0.zs)[0][i]<<" zs[1] = "<<(icp0.zs)[1][i]<<" sigma = "<<(icp0.sigma)[i][i]<<"\n";
+    }
+    std::cout<<"T = "<<(icp0.T)<<" W[0] = "<<(icp0.W)[0].value<<" W[1] = "<<(icp0.W)[1].value<<" gamma = "<<(icp0.gamma)[0].value<<"\n\n\n";
 
-    // std::cout<<"icp1:\nIndex = "<<icp1.index.value<<"\n";
-    // std::cout<<"Payload = "<<icp1.payload.value<<"\n";
-    // std::cout<<"Size = "<<icp1.size<<"\n";
-    // for(int i=0; i<icp1.size; i++) {
-    //     std::cout<<"i = "<<i<<" zs[0] = "<<(icp1.zs)[0][i]<<" zs[1] = "<<(icp1.zs)[1][i]<<"\n";
-    // }
-    // std::cout<<"T = "<<(icp1.T)<<" W[0] = "<<(icp1.W)[0].value<<" W[1] = "<<(icp1.W)[1].value<<" gamma = "<<(icp1.gamma)[0].value<<"\n\n\n";
+    std::cout<<"icp1:\nIndex = "<<icp1.index.value<<"\n";
+    std::cout<<"Payload = "<<icp1.payload.value<<"\n";
+    std::cout<<"Size = "<<icp1.size<<"\n";
+    for(int i=0; i<icp1.size; i++) {
+        std::cout<<"i = "<<i<<" zs[0] = "<<(icp1.zs)[0][i]<<" zs[1] = "<<(icp1.zs)[1][i]<<"\n";
+    }
+    std::cout<<"T = "<<(icp1.T)<<" W[0] = "<<(icp1.W)[0].value<<" W[1] = "<<(icp1.W)[1].value<<" gamma = "<<(icp1.gamma)[0].value<<"\n\n\n";
 
-    // std::cout<<"ip2:\nIndex = "<<(ip2.index)[0].value<<" "<<(ip2.index)[1].value<<"\n";
-    // std::cout<<"Payload = "<<(ip2.payload)[0].value<<" "<<(ip2.payload)[1].value<<"\n";
-    // std::cout<<"Size = "<<ip2.size<<"\n";
-    // for(int i=0; i<ip2.size; i++) 
-    //     std::cout<<"i = "<<i<<" zs0[0] = "<<(ip2.zs0)[0][i]<<" zs0[1] = "<<(ip2.zs0)[1][i]<<" zs1[0] = "<<(ip2.zs1)[0][i]<<"\n";
+    std::cout<<"ip2:\nIndex = "<<(ip2.index)[0].value<<" "<<(ip2.index)[1].value<<"\n";
+    std::cout<<"Payload = "<<(ip2.payload)[0].value<<" "<<(ip2.payload)[1].value<<"\n";
+    std::cout<<"Size = "<<ip2.size<<"\n";
+    for(int i=0; i<ip2.size; i++) 
+        std::cout<<"i = "<<i<<" zs0[0] = "<<(ip2.zs0)[0][i]<<" zs0[1] = "<<(ip2.zs0)[1][i]<<" zs1[0] = "<<(ip2.zs1)[0][i]<<"\n";
     
-    // std::cout<<"T[0] = "<<(ip2.T)[0]<<" T[1] = "<<(ip2.T)[1]<<" W0[0] = "<<(ip2.W)[0][0].value<<"W0[1]"<<(ip2.W)[0][1].value<<"\n";
+    std::cout<<"T[0] = "<<(ip2.T)[0]<<" T[1] = "<<(ip2.T)[1]<<" W0[0] = "<<(ip2.W)[0][0].value<<"W0[1]"<<(ip2.W)[0][1].value<<"\n";
 
-    // bool out = check_xor(Bout, &icp0, &icp1, &ip2);
-    // std::cout<<"Check pass "<<out<<"\n";
+    bool out = check_xor(Bout, icp0, icp1, ip2);
+    std::cout<<"Check pass "<<out<<"\n";
 
     // std::cout<<"----------------Running Convert Function-------------\n";
     // const int out_bitwidth = 33;
