@@ -7,6 +7,8 @@
 
 int main() {
 
+    GroupElement *database;
+
     prng.SetSeed(toBlock(0, 1), sizeof(block));
 
     std::string ip[4] = {"127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1"};
@@ -130,6 +132,12 @@ int main() {
 
     std::cout << "Bytes Sent: " << p2.bytes_sent << "\n";
     std::cout << "Bytes Recieved: " << p2.bytes_recieved << "\n";
+
+    // free_dpf_input_pack(dpfip[0]);
+    // free_dpf_input_pack(dpfip[1]);
+    // free_input_check_pack_2(ip2);
+    // free_dpf_key(k0);
+    // free_dpf_key(k1);
 
     p2.close(0);
     p2.close(1);

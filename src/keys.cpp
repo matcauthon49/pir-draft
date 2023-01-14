@@ -63,7 +63,7 @@ bool check_xor(int bw, input_check_pack x0, input_check_pack x1, input_check_pac
             out &= (x0.gamma[0] == (beta[0][0] + beta[1][0] - x0.W[0] + x1.W[0]));
             out &= (x0.gamma[1] == (beta[0][1] + beta[1][1] - x0.W[1] + x1.W[1]));
         }
-        std::cout<<out<<"\n";
+        // std::cout<<out<<"\n";
     }
     else {return 0;}
 

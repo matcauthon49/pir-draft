@@ -6,6 +6,8 @@
 
 int main() {
 
+    GroupElement index = GroupElement(1);
+
     std::string ip[6] = {"127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1"};
     int port[6] = {4000, 4001, 5000, 5001, 6000, 6001};
 
@@ -160,15 +162,51 @@ int main() {
     // std::cout << "P2 T: " << ip2.T << "\n";
     // std::cout << "P2 W: " << ip2.W[0] << " " << ip2.W[1] << "\n";
     // std::cout << "P2 Gamma: " << ip2.gamma[0] << " " << ip2.gamma[1] << "\n";
-    
-    // std::cout << "C Bytes Sent: " << c.bytes_sent << "\n";
-    // std::cout << "C Bytes Recieved: " << c.bytes_recieved << "\n";
 
     // std::cout << "------------------- ICP 2 END -------------------\n";
 
     bool output = check_xor(bitlength, icp0, icp1, ip2);
+    uint8_t out = output;
 
     std::cout << "Check: " << output << "\n";
+
+    c.send_uint8(out, 0);
+    c.send_uint8(out, 1);
+
+    if (output) {
+
+        GroupElement rotated_index = ip2.index[0] + ip2.index[1] + index;
+        c.send_ge(rotated_index, bitlength, 0);
+        c.send_ge(rotated_index, bitlength, 1);
+
+        // std::cout << "Rotated Index: " << rotated_index << "\n";
+
+        GroupElement o0 = c.recv_ge(bitlength, 0);
+        GroupElement ohat0 = c.recv_ge(bitlength, 0);
+        GroupElement o1 = c.recv_ge(bitlength, 1);
+        GroupElement ohat1 = c.recv_ge(bitlength, 1);
+
+        if (icp0.payload * (o0 + o1) != ohat0 + ohat1) {
+            std::cerr << "Incorrect dpf evaluation\n";
+            return -1;
+        }
+
+        GroupElement dbout = ohat0 + ohat1;
+
+        std::cout << "\nOutput: " << dbout << ".\n\n"; 
+
+        std::cout << "Bytes Sent: " << c.bytes_sent << "\n";
+        std::cout << "Bytes Recieved: " << c.bytes_recieved << "\n";
+
+    } else {
+
+        std::cerr << "Inputs do not match.\n";
+
+    }
+
+    free_input_check_pack(icp0);
+    free_input_check_pack(icp1);
+    free_input_check_pack_2(ip2);
 
     c.close(0);    
     c.close(1);    

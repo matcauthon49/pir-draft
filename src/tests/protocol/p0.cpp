@@ -5,6 +5,10 @@
 #include "server_trusted.h"
 
 int main() {
+
+    GroupElement *database;
+    int database_size;
+
     std::string ip[2] = {"127.0.0.1", "127.0.0.1"};
     int port[2] = {2000, 2001};
     std::string ipp[2] = {"127.0.0.1", "127.0.0.1"};
@@ -86,6 +90,7 @@ int main() {
     p0.connect_to_client(ipp, portp);
     p0.send_input_check_pack(icp0, bitlength, bitlength, 3);
 
+    uint8_t accept = p0.recv_uint8(3);
     
     // Print ICP
     // std::cout << "P0 Index: " << icp0.index << "\n";
@@ -127,11 +132,35 @@ int main() {
     // std::cout << "P0 T: " << icp0.T << "\n";
     // std::cout << "P0 W: " << icp0.W[0] << " " << icp0.W[1] << "\n";
     // std::cout << "P0 Gamma: " << icp0.gamma[0] << " " << icp0.gamma[1] << "\n";
- 
-    //Have to free out0
-    std::cout << "Bytes Sent: " << p0.bytes_sent << "\n";
-    std::cout << "Bytes Recieved: " << p0.bytes_recieved << "\n";
+
+    if (accept) {
+
+        GroupElement rotated_index = p0.recv_ge(bitlength, 3);
+        // std::cout << "Rotated Index: " << rotated_index << "\n";
+
+        GroupElement o = GroupElement(0);
+        GroupElement hato = GroupElement(0);
+        for (int i = 0; i < database_size; i++) {
+            o = o + out0[0][i] * database[i+rotated_index.value];
+            hato = hato + out0[1][i] * database[i+rotated_index.value];
+        }
+
+        p0.send_ge(o, bitlength, 3);
+
+        //Also have to free out1
+        std::cout << "Bytes Sent: " << p0.bytes_sent << "\n";
+        std::cout << "Bytes Recieved: " << p0.bytes_recieved << "\n";
+
+    } else {
+
+        std::cerr << "Client rejected output.\n";
+
+    }
+
+    free_input_check_pack(icp0);
+    free_dpf_key(k0);
 
     p0.close(0);
     p0.close(1);
+    
 }

@@ -264,6 +264,12 @@ void Client::send_ge(GroupElement &ge, int bw, int party) {
     }
 }
 
+void Client::send_uint8(uint8_t &i, int party) {
+    char *buf = (char *)(&i);
+    send(sendsocket[party], buf, 1, 0);
+    bytes_sent += 1;
+}
+
 GroupElement Client::recv_ge(int bl, int party) {
     if (bl > 32) {
         char buf[8];

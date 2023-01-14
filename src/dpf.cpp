@@ -26,6 +26,14 @@ void free_dpf_input_pack(dpf_input_pack *dpfip) {
     free(dpfip);
 };
 
+void free_dpf_input_pack(dpf_input_pack dpfip) {
+    free(dpfip.alpha);
+    free(dpfip.sigma);
+    free(dpfip.tau);
+    free(dpfip.hats);
+    free(dpfip.hatt);
+};
+
 inline int bytesize(const int bitsize) {
     return (bitsize % 8) == 0 ? bitsize / 8 : (bitsize / 8)  + 1;
 }

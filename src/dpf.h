@@ -45,5 +45,7 @@ GroupElement* dpf_eval(int party, GroupElement idx, const dpf_key &key);
 GroupElement** dpf_eval_all(int party, const dpf_key &key, input_check_pack *icp);
 
 void free_dpf_layer(dpf_layer* dpfl);
+void free_dpf_input_pack(dpf_input_pack *dpfip);
+void free_dpf_input_pack(dpf_input_pack dpfip);
 
 void prg_eval_all_and_xor(dpf_layer *dpfl, block* keynodes);
