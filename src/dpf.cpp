@@ -7,7 +7,7 @@
 
 using namespace osuCrypto;
 PRNG prng;
-
+int nt = 4;
 void free_dpf_layer(dpf_layer *dpfl) {
     free(dpfl->nodes);
     free(dpfl->prevt);
@@ -82,11 +82,10 @@ void prg_eval_all_and_xor(dpf_layer *dpfl, block *keynodes) {
         dpfl->zt[1] = 0;
 
     //Parallelizing aes calls
-    int num_threads = 4;
-    block thread_zs[num_threads][2] = {{ZeroBlock}};
-    uint8_t thread_zt[num_threads][2] = {{0}};
+    block thread_zs[nt][2] = {{ZeroBlock}};
+    uint8_t thread_zt[nt][2] = {{0}};
 
-    #pragma omp parallel num_threads(4)
+    #pragma omp parallel num_threads(nt)
     {
         int thread_id = omp_get_thread_num();
         //Divyu: Need local pt and ct for each thread to eliminate race condition.
@@ -121,7 +120,7 @@ void prg_eval_all_and_xor(dpf_layer *dpfl, block *keynodes) {
             
     }
 
-        for(int i=0; i<num_threads; i++) {
+        for(int i=0; i<nt; i++) {
                 dpfl->zs[0] = dpfl->zs[0] ^ thread_zs[i][0];
                 dpfl->zs[1] = dpfl->zs[1] ^ thread_zs[i][1];
                 dpfl->zt[0] = dpfl->zt[0] ^ thread_zt[i][0];
@@ -335,12 +334,11 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
     int T0 = 0;
     int T1 = 0;
 
-    int num_threads = 4;
-    GroupElement thread_W0[num_threads][2] = {{GroupElement(0, key0->Bout)}};
-    GroupElement thread_W1[num_threads][2] = {{GroupElement(0, key1->Bout)}};
-    int thread_T0[num_threads] = {0};
-    int thread_T1[num_threads] = {0};
-    #pragma omp parallel num_threads(4)
+    GroupElement thread_W0[nt][2] = {{GroupElement(0, key0->Bout)}};
+    GroupElement thread_W1[nt][2] = {{GroupElement(0, key1->Bout)}};
+    int thread_T0[nt] = {0};
+    int thread_T1[nt] = {0};
+    #pragma omp parallel num_threads(nt)
     {
         int thread_id = omp_get_thread_num();
         #pragma omp for schedule(static, 1)
@@ -360,7 +358,7 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
         }
     }
 
-    for(size_t j=0; j<num_threads; j++) {
+    for(size_t j=0; j<nt; j++) {
         W0[0] = W0[0] + thread_W0[j][0];
         W0[1] = W0[1] + thread_W0[j][1];
         W1[0] = W1[0] + thread_W1[j][0];
@@ -520,10 +518,9 @@ GroupElement** dpf_eval_all(int party, const dpf_key &key, input_check_pack *icp
     icp->W[0] = GroupElement(0, key.Bout);
     icp->W[1] = GroupElement(0, key.Bout);
 
-    int num_threads = 4;
-    GroupElement thread_W[num_threads][2] = {{GroupElement(0, key.Bout)}};
-    int thread_T[num_threads] = {0};
-    #pragma omp parallel num_threads(4)
+    GroupElement thread_W[nt][2] = {{GroupElement(0, key.Bout)}};
+    int thread_T[nt] = {0};
+    #pragma omp parallel num_threads(nt)
     {
         int thread_id = omp_get_thread_num();
         #pragma omp for schedule(static, 1)
@@ -559,7 +556,7 @@ GroupElement** dpf_eval_all(int party, const dpf_key &key, input_check_pack *icp
         }
     }
 
-    for(size_t j=0; j<num_threads; j++) {
+    for(size_t j=0; j<nt; j++) {
         icp->T = icp->T + thread_T[j];
         icp->W[0] = icp->W[0] + thread_W[j][0];
         icp->W[1] = icp->W[1] + thread_W[j][1];

@@ -21,28 +21,28 @@ int main() {
     // std::cout << g.bitsize << " " << g2.bitsize << " " << g3.bitsize << "\n";
     // prng.SetSeed(toBlock(0, 0), sizeof(block));
 
-    // std::cout<<"----------------Running Key Gen-----------------\n";
-    // // time_t start, end;
-    // prng.SetSeed(toBlock(0, 1), sizeof(block));
-    // int Bout = bitlength;
-    // int Bin = 16;
-    // dpf_input_pack *dpfip[2];
-    // dpfip[0] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
-    // dpfip[1] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
-    // dpfip[0]->index = GroupElement(60000, Bin);
-    // dpfip[1]->index = GroupElement(5500, Bin);
-    // dpfip[0]->alpha = (GroupElement*)malloc(sizeof(GroupElement));
-    // dpfip[0]->alpha[0] = GroupElement(100, Bout);
-    // dpfip[1]->alpha = (GroupElement*)malloc(sizeof(GroupElement));
-    // dpfip[1]->alpha[0] = GroupElement(100, Bout);
-    // input_check_pack_2 ip2;
-    // // std::cout<<"Here\n";
-    // dpf_key k0, k1;
-    // clock_t begin = clock();
-    // std::tie(k0, k1) = dpf_keygen(Bin, Bout, dpfip, &ip2);
-    // clock_t end = clock();
+    std::cout<<"----------------Running Key Gen-----------------\n";
+    // time_t start, end;
+    prng.SetSeed(toBlock(0, 1), sizeof(block));
+    int Bout = bitlength;
+    int Bin = 16;
+    dpf_input_pack *dpfip[2];
+    dpfip[0] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
+    dpfip[1] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
+    dpfip[0]->index = GroupElement(60000, Bin);
+    dpfip[1]->index = GroupElement(5500, Bin);
+    dpfip[0]->alpha = (GroupElement*)malloc(sizeof(GroupElement));
+    dpfip[0]->alpha[0] = GroupElement(100, Bout);
+    dpfip[1]->alpha = (GroupElement*)malloc(sizeof(GroupElement));
+    dpfip[1]->alpha[0] = GroupElement(100, Bout);
+    input_check_pack_2 ip2;
+    // std::cout<<"Here\n";
+    dpf_key k0, k1;
+    clock_t begin = clock();
+    std::tie(k0, k1) = dpf_keygen(Bin, Bout, dpfip, &ip2);
+    clock_t end = clock();
     // std::cout<<(ip2.index)[0].value<<" "<<(k0.gamma)[0].value<<" "<<(k1.gamma)[0].value<<" "<<"\n";
-    // std::cout << "Time taken: " << (double(end-begin)/CLOCKS_PER_SEC) <<"\n";
+    std::cout << "Time taken: " << (double(end-begin)/CLOCKS_PER_SEC) <<"\n";
     // for(int i=0; i<8; i++) {
     //     std::cout<<"i: "<<i<<" "<<(dpfip[0]->hats[i])<<" "<<(dpfip[1]->hats[i])<<"\n";
     // }
@@ -57,30 +57,30 @@ int main() {
     // std::cout<<(g1[0]+g2[0]).value<<" "<<(g1[1]+g2[1]).value<<"\n";
     // // std::cout<<s0<<" "<<s1<<"\n";
 
-    // std::cout<<"--------------------Running Eval All-------------\n";
-    // GroupElement **t_vec_0, **t_vec_1;
-    // // std::cout<<"Party0:\n";
-    // input_check_pack icp0, icp1;
-    // icp0.index = (ip2.index)[0];
-    // icp1.index = (ip2.index)[1];
-    // icp0.payload = (ip2.payload)[0];
-    // icp1.payload = (ip2.payload)[1];
-    // // std::cout<<icp0.index.value<<"\n";
-    // t_vec_0 = dpf_eval_all(0, k0, &icp0);
-    // // std::cout<<"Party1:\n";
-    // t_vec_1 = dpf_eval_all(1, k1, &icp1);
-    // // int final_ans = 0;
-    // // uint64_t count=0;
-    // // std::cout<<(icp0.sigma)[1]<<" "<<(k0.sigma)[1]<<"\n";
-    // // std::cout<<"Printing indexes\n";
-    // for(int i=0; i<(1<<Bin); i++) {
-    //     // std::cout<<"i: "<<i<<" "<<(t_vec_0[i][0]+t_vec_1[i][0]).value<<" "<<(t_vec_0[i][1]+t_vec_1[i][1]).value<<"\n";
-    //     if((t_vec_0[i][0]+t_vec_1[i][0]).value != 0 || (t_vec_0[i][1]+t_vec_1[i][1]).value != 0) {
-    //        std::cout<<i<<"\n";
-    //        std::cout<<(t_vec_0[i][0] + t_vec_1[i][0]).value<<" "<<(t_vec_0[i][1] + t_vec_1[i][1]).value<<"\n";
-    //     }
+    std::cout<<"--------------------Running Eval All-------------\n";
+    GroupElement **t_vec_0, **t_vec_1;
+    // std::cout<<"Party0:\n";
+    input_check_pack icp0, icp1;
+    icp0.index = (ip2.index)[0];
+    icp1.index = (ip2.index)[1];
+    icp0.payload = (ip2.payload)[0];
+    icp1.payload = (ip2.payload)[1];
+    // std::cout<<icp0.index.value<<"\n";
+    t_vec_0 = dpf_eval_all(0, k0, &icp0);
+    // std::cout<<"Party1:\n";
+    t_vec_1 = dpf_eval_all(1, k1, &icp1);
+    // int final_ans = 0;
+    // uint64_t count=0;
+    // std::cout<<(icp0.sigma)[1]<<" "<<(k0.sigma)[1]<<"\n";
+    // std::cout<<"Printing indexes\n";
+    for(int i=0; i<(1<<Bin); i++) {
+        // std::cout<<"i: "<<i<<" "<<(t_vec_0[i][0]+t_vec_1[i][0]).value<<" "<<(t_vec_0[i][1]+t_vec_1[i][1]).value<<"\n";
+        if((t_vec_0[i][0]+t_vec_1[i][0]).value != 0 || (t_vec_0[i][1]+t_vec_1[i][1]).value != 0) {
+           std::cout<<i<<"\n";
+           std::cout<<(t_vec_0[i][0] + t_vec_1[i][0]).value<<" "<<(t_vec_0[i][1] + t_vec_1[i][1]).value<<"\n";
+        }
 
-    // }
+    }
     // std::cout<<"icp0:\nIndex = "<<icp0.index.value<<"\n";
     // std::cout<<"Payload = "<<icp0.payload.value<<"\n";
     // std::cout<<"Size = "<<icp0.size<<"\n";
