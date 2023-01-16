@@ -6,21 +6,6 @@
 #include <algorithm>
 #include <chrono>
 
-static const char* charmap = "0123456789";
-
-std::string uint128ToString(const __uint128_t& value)
-{
-    std::string result;
-    result.reserve( 40 ); // max. 40 digits possible ( uint64_t has 20) 
-    __uint128_t helper = value;
-
-    do {
-        result += charmap[ helper % 10 ];
-        helper /= 10;
-    } while ( helper );
-    std::reverse( result.begin(), result.end() );
-    return result;
-}
 
 int main() {
 
@@ -216,7 +201,7 @@ int main() {
 
         GroupElement dbout = o0 + o1;
 
-        std::cout << "\nOutput: " << uint128ToString(dbout.value) << ".\n\n"; 
+        std::cout << "\nOutput: " << dbout.value << ".\n\n"; 
 
         std::cout << "Bytes Sent: " << c.bytes_sent << "\n";
         std::cout << "Bytes Recieved: " << c.bytes_recieved << "\n";

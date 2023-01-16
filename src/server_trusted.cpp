@@ -1,6 +1,6 @@
 #include "server_trusted.h"
 
-int bitlength = 32;
+int bitlength = 40;
 // Opens Server and establishes connection.
 ServerTrusted::ServerTrusted(std::string ip[4], int port[4], int sid) {
     std::cerr << "establishing connection...\n";

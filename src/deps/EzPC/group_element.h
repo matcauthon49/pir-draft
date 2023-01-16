@@ -27,19 +27,19 @@ SOFTWARE.
 #include <cryptoTools/Crypto/PRNG.h>
 #include <algorithm>
 
-extern int32_t bitlength;
+extern int bitlength;
 extern osuCrypto::PRNG prng;
 extern osuCrypto::PRNG prngShared;
 
 struct GroupElement {
     int bitsize = bitlength;
-    __uint128_t value;
-    GroupElement(__uint128_t value = 0, int bitsize = bitlength)
+    uint64_t value;
+    GroupElement(uint64_t value = 0, int bitsize = bitlength)
     {
         this->value = value;
         this->bitsize = bitsize;
         if (bitsize != 64)
-            this->value = this->value % (__uint128_t(1) << bitsize);
+            this->value = this->value % (uint64_t(1) << bitsize);
     }
 
     GroupElement(const GroupElement& other)
@@ -58,7 +58,7 @@ struct GroupElement {
 inline void mod(GroupElement &a)
 {
     if (a.bitsize != 64)
-        a.value = a.value & ((__uint128_t(1) << a.bitsize) - 1); 
+        a.value = a.value & ((uint64_t(1) << a.bitsize) - 1); 
 }
 
 inline GroupElement operator+(const GroupElement& a, const GroupElement& b)
@@ -70,7 +70,7 @@ inline GroupElement operator+(const GroupElement& a, const GroupElement& b)
     return c;
 }
 
-inline GroupElement operator+(const GroupElement& a, const __uint128_t& b)
+inline GroupElement operator+(const GroupElement& a, const uint64_t& b)
 {
     GroupElement c;
     c.bitsize = a.bitsize;
@@ -79,7 +79,7 @@ inline GroupElement operator+(const GroupElement& a, const __uint128_t& b)
     return c;
 }
 
-inline GroupElement operator+(const __uint128_t& a, const GroupElement& b)
+inline GroupElement operator+(const uint64_t& a, const GroupElement& b)
 {
     GroupElement c;
     c.bitsize = b.bitsize;
@@ -97,7 +97,7 @@ inline GroupElement operator*(const GroupElement& a, const GroupElement& b)
     return c;
 }
 
-inline GroupElement operator*(const GroupElement& a, const __uint128_t& b)
+inline GroupElement operator*(const GroupElement& a, const uint64_t& b)
 {
     GroupElement c;
     c.bitsize = a.bitsize;
@@ -106,7 +106,7 @@ inline GroupElement operator*(const GroupElement& a, const __uint128_t& b)
     return c;
 }
 
-inline GroupElement operator*(const __uint128_t& a, const GroupElement& b)
+inline GroupElement operator*(const uint64_t& a, const GroupElement& b)
 {
     GroupElement c;
     c.bitsize = b.bitsize;
@@ -123,7 +123,7 @@ inline GroupElement operator-(const GroupElement& a, const GroupElement& b)
     return c;
 }
 
-inline GroupElement operator-(const GroupElement& a, const __uint128_t& b)
+inline GroupElement operator-(const GroupElement& a, const uint64_t& b)
 {
     GroupElement c;
     c.bitsize = a.bitsize;
@@ -132,7 +132,7 @@ inline GroupElement operator-(const GroupElement& a, const __uint128_t& b)
     return c;
 }
 
-inline GroupElement operator-(const __uint128_t a, const GroupElement& b)
+inline GroupElement operator-(const uint64_t a, const GroupElement& b)
 {
     GroupElement c;
     c.bitsize = b.bitsize;
@@ -159,7 +159,7 @@ inline GroupElement operator/(const GroupElement& a, const GroupElement& b)
     return c;
 }
 
-inline GroupElement operator/(const GroupElement& a, const __uint128_t& b)
+inline GroupElement operator/(const GroupElement& a, const uint64_t& b)
 {
     GroupElement c;
     c.bitsize = a.bitsize;
@@ -224,7 +224,7 @@ inline std::pair<GroupElement, GroupElement> splitShareCommonPRNG(const GroupEle
     GroupElement a1, a2;
     a1.bitsize = a.bitsize;
     a2.bitsize = a.bitsize;
-    a1.value = prngShared.get<__uint128_t>();
+    a1.value = prngShared.get<uint64_t>();
     // a1.value = 0;
     mod(a1);
     a2.value = (a.value - a1.value);
@@ -240,7 +240,7 @@ inline std::pair<GroupElement, GroupElement> splitShareCommonPRNG(const GroupEle
 //     return std::make_pair(a1, a2);
 // }
 
-inline GroupElement pow(GroupElement x, __uint128_t e)
+inline GroupElement pow(GroupElement x, uint64_t e)
 {
     if (e == 0)
     {
@@ -261,7 +261,7 @@ inline GroupElement random_ge(int bitlength)
 {
     GroupElement a;
     a.bitsize = bitlength;
-    a.value = prng.get<__uint128_t>();
+    a.value = prng.get<uint64_t>();
     mod(a);
     return a;
 }
@@ -278,7 +278,7 @@ inline GroupElement random_ge(int bitlength)
 //         os << (int64_t)a.value;
 //     }
 //     else {
-//         __uint128_t m = (1L << a.bitsize) - 1;
+//         uint64_t m = (1L << a.bitsize) - 1;
 //         __int128_t v = (a.value + (1L << (a.bitsize - 1))) & m;
 //         os << v - (1L << (a.bitsize - 1));
 //         // os << (a.value & m);

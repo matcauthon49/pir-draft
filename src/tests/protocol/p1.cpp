@@ -20,7 +20,7 @@ int main() {
     Server p1 = Server(ip, port, 1);
 
     //Receive DPF key from P2
-    GroupElement index = p1.recv_ge(bitlength, 2);
+    GroupElement index = p1.recv_ge(23, 2);
     GroupElement payload = p1.recv_ge(bitlength, 2);
     dpf_key k1 = p1.recv_dpf_key(bitlength, 2);
     

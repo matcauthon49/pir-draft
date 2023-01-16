@@ -89,15 +89,16 @@ Server::Server(std::string ip[2], int port[2], int sid) {
         recvsocket[0] = accept(mysocket, (struct sockaddr *)&dest_addr, (socklen_t*)&dest_addrlen);
         setsockopt(recvsocket[0], IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
         std::cout << server_id << " recv connected to P2" <<"\n";
-
     }
+
+    std::cout << "Connection to P2 complete.\n";
 
 };
 
 void Server::connect_to_client(std::string ip[2], int port[2]) {
     std::cerr << "establishing connection with client...\n";
 
-    if (server_id == 1) {
+    if (server_id) {
         sleep(3);
     }
 

@@ -69,7 +69,7 @@ int main() {
 
 
     //Receive DPF key from P2
-    GroupElement index  = p0.recv_ge(bitlength, 2);
+    GroupElement index  = p0.recv_ge(23, 2);
     GroupElement payload = p0.recv_ge(bitlength, 2);
     dpf_key k0 = p0.recv_dpf_key(bitlength, 2);
 
