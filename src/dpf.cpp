@@ -7,7 +7,7 @@
 
 using namespace osuCrypto;
 PRNG prng;
-int nt = 4;
+int nt = 12;
 void free_dpf_layer(dpf_layer *dpfl) {
     free(dpfl->nodes);
     free(dpfl->prevt);

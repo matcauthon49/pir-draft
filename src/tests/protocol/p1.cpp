@@ -3,23 +3,24 @@
 #include "keys.h"
 #include "server.h"
 #include "server_trusted.h"
+#include <chrono>
 
 int main() {
 
-    int database_size = (1<<16);
-    GroupElement database[database_size];
+    int database_size = (1<<23);
+    GroupElement *database = new GroupElement[database_size];
     for(int i=0; i<database_size; i++)
         database[i] = GroupElement(i, bitlength);
 
     std::string ip[2] = {"127.0.0.1", "127.0.0.1"};
     int port[2] = {3000, 3001};
     std::string ipq[2] = {"127.0.0.1", "127.0.0.1"};
-    int portq[2] = {5000, 5001};
+    int portq[2] = {6000, 6001};
 
     Server p1 = Server(ip, port, 1);
 
     //Receive DPF key from P2
-    GroupElement index = p1.recv_ge(16, 2);
+    GroupElement index = p1.recv_ge(bitlength, 2);
     GroupElement payload = p1.recv_ge(bitlength, 2);
     dpf_key k1 = p1.recv_dpf_key(bitlength, 2);
     
@@ -34,7 +35,12 @@ int main() {
     // std::cout<<"\ngamma0 "<<(k1.gamma)[0].value<<" gamma1 "<<(k1.gamma)[1].value<<"\n";
 
     //Eval all
+    auto start = std::chrono::high_resolution_clock::now();
     GroupElement** out1 = dpf_eval_all(1, k1, &icp1);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+    std::cout << "Time taken for EvalAll: " << duration.count()*1e-6 <<"\n";
+
     // for(int i=0; i<8; i++)
     //     std::cout<<"P1 "<<i<<" "<<out1[i][0]<<" "<<out1[i][1]<<"\n";
     p1.connect_to_client(ipq, portq);
@@ -88,6 +94,7 @@ int main() {
         GroupElement rotated_index = p1.recv_ge(icp1.size, 3);
         // std::cout << "Rotated Index: " << rotated_index.value << "\n";
 
+        auto start2 = std::chrono::high_resolution_clock::now();
         GroupElement o = GroupElement(0, bitlength);
         GroupElement hato = GroupElement(0, bitlength);
         for (int i = 0; i < database_size; i++) {
@@ -95,6 +102,9 @@ int main() {
             o = o + out1[i][0] * database[ind.value];
             hato = hato + out1[i][1] * database[ind.value];
         }
+        auto end2 = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end2-start2);
+        std::cout << "Time taken for DB Parse-Through: " << duration.count()*1e-6 <<"\n";
         // std::cout<<"P1 final "<<o.value<<" "<<hato.value<<"\n";
         p1.send_ge(o, bitlength, 3);
         p1.send_ge(hato, bitlength, 3);

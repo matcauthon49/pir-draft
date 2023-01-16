@@ -3,25 +3,23 @@
 #include "keys.h"
 #include "server.h"
 #include "server_trusted.h"
-#include <time.h>
+#include <chrono>
 
 int main() {
 
     GroupElement *database;
 
-    prng.SetSeed(toBlock(0, 1), sizeof(block));
+    prng.SetSeed(toBlock(0, time(NULL)), sizeof(block));
 
     std::string ip[4] = {"127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1"};
     int port[4] = {2000, 2001, 3000, 3001};
     std::string ipr[2] = {"127.0.0.1", "127.0.0.1"};
-    int portr[2] = {6000, 6001};
-
-    ServerTrusted p2 = ServerTrusted(ip, port, 2);
+    int portr[2] = {8000, 8001};
 
     std::cout<<"----------------Running Key Gen-----------------\n";
 
     int Bout = bitlength;
-    int Bin = 16;
+    int Bin = 23;
     dpf_input_pack *dpfip[2];
     //P2 samples random index and payload which is hardcoded for now.
 
@@ -37,12 +35,13 @@ int main() {
     input_check_pack_2 ip2;
     dpf_key k0, k1;
 
-    clock_t begin = clock();
+    auto start = std::chrono::high_resolution_clock::now();
     std::tie(k0, k1) = dpf_keygen(Bin, Bout, dpfip, &ip2);
-    clock_t end = clock();
-    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+    std::cout << "Time taken: " << duration.count()*1e-6 <<"\n";
 
-    std::cout << "TIME TAKEN FOR KEYGEN: " << elapsed_secs << "\n";
+    ServerTrusted p2 = ServerTrusted(ip, port, 2);
 
     //Sending key, index and payload to P2
     p2.send_ge(dpfip[0]->index, Bin, 0);

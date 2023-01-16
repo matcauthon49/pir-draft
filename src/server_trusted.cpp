@@ -111,7 +111,7 @@ ServerTrusted::ServerTrusted(std::string ip[4], int port[4], int sid) {
 void ServerTrusted::connect_to_client(std::string ip[2], int port[2]) {
     std::cerr << "establishing connection with client...\n";
 
-    sleep(6);
+    sleep(15);
 
     {
         sendsocket[2] = socket(AF_INET, SOCK_STREAM, 0);

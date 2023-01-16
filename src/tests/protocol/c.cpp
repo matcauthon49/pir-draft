@@ -3,13 +3,31 @@
 #include "keys.h"
 #include "server.h"
 #include "server_trusted.h"
+#include <algorithm>
+#include <chrono>
+
+static const char* charmap = "0123456789";
+
+std::string uint128ToString(const __uint128_t& value)
+{
+    std::string result;
+    result.reserve( 40 ); // max. 40 digits possible ( uint64_t has 20) 
+    __uint128_t helper = value;
+
+    do {
+        result += charmap[ helper % 10 ];
+        helper /= 10;
+    } while ( helper );
+    std::reverse( result.begin(), result.end() );
+    return result;
+}
 
 int main() {
 
     
 
     std::string ip[6] = {"127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1"};
-    int port[6] = {4000, 4001, 5000, 5001, 6000, 6001};
+    int port[6] = {4000, 4001, 6000, 6001, 8000, 8001};
 
     Client c = Client(ip, port, 3);
     input_check_pack icp0 = c.recv_input_check_pack(bitlength, bitlength, 0);
@@ -165,7 +183,12 @@ int main() {
 
     // std::cout << "------------------- ICP 2 END -------------------\n";
 
+    auto start = std::chrono::high_resolution_clock::now();
     bool output = check_xor(bitlength, icp0, icp1, ip2);
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+    std::cout << "Time taken for ICP Check: " << duration.count()*1e-6 <<"\n";
+
     uint8_t out = output;
 
     std::cout << "Check: " << output << "\n";
@@ -193,7 +216,7 @@ int main() {
 
         GroupElement dbout = o0 + o1;
 
-        std::cout << "\nOutput: " << dbout << ".\n\n"; 
+        std::cout << "\nOutput: " << uint128ToString(dbout.value) << ".\n\n"; 
 
         std::cout << "Bytes Sent: " << c.bytes_sent << "\n";
         std::cout << "Bytes Recieved: " << c.bytes_recieved << "\n";

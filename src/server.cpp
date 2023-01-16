@@ -98,7 +98,7 @@ void Server::connect_to_client(std::string ip[2], int port[2]) {
     std::cerr << "establishing connection with client...\n";
 
     if (server_id == 1) {
-        sleep(2);
+        sleep(3);
     }
 
     {
@@ -150,6 +150,9 @@ void Server::connect_to_client(std::string ip[2], int port[2]) {
         setsockopt(recvsocket[1], IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
 
     }
+
+    std::cout << "Connected to client." <<"\n";
+
 }
 
 void Server::close(int party) {

@@ -1,7 +1,9 @@
 #include <dpf.h>
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 #include <cryptoTools/Crypto/PRNG.h>
-#include<chrono>
+#include <chrono>
+#include <algorithm>
+
 
 using namespace osuCrypto;
 // PRNG prng;
@@ -10,6 +12,21 @@ using namespace osuCrypto;
 // int bitwidth = 3;
 PRNG prngShared;
 
+static const char* charmap = "0123456789";
+
+std::string uint128ToString(const __uint128_t& value)
+{
+    std::string result;
+    result.reserve( 40 ); // max. 40 digits possible ( uint64_t has 20) 
+    __uint128_t helper = value;
+
+    do {
+        result += charmap[ helper % 10 ];
+        helper /= 10;
+    } while ( helper );
+    std::reverse( result.begin(), result.end() );
+    return result;
+}
 
 int main() {
 //     GroupElement g = GroupElement(10);
@@ -21,11 +38,17 @@ int main() {
 //     // std::cout << g.bitsize << " " << g2.bitsize << " " << g3.bitsize << "\n";
     prng.SetSeed(toBlock(0, 0), sizeof(block));
 
+    int database_size = (1<<20);
+    GroupElement *database = new GroupElement[database_size];
+    for(int i=0; i<database_size; i++) {
+        database[i] = GroupElement(i, bitlength);
+    }
+
     std::cout<<"----------------Running Key Gen-----------------\n";
     // time_t start, end;
     prng.SetSeed(toBlock(0, 1), sizeof(block));
     int Bout = bitlength;
-    int Bin = 23;
+    int Bin = 17;
     dpf_input_pack *dpfip[2];
     dpfip[0] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
     dpfip[1] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
@@ -78,7 +101,7 @@ int main() {
         // std::cout<<"i: "<<i<<" "<<(t_vec_0[i][0]+t_vec_1[i][0]).value<<" "<<(t_vec_0[i][1]+t_vec_1[i][1]).value<<"\n";
         if((t_vec_0[i][0]+t_vec_1[i][0]).value != 0 || (t_vec_0[i][1]+t_vec_1[i][1]).value != 0) {
            std::cout<<i<<"\n";
-           std::cout<<(t_vec_0[i][0] + t_vec_1[i][0]).value<<" "<<(t_vec_0[i][1] + t_vec_1[i][1]).value<<"\n";
+           std::cout<<uint128ToString((t_vec_0[i][0] + t_vec_1[i][0]).value)<<" "<<uint128ToString((t_vec_0[i][1] + t_vec_1[i][1]).value)<<"\n";
         }
 
     }

@@ -43,7 +43,7 @@ ROOT="$(pwd)"
 cd src
 
 #Defining number of threads to use in parallelization
-export OMP_NUM_THREADS=4
+export OMP_NUM_THREADS=12
 cmake CMakelists.txt -B build
 cd build
 make
