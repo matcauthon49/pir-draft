@@ -16,6 +16,7 @@ int main() {
     int portp[2] = {4000, 4001};
 
     Server p0 = Server(ip, port, 0);
+    p0.connect_to_client(ipp, portp);
 
     // std::string ipp[2] = {"127.0.0.1", "127.0.0.1"};
     // int portp[2] = {4000, 4001};
@@ -72,7 +73,6 @@ int main() {
     GroupElement index  = p0.recv_ge(23, 2);
     GroupElement payload = p0.recv_ge(bitlength, 2);
     dpf_key k0 = p0.recv_dpf_key(bitlength, 2);
-
     //For checking key obtained is correct
     // std::cout<<"index "<<index.value<<" payload "<<payload<<"\n";
     // std::cout<<"Bout "<<k0.Bout<<" height "<<k0.height<<" s "<<k0.s<<"\n";
@@ -89,15 +89,14 @@ int main() {
     GroupElement** out0 = dpf_eval_all(0, k0, &icp0);
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
-    std::cout << "Time taken for EvalAll: " << duration.count()*1e-6 <<"\n";
+    
 
     // std::cout<<"out "<<out0[5][0]<<" "<<out0[5][1]<<"\n";
     // for(int i=0; i<8; i++)
     //     std::cout<<"P0 "<<i<<" "<<out0[i][0]<<" "<<out0[i][1]<<"\n";
-
-    p0.connect_to_client(ipp, portp);
+    auto start_online = std::chrono::high_resolution_clock::now();
     p0.send_input_check_pack(icp0, bitlength, bitlength, 3);
-
+    
     uint8_t accept = p0.recv_uint8(3);
     
     // Print ICP
@@ -154,6 +153,7 @@ int main() {
             // std::cout<<"P0 "<<ind.value<<"\n";
             o = o + out0[i][0] * database[ind.value];
             hato = hato + out0[i][1] * database[ind.value];
+            free(out0[i]);
         }    
         auto end2 = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end2-start2);
@@ -163,19 +163,25 @@ int main() {
 
         p0.send_ge(o, bitlength, 3);
         p0.send_ge(hato, bitlength, 3);
-        std::cout << "Bytes Sent: " << p0.bytes_sent << "\n";
-        std::cout << "Bytes Recieved: " << p0.bytes_recieved << "\n";
+        // std::cout << "Bytes Sent: " << p0.bytes_sent << "\n";
+        // std::cout << "Bytes Recieved: " << p0.bytes_recieved << "\n";
 
     } else {
 
         std::cerr << "Client rejected output.\n";
 
     }
+    auto end_online = std::chrono::high_resolution_clock::now();
+    auto duration_online = std::chrono::duration_cast<std::chrono::microseconds>(end_online-start_online);
+    
 
     free_input_check_pack(icp0);
     free_dpf_key(k0);
 
     p0.close(0);
     p0.close(1);
+
+    std::cout << "P0: Time taken for EvalAll: " << duration.count()*1e-6 <<"\n";
+    std::cout<<"P0: Time Taken for Online Phase: "<<duration_online.count()*1e-6 <<"\n";
     
 }

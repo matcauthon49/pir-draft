@@ -168,15 +168,15 @@ int main() {
 
     // std::cout << "------------------- ICP 2 END -------------------\n";
 
-    auto start = std::chrono::high_resolution_clock::now();
+    // auto start = std::chrono::high_resolution_clock::now();
     bool output = check_xor(bitlength, icp0, icp1, ip2);
-    auto end = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
-    std::cout << "Time taken for ICP Check: " << duration.count()*1e-6 <<"\n";
+    // auto end = std::chrono::high_resolution_clock::now();
+    // auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+    // std::cout << "Time taken for ICP Check: " << duration.count()*1e-6 <<"\n";
 
     uint8_t out = output;
 
-    std::cout << "Check: " << output << "\n";
+    // std::cout << "Check: " << output << "\n";
 
     c.send_uint8(out, 0);
     c.send_uint8(out, 1);
@@ -203,15 +203,14 @@ int main() {
 
         std::cout << "\nOutput: " << dbout.value << ".\n\n"; 
 
-        std::cout << "Bytes Sent: " << c.bytes_sent << "\n";
-        std::cout << "Bytes Recieved: " << c.bytes_recieved << "\n";
+        // std::cout << "Bytes Sent: " << c.bytes_sent << "\n";
+        // std::cout << "Bytes Recieved: " << c.bytes_recieved << "\n";
 
     } else {
 
         std::cerr << "Inputs do not match.\n";
 
     }
-
     free_input_check_pack(icp0);
     free_input_check_pack(icp1);
     free_input_check_pack_2(ip2);
@@ -219,4 +218,6 @@ int main() {
     c.close(0);    
     c.close(1);    
     c.close(2);       
+        std::cout<<"C: Communication during online phase: "<<c.bytes_recieved + c.bytes_sent << "\n";
+
 }

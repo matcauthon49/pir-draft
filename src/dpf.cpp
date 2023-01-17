@@ -7,7 +7,7 @@
 
 using namespace osuCrypto;
 PRNG prng;
-int nt = 12;
+int nt = 8;
 void free_dpf_layer(dpf_layer *dpfl) {
     free(dpfl->nodes);
     free(dpfl->prevt);
@@ -246,7 +246,6 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
 #ifdef DPF_PROFILE_
     printf("START DPF LEVEL %d%d\n", dpfl[0]->level, current_timestamp());
 #endif
-    #pragma omp for
     for(size_t j=0; j<2; j++) {
         prg_eval_all_and_xor(dpfl[j], dpfip[j]->hats);
     }
@@ -292,7 +291,7 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, const int group_bitwidth, dpf
         dpfip[0]->hatt = (uint8_t*)malloc(dpfl[0]->size*sizeof(uint8_t));
         dpfip[1]->hatt = (uint8_t*)malloc(dpfl[1]->size*sizeof(uint8_t));
 
-        #pragma omp for schedule(static, 1)
+        #pragma omp parallel for schedule(static, 1) num_threads(nt)
         for (size_t j = 0; j < dpfl[0]->size; j++) {
             if(dpfl[0]->prevt[j/2]==1) {
                 dpfip[0]->hats[j] = dpfl[0]->nodes[j] ^ dpfip[0]->sigma[i];

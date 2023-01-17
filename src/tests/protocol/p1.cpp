@@ -18,7 +18,7 @@ int main() {
     int portq[2] = {6000, 6001};
 
     Server p1 = Server(ip, port, 1);
-
+    p1.connect_to_client(ipq, portq);
     //Receive DPF key from P2
     GroupElement index = p1.recv_ge(23, 2);
     GroupElement payload = p1.recv_ge(bitlength, 2);
@@ -39,11 +39,10 @@ int main() {
     GroupElement** out1 = dpf_eval_all(1, k1, &icp1);
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
-    std::cout << "Time taken for EvalAll: " << duration.count()*1e-6 <<"\n";
 
     // for(int i=0; i<8; i++)
     //     std::cout<<"P1 "<<i<<" "<<out1[i][0]<<" "<<out1[i][1]<<"\n";
-    p1.connect_to_client(ipq, portq);
+    
     p1.send_input_check_pack(icp1, bitlength, bitlength, 3);
 
     uint8_t accept = p1.recv_uint8(3);
@@ -101,6 +100,7 @@ int main() {
             GroupElement ind = GroupElement(i, icp1.size) + rotated_index;
             o = o + out1[i][0] * database[ind.value];
             hato = hato + out1[i][1] * database[ind.value];
+            free(out1[i]);
         }
         auto end2 = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end2-start2);
@@ -109,8 +109,8 @@ int main() {
         p1.send_ge(o, bitlength, 3);
         p1.send_ge(hato, bitlength, 3);
         //Also have to free out1
-        std::cout << "Bytes Sent: " << p1.bytes_sent << "\n";
-        std::cout << "Bytes Recieved: " << p1.bytes_recieved << "\n";
+        // std::cout << "Bytes Sent: " << p1.bytes_sent << "\n";
+        // std::cout << "Bytes Recieved: " << p1.bytes_recieved << "\n";
 
     } else {
 
@@ -123,5 +123,7 @@ int main() {
 
     p1.close(0);
     p1.close(1);
+    std::cout << "P1: Time taken for EvalAll: " << duration.count()*1e-6 <<"\n";
+
         
 }

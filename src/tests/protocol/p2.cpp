@@ -15,7 +15,8 @@ int main() {
     int port[4] = {2000, 2001, 3000, 3001};
     std::string ipr[2] = {"127.0.0.1", "127.0.0.1"};
     int portr[2] = {8000, 8001};
-
+    ServerTrusted p2 = ServerTrusted(ip, port, 2);
+    p2.connect_to_client(ipr, portr);
     std::cout<<"----------------Running Key Gen-----------------\n";
 
     int Bout = bitlength;
@@ -39,10 +40,10 @@ int main() {
     std::tie(k0, k1) = dpf_keygen(Bin, Bout, dpfip, &ip2);
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
-    std::cout << "Time taken: " << duration.count()*1e-6 <<"\n";
 
-    ServerTrusted p2 = ServerTrusted(ip, port, 2);
+    
 
+    auto start_send = std::chrono::high_resolution_clock::now();
     //Sending key, index and payload to P2
     p2.send_ge(dpfip[0]->index, Bin, 0);
     p2.send_ge(dpfip[0]->alpha[0], Bout, 0);
@@ -52,6 +53,10 @@ int main() {
     p2.send_ge(dpfip[1]->index, Bin, 1);
     p2.send_ge(dpfip[1]->alpha[0], Bout, 1);
     p2.send_dpf_key(k1, Bin, Bout, 1);
+    auto end_send = std::chrono::high_resolution_clock::now();
+    auto duration_send = std::chrono::duration_cast<std::chrono::microseconds>(end_send-start_send);
+    auto preprocess_comm = p2.bytes_sent;
+    // std::cout << "P2: Time taken: " << duration_send.count()*1e-6 <<"\n";
 
     // // std::cout<<"index "<<index.value<<" payload "<<payload<<"\n";
     // std::cout<<"Bout "<<k0.Bout<<" height "<<k0.height<<" s "<<k0.s<<"\n";
@@ -65,7 +70,6 @@ int main() {
     // std::cout<<"\ngamma0 "<<(k1.gamma)[0].value<<" gamma1 "<<(k1.gamma)[1].value<<"\n";
     // //Eval all
 
-    p2.connect_to_client(ipr, portr);
 
     p2.send_input_check_pack_2(ip2, bitlength, bitlength, 2);
 
@@ -129,8 +133,8 @@ int main() {
     // std::cout << "P2 W: " << ip2.W[0] << " " << ip2.W[1] << "\n";
     // std::cout << "P2 Gamma: " << ip2.gamma[0] << " " << ip2.gamma[1] << "\n";
 
-    std::cout << "Bytes Sent: " << p2.bytes_sent << "\n";
-    std::cout << "Bytes Recieved: " << p2.bytes_recieved << "\n";
+    // std::cout << "Bytes Sent: " << p2.bytes_sent << "\n";
+    // std::cout << "Bytes Recieved: " << p2.bytes_recieved << "\n";
 
     // free_dpf_input_pack(dpfip[0]);
     // free_dpf_input_pack(dpfip[1]);
@@ -141,4 +145,9 @@ int main() {
     p2.close(0);
     p2.close(1);
     p2.close(2);
+    std::cout << "P2: Time taken for keygen + sending to P0, P1: " << duration.count()*1e-6 + duration_send.count() * 1e-6 <<"\n";
+    std::cout<< "P2: Bytes sent in offline phase: " << preprocess_comm << "\n";
+
+
+
 }
