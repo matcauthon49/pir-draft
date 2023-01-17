@@ -6,7 +6,8 @@
 #include <chrono>
 
 int main() {
-    int database_size = (1<<23);
+    int input_size = 16;
+    int database_size = (1<<input_size);
     GroupElement *database = new GroupElement[database_size];
     for(int i=0; i<database_size; i++)
         database[i] = GroupElement(i, bitlength);
@@ -70,7 +71,7 @@ int main() {
 
 
     //Receive DPF key from P2
-    GroupElement index  = p0.recv_ge(23, 2);
+    GroupElement index  = p0.recv_ge(input_size, 2);
     GroupElement payload = p0.recv_ge(bitlength, 2);
     dpf_key k0 = p0.recv_dpf_key(bitlength, 2);
     //For checking key obtained is correct
@@ -94,8 +95,15 @@ int main() {
     // std::cout<<"out "<<out0[5][0]<<" "<<out0[5][1]<<"\n";
     // for(int i=0; i<8; i++)
     //     std::cout<<"P0 "<<i<<" "<<out0[i][0]<<" "<<out0[i][1]<<"\n";
+    // uint8_t temp = 4;
+    // p0.send_uint8(temp, 2);
+    // p0.send_uint8(temp, 1);
+    
+    
+    // std::cout<<"Here 0\n";
+
     auto start_online = std::chrono::high_resolution_clock::now();
-    p0.send_input_check_pack(icp0, bitlength, bitlength, 3);
+    p0.send_input_check_pack(icp0, input_size, bitlength, 3);
     
     uint8_t accept = p0.recv_uint8(3);
     

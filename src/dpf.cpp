@@ -496,7 +496,7 @@ GroupElement** dpf_eval_all(int party, const dpf_key &key, input_check_pack *icp
         hatt = (uint8_t*)malloc(dpfl->size*sizeof(uint8_t));
         
 
-        #pragma omp parallel for
+        #pragma omp parallel for schedule(static, 1) num_threads(nt)
         for(size_t j=0; j<dpfl->size; j++) {
             uint8_t tau = (j%2==0)?(key.tau0)[i]:(key.tau1)[i];
 

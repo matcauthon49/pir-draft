@@ -47,7 +47,7 @@ public:
     void send_dpf_key(dpf_key dpfk, int bw, int bl, int party);
 
     void send_input_check_pack_2(input_check_pack_2 &icp, int bw, int bl, int party);
-
+    uint8_t recv_uint8(int party);
 
     GroupElement recv_ge(int bl, int party);
 };

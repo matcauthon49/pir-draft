@@ -193,6 +193,13 @@ void ServerTrusted::send_ge(GroupElement &ge, int bw, int party) {
         bytes_sent += 1;
     }
 }
+uint8_t ServerTrusted::recv_uint8(int party) {
+    char buf[sizeof(uint8_t)];
+    recv(recvsocket[party], buf, sizeof(uint8_t), MSG_WAITALL);
+    uint8_t b = *(uint8_t *)buf;
+    bytes_recieved += sizeof(uint8_t);
+    return b;
+}
 
 void ServerTrusted::send_block(block &b, int party) {
     char *buf = (char *)(&b);

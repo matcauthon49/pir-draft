@@ -9,15 +9,15 @@
 
 int main() {
 
-    
+    int input_size = 16;
 
     std::string ip[6] = {"127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1"};
     int port[6] = {4000, 4001, 6000, 6001, 8000, 8001};
 
     Client c = Client(ip, port, 3);
-    input_check_pack icp0 = c.recv_input_check_pack(bitlength, bitlength, 0);
-    input_check_pack icp1 = c.recv_input_check_pack(bitlength, bitlength, 1);
-    input_check_pack_2 ip2 = c.recv_input_check_pack_2(bitlength, bitlength, 2);
+    input_check_pack icp0 = c.recv_input_check_pack(input_size, bitlength, 0);
+    input_check_pack icp1 = c.recv_input_check_pack(input_size, bitlength, 1);
+    input_check_pack_2 ip2 = c.recv_input_check_pack_2(input_size, bitlength, 2);
 
     // Print ICP0
     // std::cout << "------------------- ICP 0 BEGIN -------------------\n";

@@ -38,7 +38,7 @@ int main() {
 //     // std::cout << g.bitsize << " " << g2.bitsize << " " << g3.bitsize << "\n";
     prng.SetSeed(toBlock(0, 0), sizeof(block));
 
-    int database_size = (1<<20);
+    int database_size = (1<<15);
     GroupElement *database = new GroupElement[database_size];
     for(int i=0; i<database_size; i++) {
         database[i] = GroupElement(i, bitlength);
@@ -48,7 +48,7 @@ int main() {
     // time_t start, end;
     prng.SetSeed(toBlock(0, 1), sizeof(block));
     int Bout = bitlength;
-    int Bin = 17;
+    int Bin = 16;
     dpf_input_pack *dpfip[2];
     dpfip[0] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
     dpfip[1] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
@@ -90,7 +90,10 @@ int main() {
     icp0.payload = (ip2.payload)[0];
     icp1.payload = (ip2.payload)[1];
     // std::cout<<icp0.index.value<<"\n";
+    start = std::chrono::high_resolution_clock::now();
     t_vec_0 = dpf_eval_all(0, k0, &icp0);
+    end  = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
     // std::cout<<"Party1:\n";
     t_vec_1 = dpf_eval_all(1, k1, &icp1);
     // int final_ans = 0;
@@ -101,10 +104,11 @@ int main() {
         // std::cout<<"i: "<<i<<" "<<(t_vec_0[i][0]+t_vec_1[i][0]).value<<" "<<(t_vec_0[i][1]+t_vec_1[i][1]).value<<"\n";
         if((t_vec_0[i][0]+t_vec_1[i][0]).value != 0 || (t_vec_0[i][1]+t_vec_1[i][1]).value != 0) {
            std::cout<<i<<"\n";
-           std::cout<<uint128ToString((t_vec_0[i][0] + t_vec_1[i][0]).value)<<" "<<uint128ToString((t_vec_0[i][1] + t_vec_1[i][1]).value)<<"\n";
+           std::cout<<(t_vec_0[i][0] + t_vec_1[i][0]).value<<" "<<(t_vec_0[i][1] + t_vec_1[i][1]).value<<"\n";
         }
 
     }
+    std::cout << "Time taken: " << duration.count()*1e-6 <<"\n";
 //     // std::cout<<"icp0:\nIndex = "<<icp0.index.value<<"\n";
 //     // std::cout<<"Payload = "<<icp0.payload.value<<"\n";
 //     // std::cout<<"Size = "<<icp0.size<<"\n";

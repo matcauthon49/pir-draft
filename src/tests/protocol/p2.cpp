@@ -20,7 +20,8 @@ int main() {
     std::cout<<"----------------Running Key Gen-----------------\n";
 
     int Bout = bitlength;
-    int Bin = 23;
+    int Bin = 16;
+
     dpf_input_pack *dpfip[2];
     //P2 samples random index and payload which is hardcoded for now.
 
@@ -69,9 +70,12 @@ int main() {
     //     std::cout<<"i "<<i<<" sigma "<<(k1.sigma)[i]<<" tau0 "<<static_cast<uint32_t>((k1.tau0)[i])<<" tau1 "<<static_cast<uint32_t>((k1.tau1)[i])<<"\n";
     // std::cout<<"\ngamma0 "<<(k1.gamma)[0].value<<" gamma1 "<<(k1.gamma)[1].value<<"\n";
     // //Eval all
-
-
-    p2.send_input_check_pack_2(ip2, bitlength, bitlength, 2);
+    // std::cout<<"Here 2\n";
+    // auto temp0 = p2.recv_uint8(0);
+    // auto temp1 = p2.recv_uint8(1);
+    // std::cout<<"temp received from P0: "<< static_cast<uint32_t>(temp0) << "\n";
+    // std::cout<<"Here 2\n";
+    p2.send_input_check_pack_2(ip2, Bin, bitlength, 2);
 
     // std::cout << "P2 Index: " << ip2.index << "\n";
     // std::cout << "P2 Payload: " << ip2.payload << "\n";

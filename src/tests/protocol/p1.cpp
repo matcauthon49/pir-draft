@@ -6,8 +6,8 @@
 #include <chrono>
 
 int main() {
-
-    int database_size = (1<<23);
+    int input_size = 16;
+    int database_size = (1<<input_size);
     GroupElement *database = new GroupElement[database_size];
     for(int i=0; i<database_size; i++)
         database[i] = GroupElement(i, bitlength);
@@ -20,10 +20,10 @@ int main() {
     Server p1 = Server(ip, port, 1);
     p1.connect_to_client(ipq, portq);
     //Receive DPF key from P2
-    GroupElement index = p1.recv_ge(23, 2);
+    GroupElement index = p1.recv_ge(input_size, 2);
     GroupElement payload = p1.recv_ge(bitlength, 2);
     dpf_key k1 = p1.recv_dpf_key(bitlength, 2);
-    
+    // auto temp_0 = p1.recv_uint8(0);
     input_check_pack icp1;
     icp1.index = index;
     icp1.payload = payload;
@@ -39,11 +39,14 @@ int main() {
     GroupElement** out1 = dpf_eval_all(1, k1, &icp1);
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
-
+    // uint8_t temp = 0;
+    // p1.send_uint8(temp, 2);
     // for(int i=0; i<8; i++)
     //     std::cout<<"P1 "<<i<<" "<<out1[i][0]<<" "<<out1[i][1]<<"\n";
-    
-    p1.send_input_check_pack(icp1, bitlength, bitlength, 3);
+    // uint8_t temp = 0;
+    // p1.send_uint8(temp, 2);
+    // std::cout<<"Here 1\n";
+    p1.send_input_check_pack(icp1, input_size, bitlength, 3);
 
     uint8_t accept = p1.recv_uint8(3);
 
