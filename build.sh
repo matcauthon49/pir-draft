@@ -42,20 +42,11 @@ fi
 ROOT="$(pwd)"
 cd src
 
-#Defining number of threads to use in parallelization
-# export OMP_NUM_THREADS=12
 cmake CMakelists.txt -B build
 cd build
 make
 COLOR='\033[0;35m'
 NC='\033[0m' 
 printf "${COLOR}---${NC} Build Complete ${COLOR}---${NC}\n"
-# ./p0 &
-# sleep 1
-# ./p1 &
-# sleep 1
-# ./p2 &
-# sleep 1
-# ./c
-./test
+# ./test
 wait

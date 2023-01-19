@@ -391,9 +391,6 @@ input_check_pack_2 Client::recv_input_check_pack_2(int bl, int bw, int party) {
     icp.payload[0] = recv_ge(bw, party);
     icp.payload[1] = recv_ge(bw, party);
 
-    // icp.init_s = new block[2];
-    // icp.init_s[0] = recv_block(bl);
-    // icp.init_s[1] = recv_block(bl);
 
     // size must be sent before the rest
     icp.size = recv_size(party);

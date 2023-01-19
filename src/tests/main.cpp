@@ -36,9 +36,11 @@ int main() {
 //     // GroupElement temp = GroupElement(-5, 3);
 //     // std::cout<<temp.value<<"\n";
 //     // std::cout << g.bitsize << " " << g2.bitsize << " " << g3.bitsize << "\n";
+double total_time = 0;
+for(int i=0; i<10; i++) {
     prng.SetSeed(toBlock(0, 0), sizeof(block));
-
-    int database_size = (1<<15);
+    int Bin = 16;
+    int database_size = (1<<Bin);
     GroupElement *database = new GroupElement[database_size];
     for(int i=0; i<database_size; i++) {
         database[i] = GroupElement(i, bitlength);
@@ -48,7 +50,7 @@ int main() {
     // time_t start, end;
     prng.SetSeed(toBlock(0, 1), sizeof(block));
     int Bout = bitlength;
-    int Bin = 16;
+    
     dpf_input_pack *dpfip[2];
     dpfip[0] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
     dpfip[1] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
@@ -66,7 +68,7 @@ int main() {
     auto end  = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
     // std::cout<<(ip2.index)[0].value<<" "<<(k0.gamma)[0].value<<" "<<(k1.gamma)[0].value<<" "<<"\n";
-    std::cout << "Time taken: " << duration.count()*1e-6 <<"\n";
+    std::cout << "Time taken in keygen: " << duration.count()*1e-6 <<"\n";
     // for(int i=0; i<8; i++) {
     //     std::cout<<"i: "<<i<<" "<<(dpfip[0]->hats[i])<<" "<<(dpfip[1]->hats[i])<<"\n";
     // }
@@ -108,7 +110,20 @@ int main() {
         }
 
     }
-    std::cout << "Time taken: " << duration.count()*1e-6 <<"\n";
+    std::cout << "Time taken in eval all: " << duration.count()*1e-6 <<"\n";
+
+    GroupElement o0, hato0, o1, hato1;
+    start = std::chrono::high_resolution_clock::now();
+    std::tie(o0, hato0) = inner_prod(database_size, GroupElement(0, Bin), database, t_vec_0);
+    end  = std::chrono::high_resolution_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+
+    std::tie(o1, hato1) = inner_prod(database_size, GroupElement(0, Bin), database, t_vec_1);
+    std::cout << "Time taken in inner product: " << duration.count()*1e-6 <<"\n";
+    total_time += duration.count();
+    std::cout<<"Output: "<<(o0 + o1).value<<"\n";
+}
+std::cout<<"Inner product average: "<<total_time*1e-7<<"\n";
 //     // std::cout<<"icp0:\nIndex = "<<icp0.index.value<<"\n";
 //     // std::cout<<"Payload = "<<icp0.payload.value<<"\n";
 //     // std::cout<<"Size = "<<icp0.size<<"\n";

@@ -49,3 +49,5 @@ void free_dpf_input_pack(dpf_input_pack *dpfip);
 void free_dpf_input_pack(dpf_input_pack dpfip);
 
 void prg_eval_all_and_xor(dpf_layer *dpfl, block* keynodes);
+
+std::pair<GroupElement, GroupElement> inner_prod(int database_size, GroupElement rotated_index, GroupElement* db, GroupElement** out);
