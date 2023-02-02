@@ -9,7 +9,7 @@
 
 int main() {
 
-    int input_size = 24;
+    int input_size = 25;
 
     std::string ip[6] = {"127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1"};
     int port[6] = {4000, 4001, 6000, 6001, 8000, 8001};
@@ -42,7 +42,7 @@ int main() {
         GroupElement o1 = c.recv_ge(bitlength, 1);
         GroupElement ohat1 = c.recv_ge(bitlength, 1);
 
-        if ((icp0.payload + icp1.payload) * (o0 + o1) != (ohat0 + ohat1)) {
+        if (((__uint128_t)(icp0.payload + icp1.payload).value * (o0 + o1).value & ((uint64_t(1) << bitlength) - 1)) != (ohat0 + ohat1).value) {
             std::cerr << "Incorrect dpf evaluation\n";
             return -1;
         }

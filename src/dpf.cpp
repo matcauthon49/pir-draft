@@ -575,8 +575,8 @@ std::pair<GroupElement, GroupElement> inner_prod(int database_size, GroupElement
 
     for(size_t i=0; i<database_size; i++) {
         int ind = (i + rotated_index.value) & ((int(1) << rotated_index.bitsize) - 1);
-        ovalue = (ovalue + (out[i][0].value * database[ind].value) & ((uint64_t(1) << bitlength) - 1)) & ((uint64_t(1) << bitlength) - 1);
-        ohatvalue = (ohatvalue + (out[i][1].value * database[ind].value) & ((uint64_t(1) << bitlength) - 1) & ((uint64_t(1) << bitlength) - 1));
+        ovalue = (ovalue + ((__uint128_t)out[i][0].value * database[ind].value) & ((uint64_t(1) << bitlength) - 1)) & ((uint64_t(1) << bitlength) - 1);
+        ohatvalue = (ohatvalue + ((__uint128_t)out[i][1].value * database[ind].value) & ((uint64_t(1) << bitlength) - 1) & ((uint64_t(1) << bitlength) - 1));
     }
     
     GroupElement o = GroupElement(ovalue, bitlength);

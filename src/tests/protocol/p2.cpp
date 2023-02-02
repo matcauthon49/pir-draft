@@ -20,19 +20,23 @@ int main() {
     std::cout<<"----------------Running Key Gen-----------------\n";
 
     int Bout = bitlength;
-    int Bin = 24;
+    int Bin = 25;
 
     dpf_input_pack *dpfip[2];
     //P2 samples random index and payload which is hardcoded for now.
 
     dpfip[0] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
     dpfip[1] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
-    dpfip[0]->index = GroupElement(12675, Bin);
-    dpfip[1]->index = GroupElement(2237, Bin);
+    // dpfip[0]->index = GroupElement(12675, Bin);
+    // dpfip[1]->index = GroupElement(2237, Bin);
+    dpfip[0]->index = random_ge(Bin);
+    dpfip[1]->index = random_ge(Bin);
     dpfip[0]->alpha = (GroupElement*)malloc(sizeof(GroupElement));
-    dpfip[0]->alpha[0] = GroupElement(1287, Bout);
+    // dpfip[0]->alpha[0] = GroupElement(1287, Bout);
+    dpfip[0]->alpha[0] = random_ge(Bout);
     dpfip[1]->alpha = (GroupElement*)malloc(sizeof(GroupElement));
-    dpfip[1]->alpha[0] = GroupElement(9850, Bout);
+    // dpfip[1]->alpha[0] = GroupElement(9850, Bout);
+    dpfip[1]->alpha[0] = random_ge(Bout);
 
     input_check_pack_2 ip2;
     dpf_key k0, k1;

@@ -6,7 +6,7 @@
 #include <chrono>
 
 int main() {
-    int input_size = 24;
+    int input_size = 25;
     int database_size = (1<<input_size);
     GroupElement *database = new GroupElement[database_size];
     for(int i=0; i<database_size; i++)
@@ -35,7 +35,7 @@ int main() {
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
 
-    auto start_online = std::chrono::high_resolution_clock::now();
+    
     uint8_t temp = 4;
     p0.send_uint8(temp, 3);
     p0.send_input_check_pack(icp0, input_size, bitlength, 3);
@@ -60,8 +60,7 @@ int main() {
         std::cerr << "Client rejected output.\n";
 
     }
-    auto end_online = std::chrono::high_resolution_clock::now();
-    auto duration_online = std::chrono::duration_cast<std::chrono::microseconds>(end_online-start_online);
+    
     
 
     free_input_check_pack(icp0);
@@ -72,6 +71,6 @@ int main() {
 
     std::cout << "P0: Time taken for EvalAll: " << duration.count()*1e-6 <<"\n";
     std::cout << "P0: Time taken for Offline Phase: " << (duration.count() + kgtime)*1e-6 << "\n";
-    std::cout<<"P0: Time Taken for Online Phase: "<<duration_online.count()*1e-6 <<"\n";
+   
     
 }

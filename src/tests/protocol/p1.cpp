@@ -6,7 +6,7 @@
 #include <chrono>
 
 int main() {
-    int input_size = 24;
+    int input_size = 25;
     int database_size = (1<<input_size);
     GroupElement *database = new GroupElement[database_size];
     for(int i=0; i<database_size; i++)
@@ -35,6 +35,7 @@ int main() {
 
     uint8_t temp = 4;
     p1.send_uint8(temp, 3);
+    auto start_online = std::chrono::high_resolution_clock::now();
     p1.send_input_check_pack(icp1, input_size, bitlength, 3);
 
     uint8_t accept = p1.recv_uint8(3);
@@ -58,12 +59,16 @@ int main() {
 
     }
 
+    auto end_online = std::chrono::high_resolution_clock::now();
+    auto duration_online = std::chrono::duration_cast<std::chrono::microseconds>(end_online-start_online);
+
     free_input_check_pack(icp1);
     free_dpf_key(k1);
 
     p1.close(0);
     p1.close(1);
     std::cout << "P1: Time taken for EvalAll: " << duration.count()*1e-6 <<"\n";
+     std::cout<<"P1: Time Taken for Online Phase: "<<duration_online.count()*1e-6 <<"\n";
 
         
 }

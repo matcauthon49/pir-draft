@@ -260,6 +260,7 @@ inline GroupElement pow(GroupElement x, uint64_t e)
 inline GroupElement random_ge(int bitlength)
 {
     GroupElement a;
+    prng.SetSeed(osuCrypto::toBlock(0, time(NULL)), sizeof(osuCrypto::block));
     a.bitsize = bitlength;
     a.value = prng.get<uint64_t>();
     mod(a);
