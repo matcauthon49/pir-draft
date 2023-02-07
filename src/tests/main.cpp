@@ -33,47 +33,68 @@ std::string uint128ToString(const __uint128_t& value)
 
 int main() {
 
-    // NTL::GF2X irredpol_13;
-    // std::ifstream myfile("../irredpol_13_c.txt");
+    NTL::GF2X irredpol_13 = NTL::BuildSparseIrred_GF2X(8);
+    // std::ifstream myfile("../../irredpol_13_c.txt");
     // myfile>>irredpol_13;
-    // std::cout<<NTL::deg(irredpol_13)<<"\n";
-    // NTL::GF2E::init(irredpol_13);
+    // myfile.close();
+
+    std::cout<<NTL::deg(irredpol_13)<<"\n";
+    NTL::GF2E::init(irredpol_13);
     
 
 
 // double total_time = 0;
 // for(int i=0; i<10; i++) {
     prng.SetSeed(toBlock(0, 0), sizeof(block));
-    int Bin = 16;
+    int Bin = 3;
+    int Bout = 4;
     int database_size = (1<<Bin);
-    GroupElement *database = new GroupElement[database_size];
+    int entry_size = 8;
+    NTL::GF2E *databaseB = new NTL::GF2E[database_size];
+    NTL::SetSeed(NTL::conv<NTL::ZZ>((long)0));
+    std::ofstream myoutput("test.txt");
+    myoutput<<"database"<<std::endl;
     for(int i=0; i<database_size; i++) {
-        database[i] = GroupElement(i, bitlength);
+        databaseB[i] = NTL::random_GF2E();
+        myoutput<<databaseB[i]<<std::endl;
     }
 
+    // std::cout<<databaseB[7]<<"\n";
+    GroupElement *db;
+
+    NTL::SetSeed(NTL::conv<NTL::ZZ>((long)1));
+    NTL::GF2E mu = NTL::random_GF2E();
+    NTL::GF2E v = NTL::random_GF2E();
+    myoutput<<"mu: "<<mu<<std::endl;
+    myoutput<<"v: "<<v<<std::endl;
+    // GroupElement t = transformelem(databaseB[0], mu, v);
+    // std::cout<<uint128ToString(t.value)<<"\n";
+    transformdb(database_size, &db, databaseB, mu, v);
+    // std::cout<<(uint64_t)db[0].value<<"\n";
+    // std::cout<<(uint64_t)db[0].value<<"\n";
     std::cout<<"----------------Running Key Gen-----------------\n";
     // time_t start, end;
-    prng.SetSeed(toBlock(0, 1), sizeof(block));
-    int Bout = bitlength;
+    prng.SetSeed(toBlock(0, 0), sizeof(block));
+    // bitlength = Bout;
     
     dpf_input_pack *dpfip[2];
     dpfip[0] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
     dpfip[1] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
-    dpfip[0]->index = GroupElement(60000, Bin);
-    dpfip[1]->index = GroupElement(5500, Bin);
+    dpfip[0]->index = GroupElement(3, Bin);
+    dpfip[1]->index = GroupElement(4, Bin);
     dpfip[0]->alpha = (GroupElement*)malloc(sizeof(GroupElement));
-    dpfip[0]->alpha[0] = GroupElement(100, Bout);
+    dpfip[0]->alpha[0] = GroupElement(2, Bout);
     dpfip[1]->alpha = (GroupElement*)malloc(sizeof(GroupElement));
-    dpfip[1]->alpha[0] = GroupElement(100, Bout);
+    dpfip[1]->alpha[0] = GroupElement(10, Bout);
     input_check_pack_2 ip2;
-    // std::cout<<"Here\n";
+    // // std::cout<<"Here\n";
     dpf_key k0, k1;
     auto start = std::chrono::high_resolution_clock::now();
     std::tie(k0, k1) = dpf_keygen(Bin, Bout, dpfip, &ip2);
     auto end  = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
-    // std::cout<<(ip2.index)[0].value<<" "<<(k0.gamma)[0].value<<" "<<(k1.gamma)[0].value<<" "<<"\n";
-    std::cout << "Time taken in keygen: " << duration.count()*1e-6 <<"\n";
+    // // std::cout<<(ip2.index)[0].value<<" "<<(k0.gamma)[0].value<<" "<<(k1.gamma)[0].value<<" "<<"\n";
+    // std::cout << "Time taken in keygen: " << duration.count()*1e-6 <<"\n";
     // for(int i=0; i<8; i++) {
     //     std::cout<<"i: "<<i<<" "<<(dpfip[0]->hats[i])<<" "<<(dpfip[1]->hats[i])<<"\n";
     // }
@@ -106,10 +127,10 @@ int main() {
     duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
     // std::cout<<"Party1:\n";
     t_vec_1 = dpf_eval_all(1, k1, &icp1, t1);
-    // int final_ans = 0;
-    // uint64_t count=0;
-    // std::cout<<(icp0.sigma)[1]<<" "<<(k0.sigma)[1]<<"\n";
-    // std::cout<<"Printing indexes\n";
+    // // int final_ans = 0;
+    // // uint64_t count=0;
+    // // std::cout<<(icp0.sigma)[1]<<" "<<(k0.sigma)[1]<<"\n";
+    // // std::cout<<"Printing indexes\n";
     for(int i=0; i<(1<<Bin); i++) {
         // std::cout<<"i: "<<i<<" "<<(t_vec_0[i][0]+t_vec_1[i][0]).value<<" "<<(t_vec_0[i][1]+t_vec_1[i][1]).value<<"\n";
         if((t_vec_0[i][0]+t_vec_1[i][0]).value != 0 || (t_vec_0[i][1]+t_vec_1[i][1]).value != 0) {
@@ -119,18 +140,33 @@ int main() {
         if(t0[i]^t1[i]) std::cout<<"this "<<i<<"\n";
 
     }
-    std::cout << "Time taken in eval all: " << duration.count()*1e-6 <<"\n";
 
-    GroupElement o0, hato0, o1, hato1;
-    start = std::chrono::high_resolution_clock::now();
-    std::tie(o0, hato0) = inner_prod(database_size, GroupElement(0, Bin), database, t_vec_0);
-    end  = std::chrono::high_resolution_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+    GroupElement hato0, hato1;
+    NTL::GF2E o0, o1, dbout;
+    o0 = compute_o(database_size, GroupElement(0, Bin), databaseB, t0, 0);
+    o1 = compute_o(database_size, GroupElement(0, Bin), databaseB, t1, 1);
+    dbout = o0+o1;
+    // std::cout<<dbout<<"\n";
 
-    std::tie(o1, hato1) = inner_prod(database_size, GroupElement(0, Bin), database, t_vec_1);
-    std::cout << "Time taken in inner product: " << duration.count()*1e-6 <<"\n";
-    // total_time += duration.count();
-    std::cout<<"Output: "<<(o0 + o1).value<<"\n";
+    hato0 = compute_hato(database_size, GroupElement(0, Bin), db, t_vec_0, 0);
+    hato1 = compute_hato(database_size, GroupElement(0, Bin), db, t_vec_1, 1);
+    std::cout<<"hato0: "<<hato0.bitsize<<"\nhato1: "<<hato1.bitsize<<"\n";
+    GroupElement hasho = transformelem(dbout, mu, v);
+    std::cout<<"hasho: "<<hasho.value<<"\n";
+    std::cout<<(uint64_t)hasho.value<<"\n";
+    std::cout<<(((((__uint128_t)icp0.payload.value + icp1.payload.value)*(hasho.value)) & ((__uint128_t(1)<<Bout) - 1)) == (hato0+hato1).value);
+    // std::cout << "Time taken in eval all: " << duration.count()*1e-6 <<"\n";
+
+    // GroupElement o0, hato0, o1, hato1;
+    // start = std::chrono::high_resolution_clock::now();
+    // std::tie(o0, hato0) = inner_prod(database_size, GroupElement(0, Bin), database, t_vec_0);
+    // end  = std::chrono::high_resolution_clock::now();
+    // duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
+
+    // std::tie(o1, hato1) = inner_prod(database_size, GroupElement(0, Bin), database, t_vec_1);
+    // std::cout << "Time taken in inner product: " << duration.count()*1e-6 <<"\n";
+    // // total_time += duration.count();
+    // std::cout<<"Output: "<<(o0 + o1).value<<"\n";
 
 // std::cout<<"Inner product average: "<<total_time*1e-7<<"\n";
 //     // std::cout<<"icp0:\nIndex = "<<icp0.index.value<<"\n";

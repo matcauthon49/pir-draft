@@ -455,9 +455,9 @@ NTL::GF2E Client::recv_GF2E(int deg, int party) {
     return NTL::conv<NTL::GF2E>(poly);
 }
 
-void Client::send_GF2E(NTL::GF2E &x, int party) {
+void Client::send_GF2E(NTL::GF2E &x, int deg, int party) {
     NTL::GF2X xpoly = NTL::conv<NTL::GF2X>(x);
-    for(int i=0; i<=NTL::deg(xpoly); i++) {
+    for(int i=0; i<=deg; i++) {
         uint8_t cf = static_cast<uint8_t>(NTL::rep(NTL::coeff(xpoly, i)));
         send_uint8(cf, party);
     }

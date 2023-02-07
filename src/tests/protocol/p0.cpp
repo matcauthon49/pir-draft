@@ -8,35 +8,32 @@
 #include<NTL/GF2XFactoring.h>
 
 int main() {
-    int input_size = 3;
+    int input_size = 20;
     int database_size = (1<<input_size);
-    int entry_size = 50;
+    int entry_size = 8192;
 
     //Creating database for both cases when entry size < 40 bits and 1KB.
-    static NTL::GF2E *databaseB;
-    static GroupElement *database;
+    NTL::GF2E *databaseB;
+    GroupElement *database;
+
     if(entry_size>bitlength) {
-        NTL::GF2X irredpol = NTL::BuildSparseIrred_GF2X(8);
-        // std::ifstream myfile("irredpol_13_0.txt");
-        // myfile>>irredpol;
-        // myfile.close();
+        NTL::GF2X irredpol;
+        std::ifstream myfile("irredpol_13_0.txt");
+        myfile>>irredpol;
+        myfile.close();
         NTL::GF2E::init(irredpol);
-        // std::cout<<"Degree: "<<NTL::deg(irredpol)<<"\n";
         databaseB = new NTL::GF2E[database_size];
         NTL::SetSeed(NTL::conv<NTL::ZZ>((long)0));
-        for(int i=0; i<database_size; i++)
-        databaseB[i] = NTL::random_GF2E();
+        for(int i=0; i<database_size; i++) {
+            databaseB[i] = NTL::random_GF2E();
+        }
     }
     else {
         database = new GroupElement[database_size];
         for(int i=0; i<database_size; i++)
         database[i] = GroupElement(i, bitlength);
     }
-
-    // std::ofstream myfile("entry0.txt");
-    std::cout<<"P_0: "<<databaseB[3]<<std::endl;
-    // myfile<<databaseB[5]<<std::endl;
-    // myfile.close();    
+ 
 
     std::string ip[2] = {"127.0.0.1", "127.0.0.1"};
     int port[2] = {2000, 2001};
@@ -63,11 +60,6 @@ int main() {
     auto end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
 
-    // std::ofstream myfile("entry0.txt", std::ios::app);
-    // myfile<<icp0.index.value<<std::endl;
-    // for(int i=0; i<8; i++)
-    //     myfile<<unsigned(t[i])<<std::endl;
-    // myfile.close();
     
     uint8_t temp = 4;
     p0.send_uint8(temp, 3);
@@ -78,7 +70,7 @@ int main() {
     if (accept) {
         GroupElement rotated_index = p0.recv_ge(icp0.size, 3);
         GroupElement hato;
-        if(entry_size<=40) {
+        if(entry_size<=bitlength) {
             auto start2 = std::chrono::high_resolution_clock::now();
             GroupElement o;
             std::tie(o, hato) = inner_prod(database_size, rotated_index, database, out0);
@@ -92,13 +84,22 @@ int main() {
         else {
             auto start2 = std::chrono::high_resolution_clock::now();
             NTL::GF2E o = compute_o(database_size, rotated_index, databaseB, t, 0);
+            p0.send_GF2E(o, entry_size-1, 3);
+            //Receive mu and v from C
+            NTL::GF2E mu = p0.recv_GF2E(entry_size-1, 3);
+            NTL::GF2E v = p0.recv_GF2E(entry_size-1, 3);
+
+            //Transform database
+            transformdb(database_size, &database, databaseB, mu, v);
+
+            GroupElement hato = compute_hato(database_size, rotated_index, database, out0, 0);
+            p0.send_ge(hato, bitlength, 3);
+
             auto end2 = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end2-start2);
             std::cout << "Time taken for DB Parse-Through: " << duration.count()*1e-6 <<"\n";
-            std::ofstream myfile("entry0.txt");
-            myfile<<o;
-            myfile.close();
-            p0.send_GF2E(o, 7, 3);
+            
+            
         }
 
     } else {

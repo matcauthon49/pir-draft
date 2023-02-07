@@ -595,3 +595,44 @@ NTL::GF2E compute_o(int database_size, GroupElement rotated_index, NTL::GF2E *db
 
     return ovalue;
 };
+
+GroupElement reducesize(NTL::GF2E dbe) {
+    uint64_t val = 0;
+    NTL::GF2X xpoly = NTL::conv<NTL::GF2X>(dbe);
+    for(int i=bitlength-1; i>=0; i--) {
+        val = ((val<<1) + static_cast<uint8_t>(NTL::rep(NTL::coeff(xpoly, i)))) & (((uint64_t)(1) << bitlength) - 1);
+        // std::cout<<"i: "<<i<<" val: "<<(uint64_t)val<<"coeff i "<<(unsigned)static_cast<uint8_t>(NTL::rep(NTL::coeff(xpoly, i)))<<"\n";
+    }
+
+    return GroupElement(val, bitlength);
+
+}
+GroupElement compute_hato(int database_size, GroupElement rotated_index, GroupElement *db, GroupElement **out, int p) {
+    uint64_t hatovalue = 0;
+    for(size_t i=1; i<database_size; i++) {
+        int ind = (i + rotated_index.value) & ((int(1) << rotated_index.bitsize) - 1);
+        // std::cout<<"Party "<<p<<": i: "<<i<<" ind: "<<ind<<"\n"; 
+        // std::cout<<"Party "<<p<<": out: "<<(uint64_t)out[i][1].value<<"\n";
+        // std::cout<<"Party "<<p<<": db: "<<(uint64_t)db[ind].value<<"\n";
+        hatovalue = (hatovalue + (((__uint128_t)out[i][1].value * db[ind].value) & ((__uint128_t(1) << bitlength) - 1)) & ((uint64_t(1) << bitlength) - 1));
+        
+    }
+
+    return GroupElement(hatovalue, bitlength);
+};
+
+GroupElement transformelem(NTL::GF2E &dbe, NTL::GF2E &mu, NTL::GF2E &v) {
+    NTL::GF2E t = mu*dbe + v;
+    // std::cout<<"Inside transform: "<<t<<"\n";
+    return reducesize(t);
+};
+
+
+void transformdb(int database_size, GroupElement **db, NTL::GF2E *dbb, NTL::GF2E &mu, NTL::GF2E &v) {
+    *db = (GroupElement*)malloc(database_size*sizeof(GroupElement));
+    for(int i=0; i<database_size; i++) {
+        (*db)[i] = transformelem(dbb[i], mu, v);
+    }
+
+    // std::cout<<"db[2] "<<(uint64_t)(*db)[2].value<<"\n";
+}
