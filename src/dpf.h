@@ -9,6 +9,8 @@
 #include <group_element.h>
 #include <keys.h>
 #include <omp.h>
+#include<NTL/GF2E.h>
+#include<NTL/GF2X.h>
 
 using namespace osuCrypto;
 struct dpf_layer {
@@ -42,7 +44,7 @@ std::pair<dpf_key, dpf_key> dpf_keygen(int height, int Bout, dpf_input_pack **dp
 
 GroupElement* dpf_eval(int party, GroupElement idx, const dpf_key &key);
 
-GroupElement** dpf_eval_all(int party, const dpf_key &key, input_check_pack *icp);
+GroupElement** dpf_eval_all(int party, const dpf_key &key, input_check_pack *icp, uint8_t *t);
 
 void free_dpf_layer(dpf_layer* dpfl);
 void free_dpf_input_pack(dpf_input_pack *dpfip);
@@ -51,3 +53,4 @@ void free_dpf_input_pack(dpf_input_pack dpfip);
 void prg_eval_all_and_xor(dpf_layer *dpfl, block* keynodes);
 
 std::pair<GroupElement, GroupElement> inner_prod(int database_size, GroupElement rotated_index, GroupElement* db, GroupElement** out);
+NTL::GF2E compute_o(int database_size, GroupElement rotated_index, NTL::GF2E *db, uint8_t* t, int p);

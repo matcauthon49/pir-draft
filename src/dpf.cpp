@@ -456,7 +456,7 @@ GroupElement* dpf_eval(int party, GroupElement idx, const dpf_key &key) {
     return out;
 };
 
-GroupElement** dpf_eval_all(int party, const dpf_key &key, input_check_pack *icp) {
+GroupElement** dpf_eval_all(int party, const dpf_key &key, input_check_pack *icp, uint8_t *t) {
     icp->size = key.height;
     //Intialize dpf layer
     dpf_layer* dpfl = (dpf_layer*)malloc(sizeof(dpf_layer));
@@ -528,7 +528,7 @@ GroupElement** dpf_eval_all(int party, const dpf_key &key, input_check_pack *icp
             thread_T[thread_id] = thread_T[thread_id] +  hatt[j];
             thread_W[thread_id][0] = thread_W[thread_id][0] + gamma_ind[0];
             thread_W[thread_id][1] = thread_W[thread_id][1] + gamma_ind[1];
-
+            t[j] = hatt[j];
             out[j] = (GroupElement*)malloc(2*sizeof(GroupElement));
             if(party==0) {
                 if(hatt[j]==0) {
@@ -583,4 +583,15 @@ std::pair<GroupElement, GroupElement> inner_prod(int database_size, GroupElement
     GroupElement hato = GroupElement(ohatvalue, bitlength);
 
     return std::pair<GroupElement, GroupElement>(o, hato);
+};
+
+NTL::GF2E compute_o(int database_size, GroupElement rotated_index, NTL::GF2E *db, uint8_t* t, int p) {
+    NTL::GF2E ovalue = NTL::GF2E();
+    for(size_t i=0; i<database_size; i++) {
+        int ind = (i + rotated_index.value) & ((int(1) << rotated_index.bitsize) - 1);
+        if(t[i]) ovalue = ovalue + db[ind];
+        // std::cout<<"Party "<<p<<": ind: "<<ind<<db[ind]<<" "<<ovalue<<"\n";}
+    }
+
+    return ovalue;
 };

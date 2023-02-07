@@ -345,10 +345,14 @@ dpf_key Server::recv_dpf_key(int bl, int party) {
     return dpf_key(height, Bout, s, t, sigma, tau0, tau1, gamma);
 }
 
-void Server::send_GF2E(NTL::GF2E &x, int party) {
+void Server::send_GF2E(NTL::GF2E &x, int deg, int party) {
     NTL::GF2X xpoly = NTL::conv<NTL::GF2X>(x);
-    for(int i=0; i<=NTL::deg(xpoly); i++) {
-        uint8_t cf = static_cast<uint8_t>(NTL::rep(NTL::coeff(xpoly, i)));
+    for(int i=0; i<=deg; i++) {
+        uint8_t cf;
+        if(i <= NTL::deg(xpoly))
+            cf = static_cast<uint8_t>(NTL::rep(NTL::coeff(xpoly, i)));
+        else cf = 0;
+        
         send_uint8(cf, party);
     }
 }

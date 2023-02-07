@@ -45,7 +45,7 @@ public:
     void send_uint8(uint8_t &i, int party);
     void send_size(size_t &i, int party);
     void send_int(int &i, int party);
-    void send_GF2E(NTL::GF2E &x, int party);
+    void send_GF2E(NTL::GF2E &x, int deg, int party);
     void send_input_check_pack(input_check_pack icp, int bw, int bl, int party);
 
     GroupElement recv_ge(int bl, int party);

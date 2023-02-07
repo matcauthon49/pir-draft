@@ -3,7 +3,10 @@
 #include <cryptoTools/Crypto/PRNG.h>
 #include <chrono>
 #include <algorithm>
-
+#include<fstream>
+#include<NTL/GF2E.h>
+#include<NTL/GF2X.h>
+#include<NTL/GF2XFactoring.h>
 
 using namespace osuCrypto;
 // PRNG prng;
@@ -29,15 +32,17 @@ std::string uint128ToString(const __uint128_t& value)
 }
 
 int main() {
-//     GroupElement g = GroupElement(10);
-//     GroupElement g2 = GroupElement(100);
-//     GroupElement g3 = GroupElement(1000);
 
-//     // GroupElement temp = GroupElement(-5, 3);
-//     // std::cout<<temp.value<<"\n";
-//     // std::cout << g.bitsize << " " << g2.bitsize << " " << g3.bitsize << "\n";
-double total_time = 0;
-for(int i=0; i<10; i++) {
+    // NTL::GF2X irredpol_13;
+    // std::ifstream myfile("../irredpol_13_c.txt");
+    // myfile>>irredpol_13;
+    // std::cout<<NTL::deg(irredpol_13)<<"\n";
+    // NTL::GF2E::init(irredpol_13);
+    
+
+
+// double total_time = 0;
+// for(int i=0; i<10; i++) {
     prng.SetSeed(toBlock(0, 0), sizeof(block));
     int Bin = 16;
     int database_size = (1<<Bin);
@@ -91,13 +96,16 @@ for(int i=0; i<10; i++) {
     icp1.index = (ip2.index)[1];
     icp0.payload = (ip2.payload)[0];
     icp1.payload = (ip2.payload)[1];
+    uint8_t *t0, *t1;
+    t0 = (uint8_t*)malloc((1<<Bin)*sizeof(uint8_t));
+    t1 = (uint8_t*)malloc((1<<Bin)*sizeof(uint8_t));
     // std::cout<<icp0.index.value<<"\n";
     start = std::chrono::high_resolution_clock::now();
-    t_vec_0 = dpf_eval_all(0, k0, &icp0);
+    t_vec_0 = dpf_eval_all(0, k0, &icp0, t0);
     end  = std::chrono::high_resolution_clock::now();
     duration = std::chrono::duration_cast<std::chrono::microseconds>(end-start);
     // std::cout<<"Party1:\n";
-    t_vec_1 = dpf_eval_all(1, k1, &icp1);
+    t_vec_1 = dpf_eval_all(1, k1, &icp1, t1);
     // int final_ans = 0;
     // uint64_t count=0;
     // std::cout<<(icp0.sigma)[1]<<" "<<(k0.sigma)[1]<<"\n";
@@ -108,6 +116,7 @@ for(int i=0; i<10; i++) {
            std::cout<<i<<"\n";
            std::cout<<(t_vec_0[i][0] + t_vec_1[i][0]).value<<" "<<(t_vec_0[i][1] + t_vec_1[i][1]).value<<"\n";
         }
+        if(t0[i]^t1[i]) std::cout<<"this "<<i<<"\n";
 
     }
     std::cout << "Time taken in eval all: " << duration.count()*1e-6 <<"\n";
@@ -120,10 +129,10 @@ for(int i=0; i<10; i++) {
 
     std::tie(o1, hato1) = inner_prod(database_size, GroupElement(0, Bin), database, t_vec_1);
     std::cout << "Time taken in inner product: " << duration.count()*1e-6 <<"\n";
-    total_time += duration.count();
+    // total_time += duration.count();
     std::cout<<"Output: "<<(o0 + o1).value<<"\n";
-}
-std::cout<<"Inner product average: "<<total_time*1e-7<<"\n";
+
+// std::cout<<"Inner product average: "<<total_time*1e-7<<"\n";
 //     // std::cout<<"icp0:\nIndex = "<<icp0.index.value<<"\n";
 //     // std::cout<<"Payload = "<<icp0.payload.value<<"\n";
 //     // std::cout<<"Size = "<<icp0.size<<"\n";
