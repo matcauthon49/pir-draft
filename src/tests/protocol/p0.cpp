@@ -6,7 +6,7 @@
 #include <chrono>
 
 int main() {
-    int input_size = 25;
+    int input_size = 20;
     int database_size = (1<<input_size);
     GroupElement *database = new GroupElement[database_size];
     for(int i=0; i<database_size; i++)

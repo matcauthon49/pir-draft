@@ -344,3 +344,22 @@ dpf_key Server::recv_dpf_key(int bl, int party) {
 
     return dpf_key(height, Bout, s, t, sigma, tau0, tau1, gamma);
 }
+
+void Server::send_GF2E(NTL::GF2E &x, int party) {
+    NTL::GF2X xpoly = NTL::conv<NTL::GF2X>(x);
+    for(int i=0; i<=NTL::deg(xpoly); i++) {
+        uint8_t cf = static_cast<uint8_t>(NTL::rep(NTL::coeff(xpoly, i)));
+        send_uint8(cf, party);
+    }
+}
+
+NTL::GF2E Server::recv_GF2E(int deg, int party) {
+    NTL::GF2X poly;
+    uint8_t cf = 0;
+    for(int i=0; i<=deg; i++) {
+        cf = recv_uint8(party);
+        NTL::SetCoeff(poly, i, cf);
+    }
+
+    return NTL::conv<NTL::GF2E>(poly);
+}

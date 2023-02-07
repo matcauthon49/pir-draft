@@ -20,7 +20,7 @@ int main() {
     std::cout<<"----------------Running Key Gen-----------------\n";
 
     int Bout = bitlength;
-    int Bin = 25;
+    int Bin = 20;
 
     dpf_input_pack *dpfip[2];
     //P2 samples random index and payload which is hardcoded for now.

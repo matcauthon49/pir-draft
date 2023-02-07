@@ -19,7 +19,7 @@ find_package(OpenMP)
 if(OpenMP_CXX_FOUND)
     target_link_libraries(dpf PUBLIC OpenMP::OpenMP_CXX)
 endif()
-
+target_link_libraries(dpf PUBLIC ntl gf2x gmp m)
 # #find_package(Threads REQUIRED)
 target_include_directories(dpf
     PUBLIC
@@ -60,7 +60,7 @@ deps/cryptoTools
 deps/EzPC
 ${CMAKE_CURRENT_SOURCE_DIR}
 )
-target_link_libraries(test PRIVATE dpf )
+target_link_libraries(test PRIVATE dpf ntl gf2x gmp m)
 if(OpenMP_CXX_FOUND)
     target_link_libraries(test PUBLIC OpenMP::OpenMP_CXX)
 endif()
@@ -74,7 +74,7 @@ deps/cryptoTools
 deps/EzPC
 ${CMAKE_CURRENT_SOURCE_DIR}
 )
-target_link_libraries(p0 PRIVATE dpf )
+target_link_libraries(p0 PRIVATE dpf ntl gf2x gmp m)
 if(OpenMP_CXX_FOUND)
     target_link_libraries(p0 PUBLIC OpenMP::OpenMP_CXX)
 endif()
@@ -87,7 +87,7 @@ deps/cryptoTools
 deps/EzPC
 ${CMAKE_CURRENT_SOURCE_DIR}
 )
-target_link_libraries(p1 PRIVATE dpf )
+target_link_libraries(p1 PRIVATE dpf ntl gf2x gmp m)
 if(OpenMP_CXX_FOUND)
     target_link_libraries(p1 PUBLIC OpenMP::OpenMP_CXX)
 endif()
@@ -100,7 +100,7 @@ deps/cryptoTools
 deps/EzPC
 ${CMAKE_CURRENT_SOURCE_DIR}
 )
-target_link_libraries(p2 PRIVATE dpf )
+target_link_libraries(p2 PRIVATE dpf ntl gf2x gmp m)
 if(OpenMP_CXX_FOUND)
     target_link_libraries(p2 PUBLIC OpenMP::OpenMP_CXX)
 endif()
@@ -113,7 +113,7 @@ deps/cryptoTools
 deps/EzPC
 ${CMAKE_CURRENT_SOURCE_DIR}
 )
-target_link_libraries(c PRIVATE dpf )
+target_link_libraries(c PRIVATE dpf ntl gf2x gmp m)
 if(OpenMP_CXX_FOUND)
     target_link_libraries(c PUBLIC OpenMP::OpenMP_CXX)
 endif()
