@@ -12,7 +12,7 @@
 int main() {
     int input_size = 20;
     int database_size = (1<<input_size);
-    int entry_size = 8192;
+    int entry_size = 40;
 
     //Creating database for both cases when entry size < 40 bits and 1KB.
     NTL::GF2E *databaseB;
@@ -89,7 +89,13 @@ int main() {
             NTL::GF2E v = p1.recv_GF2E(entry_size-1, 3);
 
             //Transform db
-            transformdb(database_size, &database, databaseB, mu, v);
+            transformdb(database_size, &database, &databaseB, mu, v);
+            // database = (GroupElement*)malloc(database_size*sizeof(GroupElement));
+            // #pragma omp parallel for num_threads(8) schedule(static, 1)
+            // for(int i=0; i<database_size; i++) {
+            //     database[i] = transformelem(databaseB[i], mu, v);
+            // }
+            // delete[] databaseB;
 
             //Compute hato on hashed database.
             GroupElement hato = compute_hato(database_size, rotated_index, database, out1, 1);
@@ -110,7 +116,7 @@ int main() {
 
     free_input_check_pack(icp1);
     free_dpf_key(k1);
-
+    delete[] database;
     p1.close(0);
     p1.close(1);
     std::cout << "P1: Time taken for EvalAll: " << duration.count()*1e-6 <<"\n";

@@ -50,6 +50,7 @@ int main() {
     int Bout = 4;
     int database_size = (1<<Bin);
     int entry_size = 8;
+    // bitlength = Bout;
     NTL::GF2E *databaseB = new NTL::GF2E[database_size];
     NTL::SetSeed(NTL::conv<NTL::ZZ>((long)0));
     std::ofstream myoutput("test.txt");
@@ -69,7 +70,9 @@ int main() {
     myoutput<<"v: "<<v<<std::endl;
     // GroupElement t = transformelem(databaseB[0], mu, v);
     // std::cout<<uint128ToString(t.value)<<"\n";
-    transformdb(database_size, &db, databaseB, mu, v);
+    std::cout<<"Here\n";
+    transformdb(database_size, &db, &databaseB, mu, v);
+    std::cout<<"Here2\n";
     // std::cout<<(uint64_t)db[0].value<<"\n";
     // std::cout<<(uint64_t)db[0].value<<"\n";
     std::cout<<"----------------Running Key Gen-----------------\n";

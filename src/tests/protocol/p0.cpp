@@ -10,7 +10,7 @@
 int main() {
     int input_size = 20;
     int database_size = (1<<input_size);
-    int entry_size = 8192;
+    int entry_size = 40;
 
     //Creating database for both cases when entry size < 40 bits and 1KB.
     NTL::GF2E *databaseB;
@@ -90,8 +90,14 @@ int main() {
             NTL::GF2E v = p0.recv_GF2E(entry_size-1, 3);
 
             //Transform database
-            transformdb(database_size, &database, databaseB, mu, v);
+            // database = (GroupElement*)malloc(database_size*sizeof(GroupElement));
+            // #pragma omp parallel for num_threads(8) schedule(static, 1)
+            // for(int i=0; i<database_size; i++) {
+            //     database[i] = transformelem(databaseB[i], mu, v);
+            // }
+            // delete[] databaseB;
 
+            transformdb(database_size, &database, &databaseB, mu, v);
             GroupElement hato = compute_hato(database_size, rotated_index, database, out0, 0);
             p0.send_ge(hato, bitlength, 3);
 
@@ -112,7 +118,7 @@ int main() {
 
     free_input_check_pack(icp0);
     free_dpf_key(k0);
-
+    delete[] database;
     p0.close(0);
     p0.close(1);
 

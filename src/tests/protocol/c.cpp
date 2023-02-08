@@ -13,7 +13,7 @@
 int main() {
 
     int input_size = 20;
-    int entry_size = 8192;
+    int entry_size = 40;
     //Initializing GF2E if entry size is 1KB.
     if(entry_size>bitlength) {
         NTL::GF2X irredpol_13;
