@@ -7,7 +7,7 @@
 
 int main() {
 
-    prng.SetSeed(toBlock(0, 0), sizeof(block));
+    prng.SetSeed(toBlock(0, time(NULL)), sizeof(block));
 
     std::string ip[4] = {"127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1"};
     int port[4] = {2000, 2001, 3000, 3001};

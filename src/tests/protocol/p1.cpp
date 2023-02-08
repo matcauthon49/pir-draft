@@ -12,7 +12,7 @@
 int main() {
     int input_size = 20;
     int database_size = (1<<input_size);
-    int entry_size = 40;
+    int entry_size = 8192;
 
     //Creating database for both cases when entry size < 40 bits and 1KB.
     NTL::GF2E *databaseB;
@@ -82,14 +82,25 @@ int main() {
         }
         else {
             auto start2 = std::chrono::high_resolution_clock::now();
+            auto start_0 = std::chrono::high_resolution_clock::now();
             NTL::GF2E o = compute_o(database_size, rotated_index, databaseB, t, 1);
             p1.send_GF2E(o, entry_size-1, 3);
+            auto end_0 = std::chrono::high_resolution_clock::now();
+            auto dur_0 = std::chrono::duration_cast<std::chrono::microseconds>(end_0-start_0);
+            std::cout<<"Time taken for computing and sending o"<<dur_0.count()*1e-6<<"\n";
             //Receive mu and v from C
+            auto start_recv = std::chrono::high_resolution_clock::now();
             NTL::GF2E mu = p1.recv_GF2E(entry_size-1, 3);
             NTL::GF2E v = p1.recv_GF2E(entry_size-1, 3);
-
+            auto end_recv = std::chrono::high_resolution_clock::now();
+            auto duration_recv = std::chrono::duration_cast<std::chrono::microseconds>(end_recv-start_recv);
+            std::cout<<"Time taken for receiving mu and v "<<duration_recv.count()*1e-6<<"\n";
             //Transform db
+            auto start_t = std::chrono::high_resolution_clock::now();
             transformdb(database_size, &database, &databaseB, mu, v);
+            auto end_t = std::chrono::high_resolution_clock::now();
+            auto duration_t = std::chrono::duration_cast<std::chrono::microseconds>(end_t-start_t);
+            std::cout<<"Time taken for transforming database "<<duration_t.count()*1e-6<<"\n";
             // database = (GroupElement*)malloc(database_size*sizeof(GroupElement));
             // #pragma omp parallel for num_threads(8) schedule(static, 1)
             // for(int i=0; i<database_size; i++) {
@@ -98,8 +109,11 @@ int main() {
             // delete[] databaseB;
 
             //Compute hato on hashed database.
+            auto start_hato = std::chrono::high_resolution_clock::now();
             GroupElement hato = compute_hato(database_size, rotated_index, database, out1, 1);
             p1.send_ge(hato, bitlength, 3);
+            auto end_hato = std::chrono::high_resolution_clock::now();
+            auto dur_hato = std::chrono::duration_cast<std::chrono::microseconds>(end_hato-start_hato);
             auto end2 = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end2-start2);
             std::cout << "Time taken for DB Parse-Through: " << duration.count()*1e-6 <<"\n";           

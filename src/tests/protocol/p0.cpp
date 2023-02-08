@@ -10,7 +10,7 @@
 int main() {
     int input_size = 20;
     int database_size = (1<<input_size);
-    int entry_size = 40;
+    int entry_size = 8192;
 
     //Creating database for both cases when entry size < 40 bits and 1KB.
     NTL::GF2E *databaseB;
@@ -76,7 +76,7 @@ int main() {
             std::tie(o, hato) = inner_prod(database_size, rotated_index, database, out0);
             auto end2 = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end2-start2);
-            std::cout << "Time taken for DB Parse-Through: " << duration.count()*1e-6 <<"\n";
+            // std::cout << "Time taken for DB Parse-Through: " << duration.count()*1e-6 <<"\n";
 
             p0.send_ge(o, bitlength, 3);
             p0.send_ge(hato, bitlength, 3);
@@ -103,7 +103,7 @@ int main() {
 
             auto end2 = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end2-start2);
-            std::cout << "Time taken for DB Parse-Through: " << duration.count()*1e-6 <<"\n";
+            // std::cout << "Time taken for DB Parse-Through: " << duration.count()*1e-6 <<"\n";
             
             
         }

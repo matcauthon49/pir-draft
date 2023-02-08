@@ -13,7 +13,7 @@
 int main() {
 
     int input_size = 20;
-    int entry_size = 40;
+    int entry_size = 8192;
     //Initializing GF2E if entry size is 1KB.
     if(entry_size>bitlength) {
         NTL::GF2X irredpol_13;
@@ -67,13 +67,10 @@ int main() {
         else {
             NTL::GF2E o0 = c.recv_GF2E(entry_size-1, 0);
             NTL::GF2E o1 = c.recv_GF2E(entry_size-1, 1);
-            NTL::GF2E dbout = o0 + o1;
-            std::ofstream myfile("output.txt");
-            myfile<<dbout;
-            myfile.close();
+            
 
             //Send random mu and v to P0, P1
-            NTL::SetSeed(NTL::conv<NTL::ZZ>((long)1));
+            NTL::SetSeed(NTL::conv<NTL::ZZ>((long)time(NULL)));
             NTL::GF2E mu = NTL::random_GF2E();
             NTL::GF2E v = NTL::random_GF2E();
             c.send_GF2E(mu, entry_size-1, 0);
@@ -83,7 +80,10 @@ int main() {
 
             GroupElement ohat0 = c.recv_ge(bitlength, 0);
             GroupElement ohat1 = c.recv_ge(bitlength, 1);
-
+            NTL::GF2E dbout = o0 + o1;
+            std::ofstream myfile("output.txt");
+            myfile<<dbout;
+            myfile.close();
             GroupElement hashdbout = transformelem(dbout, mu, v);
             if((((__uint128_t)(icp0.payload + icp1.payload).value * hashdbout.value) & ((__uint128_t(1) << bitlength) - 1)) != (__uint128_t)(ohat0 + ohat1).value)
                {    std::cerr<<"Incorrect DPF evaluation\n";
