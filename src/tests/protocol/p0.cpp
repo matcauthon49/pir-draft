@@ -8,28 +8,29 @@
 #include<NTL/GF2XFactoring.h>
 
 int main() {
-    int input_size = 20;
+    int input_size = 21;
     int database_size = (1<<input_size);
     int entry_size = 8192;
 
     //Creating database for both cases when entry size < 40 bits and 1KB.
-    NTL::GF2E *databaseB;
-    GroupElement *database;
 
+    NTL::GF2E *databaseB = new NTL::GF2E[database_size];
+    GroupElement *database = new GroupElement[database_size];
     if(entry_size>bitlength) {
         NTL::GF2X irredpol;
         std::ifstream myfile("irredpol_13_0.txt");
         myfile>>irredpol;
         myfile.close();
         NTL::GF2E::init(irredpol);
-        databaseB = new NTL::GF2E[database_size];
+        
         NTL::SetSeed(NTL::conv<NTL::ZZ>((long)0));
         for(int i=0; i<database_size; i++) {
             databaseB[i] = NTL::random_GF2E();
         }
+
+        // database = new GroupElement[database_size];
     }
     else {
-        database = new GroupElement[database_size];
         for(int i=0; i<database_size; i++)
         database[i] = GroupElement(i, bitlength);
     }
@@ -96,8 +97,9 @@ int main() {
             //     database[i] = transformelem(databaseB[i], mu, v);
             // }
             // delete[] databaseB;
-
-            transformdb(database_size, &database, &databaseB, mu, v);
+            transformdb(&database, databaseB, mu, v, database_size);
+            // transformdb(database_size, &database, databaseB, mu, v);
+            delete[] databaseB;
             GroupElement hato = compute_hato(database_size, rotated_index, database, out0, 0);
             p0.send_ge(hato, bitlength, 3);
 

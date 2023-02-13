@@ -10,13 +10,13 @@
 #include<fstream>
 
 int main() {
-    int input_size = 20;
+    int input_size = 21;
     int database_size = (1<<input_size);
     int entry_size = 8192;
 
     //Creating database for both cases when entry size < 40 bits and 1KB.
-    NTL::GF2E *databaseB;
-    GroupElement *database;
+    NTL::GF2E *databaseB = new NTL::GF2E[database_size];
+    GroupElement *database = new GroupElement[database_size];
     if(entry_size>bitlength) {
         NTL::GF2X irredpol;
         std::ifstream myfile("irredpol_13_1.txt");
@@ -24,14 +24,15 @@ int main() {
         myfile.close();
         NTL::GF2E::init(irredpol);
 
-        databaseB = new NTL::GF2E[database_size];
+        // databaseB = new NTL::GF2E[database_size];
         NTL::SetSeed(NTL::conv<NTL::ZZ>((long)0));
         for(int i=0; i<database_size; i++) {
             databaseB[i] = NTL::random_GF2E();
         }
+        // database = new GroupElement[database_size];
     }
     else {
-        database = new GroupElement[database_size];
+        // database = new GroupElement[database_size];
         for(int i=0; i<database_size; i++)
         database[i] = GroupElement(i, bitlength);
     }
@@ -97,7 +98,8 @@ int main() {
             std::cout<<"Time taken for receiving mu and v "<<duration_recv.count()*1e-6<<"\n";
             //Transform db
             auto start_t = std::chrono::high_resolution_clock::now();
-            transformdb(database_size, &database, &databaseB, mu, v);
+            transformdb(&database, databaseB, mu, v, database_size);
+            delete[] databaseB;
             auto end_t = std::chrono::high_resolution_clock::now();
             auto duration_t = std::chrono::duration_cast<std::chrono::microseconds>(end_t-start_t);
             std::cout<<"Time taken for transforming database "<<duration_t.count()*1e-6<<"\n";

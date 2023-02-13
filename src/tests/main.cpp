@@ -33,7 +33,7 @@ std::string uint128ToString(const __uint128_t& value)
 
 int main() {
 
-    NTL::GF2X irredpol_13 = NTL::BuildSparseIrred_GF2X(8);
+    NTL::GF2X irredpol_13 = NTL::BuildSparseIrred_GF2X(8192);
     // std::ifstream myfile("../../irredpol_13_c.txt");
     // myfile>>irredpol_13;
     // myfile.close();
@@ -46,32 +46,36 @@ int main() {
 // double total_time = 0;
 // for(int i=0; i<10; i++) {
     prng.SetSeed(toBlock(0, 0), sizeof(block));
-    int Bin = 3;
-    int Bout = 4;
+    int Bin = 20;
+    int Bout = 40;
     int database_size = (1<<Bin);
-    int entry_size = 8;
-    // bitlength = Bout;
+    int entry_size = 8192;
+    bitlength = Bout;
     NTL::GF2E *databaseB = new NTL::GF2E[database_size];
     NTL::SetSeed(NTL::conv<NTL::ZZ>((long)0));
-    std::ofstream myoutput("test.txt");
-    myoutput<<"database"<<std::endl;
+    // std::ofstream myoutput("test.txt");
+    // myoutput<<"database"<<std::endl;
     for(int i=0; i<database_size; i++) {
         databaseB[i] = NTL::random_GF2E();
-        myoutput<<databaseB[i]<<std::endl;
+        // myoutput<<databaseB[i]<<std::endl;
     }
 
     // std::cout<<databaseB[7]<<"\n";
-    GroupElement *db;
+    GroupElement *db = new GroupElement[database_size];
 
     NTL::SetSeed(NTL::conv<NTL::ZZ>((long)1));
     NTL::GF2E mu = NTL::random_GF2E();
     NTL::GF2E v = NTL::random_GF2E();
-    myoutput<<"mu: "<<mu<<std::endl;
-    myoutput<<"v: "<<v<<std::endl;
+    // myoutput<<"mu: "<<mu<<std::endl;
+    // myoutput<<"v: "<<v<<std::endl;
     // GroupElement t = transformelem(databaseB[0], mu, v);
     // std::cout<<uint128ToString(t.value)<<"\n";
     std::cout<<"Here\n";
-    transformdb(database_size, &db, &databaseB, mu, v);
+    auto start_t = std::chrono::high_resolution_clock::now();
+    transformdb(&db, databaseB, mu, v, database_size);
+    auto end_t = std::chrono::high_resolution_clock::now();
+    auto dur_t = std::chrono::duration_cast<std::chrono::microseconds>(end_t-start_t);
+    std::cout<<"Time taken for transforming database "<<dur_t.count()*1e-6<<"\n";
     std::cout<<"Here2\n";
     // std::cout<<(uint64_t)db[0].value<<"\n";
     // std::cout<<(uint64_t)db[0].value<<"\n";
@@ -149,15 +153,17 @@ int main() {
     o0 = compute_o(database_size, GroupElement(0, Bin), databaseB, t0, 0);
     o1 = compute_o(database_size, GroupElement(0, Bin), databaseB, t1, 1);
     dbout = o0+o1;
-    // std::cout<<dbout<<"\n";
+    // std::cout<<dbou/t<<"\n";
 
     hato0 = compute_hato(database_size, GroupElement(0, Bin), db, t_vec_0, 0);
     hato1 = compute_hato(database_size, GroupElement(0, Bin), db, t_vec_1, 1);
-    std::cout<<"hato0: "<<hato0.bitsize<<"\nhato1: "<<hato1.bitsize<<"\n";
+    std::cout<<"hato0: "<<hato0.value<<"\nhato1: "<<hato1.value<<"\n";
     GroupElement hasho = transformelem(dbout, mu, v);
     std::cout<<"hasho: "<<hasho.value<<"\n";
     std::cout<<(uint64_t)hasho.value<<"\n";
     std::cout<<(((((__uint128_t)icp0.payload.value + icp1.payload.value)*(hasho.value)) & ((__uint128_t(1)<<Bout) - 1)) == (hato0+hato1).value);
+    delete[] databaseB;
+    delete[] db;
     // std::cout << "Time taken in eval all: " << duration.count()*1e-6 <<"\n";
 
     // GroupElement o0, hato0, o1, hato1;

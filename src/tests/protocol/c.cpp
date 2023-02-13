@@ -12,7 +12,7 @@
 
 int main() {
 
-    int input_size = 20;
+    int input_size = 21;
     int entry_size = 8192;
     //Initializing GF2E if entry size is 1KB.
     if(entry_size>bitlength) {

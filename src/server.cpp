@@ -354,6 +354,7 @@ void Server::send_GF2E(NTL::GF2E &x, int deg, int party) {
         else cf = 0;
         
         send_uint8(cf, party);
+        // bytes_sent -= 7;
     }
 }
 
@@ -362,6 +363,7 @@ NTL::GF2E Server::recv_GF2E(int deg, int party) {
     uint8_t cf = 0;
     for(int i=0; i<=deg; i++) {
         cf = recv_uint8(party);
+        // bytes_recieved -= 7;
         NTL::SetCoeff(poly, i, cf);
     }
 

@@ -447,8 +447,14 @@ input_check_pack_2 Client::recv_input_check_pack_2(int bl, int bw, int party) {
 NTL::GF2E Client::recv_GF2E(int deg, int party) {
     NTL::GF2X poly;
     uint8_t cf = 0;
+    int cnt = 0;
     for(int i=0; i<=deg; i++) {
         cf = recv_uint8(party);
+        cnt++;
+        if(cnt==8) {
+            bytes_recieved -= 7;
+            cnt=0;
+        }
         NTL::SetCoeff(poly, i, cf);
     }
 
@@ -457,8 +463,15 @@ NTL::GF2E Client::recv_GF2E(int deg, int party) {
 
 void Client::send_GF2E(NTL::GF2E &x, int deg, int party) {
     NTL::GF2X xpoly = NTL::conv<NTL::GF2X>(x);
+    int cnt = 0;
     for(int i=0; i<=deg; i++) {
         uint8_t cf = static_cast<uint8_t>(NTL::rep(NTL::coeff(xpoly, i)));
         send_uint8(cf, party);
+        cnt++;
+        if(cnt==8) {
+            bytes_sent -= 7;
+            cnt=0;
+        }
+        // bytes_sent -= 7;
     }
 }
