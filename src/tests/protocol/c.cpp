@@ -27,6 +27,10 @@ int main() {
     int port[6] = {4000, 4001, 6000, 6001, 8000, 8001};
 
     Client c = Client(ip, port, 3);
+    long seed = (long)time(NULL);
+    NTL::SetSeed(NTL::conv<NTL::ZZ>(seed));
+    NTL::GF2E mu = NTL::random_GF2E();
+    NTL::GF2E v = NTL::random_GF2E();
 
     auto temp0 = c.recv_uint8(0);
     auto temp1 = c.recv_uint8(1);
@@ -69,20 +73,17 @@ int main() {
             NTL::GF2E o1 = c.recv_GF2E(entry_size-1, 1);
             
             //Send random mu and v to P0, P1
-            NTL::SetSeed(NTL::conv<NTL::ZZ>((long)time(NULL)));
-            NTL::GF2E mu = NTL::random_GF2E();
-            NTL::GF2E v = NTL::random_GF2E();
-            c.send_GF2E(mu, entry_size-1, 0);
-            c.send_GF2E(v, entry_size-1, 0);
-            c.send_GF2E(mu, entry_size-1, 1);
-            c.send_GF2E(v, entry_size-1, 1);
+            // c.send_GF2E(mu, entry_size-1, 1);
+            // c.send_GF2E(v, entry_size-1, 1);
+            // c.send_GF2E(mu, entry_size-1, 0);
+            // c.send_GF2E(v, entry_size-1, 0);
+            c.send_long(seed, 1);
+            c.send_long(seed, 0);
+
 
             GroupElement ohat0 = c.recv_ge(bitlength, 0);
             GroupElement ohat1 = c.recv_ge(bitlength, 1);
             NTL::GF2E dbout = o0 + o1;
-            std::ofstream myfile("output.txt");
-            myfile<<dbout;
-            myfile.close();
             GroupElement hashdbout = transformelem(dbout, mu, v);
             if((((__uint128_t)(icp0.payload + icp1.payload).value * hashdbout.value) & ((__uint128_t(1) << bitlength) - 1)) != (__uint128_t)(ohat0 + ohat1).value)
                {    std::cerr<<"Incorrect DPF evaluation\n";
@@ -90,6 +91,9 @@ int main() {
                }
             
             std::cout<<"Correct Output\n";
+            std::ofstream myfile("output.txt");
+            myfile<<dbout;
+            myfile.close();
         }
 
     } else {

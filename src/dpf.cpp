@@ -6,7 +6,7 @@
 
 using namespace osuCrypto;
 PRNG prng;
-int nt = 8;
+int nt = 16;
 void free_dpf_layer(dpf_layer *dpfl) {
     free(dpfl->nodes);
     free(dpfl->prevt);
@@ -647,14 +647,6 @@ GroupElement transformelem(NTL::GF2E &dbe, NTL::GF2E &mu, NTL::GF2E &v) {
 
 
 void transformdb(GroupElement **db, NTL::GF2E *dbb, NTL::GF2E mu, NTL::GF2E v, int database_size) {
-    // NTL::GF2E temp;
-    // for(int i=0; i<database_size; i++) {
-    //     temp = dbb[i] * mu + v;
-    // }
-
-    // #pragma omp parallel for schedule(static, 1) num_threads(nt)
-    // for(int i=0; i<database_size; i++)
-    //     (*db)[i] = reducesize(temp);
     NTL::SetNumThreads(nt);
     NTL::GF2EContext context;
     context.save();
@@ -662,11 +654,10 @@ void transformdb(GroupElement **db, NTL::GF2E *dbb, NTL::GF2E mu, NTL::GF2E v, i
     NTL_EXEC_RANGE(database_size, first, last)
         context.restore();
         NTL::GF2E temp;
-        for(int i=first; i<last; i++) {
+        for(size_t i=first; i<last; i++) {
             temp = dbb[i]*mu + v;
             (*db)[i] = reducesize(temp);
         }
 
     NTL_EXEC_RANGE_END
-    // delete[] *dbb;
 }

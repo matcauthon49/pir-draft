@@ -85,8 +85,12 @@ int main() {
             NTL::GF2E o = compute_o(database_size, rotated_index, databaseB, t, 0);
             p0.send_GF2E(o, entry_size-1, 3);
             //Receive mu and v from C
-            NTL::GF2E mu = p0.recv_GF2E(entry_size-1, 3); 
-            NTL::GF2E v = p0.recv_GF2E(entry_size-1, 3);
+            // NTL::GF2E mu = p0.recv_GF2E(entry_size-1, 3); 
+            // NTL::GF2E v = p0.recv_GF2E(entry_size-1, 3);
+            long seed = p0.recv_long(3);
+            NTL::SetSeed(NTL::conv<NTL::ZZ>(seed));
+            NTL::GF2E mu = NTL::random_GF2E();
+            NTL::GF2E v = NTL::random_GF2E();
 
             transformdb(&database, databaseB, mu, v, database_size);
             GroupElement hato = compute_hato(database_size, rotated_index, database, out0, 0);

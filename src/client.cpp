@@ -448,6 +448,13 @@ void Client::send_int(int &i, int party) {
     send(sendsocket[party], buf, sizeof(int), 0);
     bytes_sent += sizeof(int);
 }
+
+void Client::send_long(long &i, int party) {
+    char *buf = (char *)(&i);
+    send(sendsocket[party], buf, sizeof(long), 0);
+    bytes_sent += sizeof(long);
+}
+
 NTL::GF2E Client::recv_GF2E(int deg, int party) {
     NTL::GF2X poly;
     int cnt = 0;

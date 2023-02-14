@@ -316,6 +316,14 @@ int Server::recv_int(int party) {
     return b;
 }
 
+long Server::recv_long(int party) {
+    char buf[sizeof(long)];
+    recv(recvsocket[party-2], buf, sizeof(long), MSG_WAITALL);
+    long b = *(long*)buf;
+    bytes_recieved += sizeof(long);
+    return b;
+}
+
 dpf_key Server::recv_dpf_key(int bl, int party) {
     
     int height = recv_int(party);

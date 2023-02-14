@@ -64,7 +64,6 @@ int main() {
 
     uint8_t accept = p1.recv_uint8(3);
 
-
     if (accept) {
         GroupElement rotated_index = p1.recv_ge(icp1.size, 3);
         GroupElement hato;
@@ -92,23 +91,24 @@ int main() {
             auto end_1 = std::chrono::high_resolution_clock::now();
             auto dur_1 = std::chrono::duration_cast<std::chrono::microseconds>(end_1-start_1);
 
-            std::cout<<"Time taken for computing o1 "<<dur_0.count()*1e-6<<"\n";
-            std::cout<<"Time taken for sending o1 "<<dur_1.count()*1e-6<<"\n";
-
             //Receive mu and v from C
             auto start_recv = std::chrono::high_resolution_clock::now();
-            NTL::GF2E mu = p1.recv_GF2E(entry_size-1, 3);
-            NTL::GF2E v = p1.recv_GF2E(entry_size-1, 3);
+            // NTL::GF2E mu = p1.recv_GF2E(entry_size-1, 3);
+            // NTL::GF2E v = p1.recv_GF2E(entry_size-1, 3);
+            long seed = p1.recv_long(3);
+            NTL::SetSeed(NTL::conv<NTL::ZZ>(seed));
+            NTL::GF2E mu = NTL::random_GF2E();
+            NTL::GF2E v = NTL::random_GF2E();
             auto end_recv = std::chrono::high_resolution_clock::now();
             auto duration_recv = std::chrono::duration_cast<std::chrono::microseconds>(end_recv-start_recv);
-            std::cout<<"Time taken for receiving mu and v "<<duration_recv.count()*1e-6<<"\n";
+            
 
             //Transform db
             auto st = std::chrono::high_resolution_clock::now();
             transformdb(&database, databaseB, mu, v, database_size);
             auto et = std::chrono::high_resolution_clock::now();
             auto dt = std::chrono::duration_cast<std::chrono::microseconds>(et-st);
-            std::cout<<"Time taken for transforming database "<<dt.count()*1e-6<<"\n";
+            
 
 
             //Compute hato on hashed database.
@@ -117,9 +117,21 @@ int main() {
             p1.send_ge(hato, bitlength, 3);
             auto end_hato = std::chrono::high_resolution_clock::now();
             auto dur_hato = std::chrono::duration_cast<std::chrono::microseconds>(end_hato-start_hato);
+
             auto end2 = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end2-start2);
-            std::cout << "Time taken for DB Parse-Through: " << duration.count()*1e-6 <<"\n";           
+
+            auto end_online = std::chrono::high_resolution_clock::now();
+            auto duration_online = std::chrono::duration_cast<std::chrono::microseconds>(end_online-start_online);
+
+            std::cout << "P1: Time taken for EvalAll: " << duration.count()*1e-6 <<"\n";
+            std::cout<<"Time taken for computing o1 "<<dur_0.count()*1e-6<<"\n";
+            std::cout<<"Time taken for sending o1 "<<dur_1.count()*1e-6<<"\n";
+            std::cout<<"Time taken for receiving mu and v "<<duration_recv.count()*1e-6<<"\n";
+            std::cout<<"Time taken for transforming database "<<dt.count()*1e-6<<"\n";
+            std::cout<<"Time taken for computing hato "<<dur_hato.count()*1e-6<<"\n";
+            std::cout << "Time taken for DB Parse-Through: " << duration.count()*1e-6 <<"\n"; 
+            std::cout<<"P1: Time Taken for Online Phase: "<<duration_online.count()*1e-6 <<"\n";
         }
 
     } else {
@@ -128,8 +140,6 @@ int main() {
 
     }
 
-    auto end_online = std::chrono::high_resolution_clock::now();
-    auto duration_online = std::chrono::duration_cast<std::chrono::microseconds>(end_online-start_online);
 
     free_input_check_pack(icp1);
     free_dpf_key(k1);
@@ -137,8 +147,7 @@ int main() {
     delete[] databaseB;
     p1.close(0);
     p1.close(1);
-    std::cout << "P1: Time taken for EvalAll: " << duration.count()*1e-6 <<"\n";
-     std::cout<<"P1: Time Taken for Online Phase: "<<duration_online.count()*1e-6 <<"\n";
+    
 
         
 }
