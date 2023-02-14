@@ -1,5 +1,4 @@
 #include "dpf.h"
-//Divyu: To print statements for debugging
 #include<iostream>
 #define ELEMENTNO 2
 #define INPBW 128
@@ -7,7 +6,7 @@
 
 using namespace osuCrypto;
 PRNG prng;
-int nt = 16;
+int nt = 8;
 void free_dpf_layer(dpf_layer *dpfl) {
     free(dpfl->nodes);
     free(dpfl->prevt);
@@ -587,21 +586,26 @@ std::pair<GroupElement, GroupElement> inner_prod(int database_size, GroupElement
 
 NTL::GF2E compute_o(int database_size, GroupElement rotated_index, NTL::GF2E *db, uint8_t* t, int p) {
     NTL::GF2E ovalue = NTL::GF2E();
+    NTL::SetNumThreads(nt);
+    // NTL::PartitionInfo pinfo(database_size);
+    int range = database_size/nt;
     NTL::GF2E thread_ovalue[nt] = {NTL::GF2E()};
-    #pragma omp parallel num_threads(nt)
-    {
-        int thread_id = omp_get_thread_num();
+    NTL::GF2EContext context;
+    context.save();
 
-        #pragma omp for schedule(static, 1)
-        for(size_t i=0; i<database_size; i++) {
-            int ind = (i + rotated_index.value) & ((int(1) << rotated_index.bitsize) - 1);
-            if(t[i]) thread_ovalue[thread_id] = thread_ovalue[thread_id] + db[ind];
+    NTL_EXEC_INDEX(nt, index)
+        context.restore();
+        int first = index*range;
+        int last = (index+1)*range;
+        
+        int ind;
+        for(size_t i=first; i<last; i++) {
+            ind = (i + rotated_index.value) & ((int(1) << rotated_index.bitsize) - 1);
+            if(t[i]) thread_ovalue[index] = thread_ovalue[index] + db[ind];
         }
-    }
+    NTL_EXEC_INDEX_END
 
-    for(size_t j=0; j<nt; j++) {
-        ovalue = ovalue + thread_ovalue[j];
-    }
+    for(size_t i=0; i<nt; i++) ovalue = ovalue + thread_ovalue[i];
 
     return ovalue;
 };

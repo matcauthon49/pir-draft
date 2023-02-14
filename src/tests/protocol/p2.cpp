@@ -19,9 +19,7 @@ int main() {
 
     int Bout = bitlength;
     int Bin = 21;
-
     dpf_input_pack *dpfip[2];
-    //P2 samples random index and payload which is hardcoded for now.
 
     dpfip[0] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
     dpfip[1] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));

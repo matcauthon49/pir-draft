@@ -24,15 +24,12 @@ int main() {
         myfile.close();
         NTL::GF2E::init(irredpol);
 
-        // databaseB = new NTL::GF2E[database_size];
         NTL::SetSeed(NTL::conv<NTL::ZZ>((long)0));
         for(int i=0; i<database_size; i++) {
             databaseB[i] = NTL::random_GF2E();
         }
-        // database = new GroupElement[database_size];
     }
     else {
-        // database = new GroupElement[database_size];
         for(int i=0; i<database_size; i++)
         database[i] = GroupElement(i, bitlength);
     }
@@ -83,12 +80,21 @@ int main() {
         }
         else {
             auto start2 = std::chrono::high_resolution_clock::now();
+            //Computing o0
             auto start_0 = std::chrono::high_resolution_clock::now();
             NTL::GF2E o = compute_o(database_size, rotated_index, databaseB, t, 1);
-            p1.send_GF2E(o, entry_size-1, 3);
             auto end_0 = std::chrono::high_resolution_clock::now();
             auto dur_0 = std::chrono::duration_cast<std::chrono::microseconds>(end_0-start_0);
-            std::cout<<"Time taken for computing and sending o"<<dur_0.count()*1e-6<<"\n";
+
+            //Sending o0 to C
+            auto start_1 = std::chrono::high_resolution_clock::now();
+            p1.send_GF2E(o, entry_size-1, 3);
+            auto end_1 = std::chrono::high_resolution_clock::now();
+            auto dur_1 = std::chrono::duration_cast<std::chrono::microseconds>(end_1-start_1);
+
+            std::cout<<"Time taken for computing o1 "<<dur_0.count()*1e-6<<"\n";
+            std::cout<<"Time taken for sending o1 "<<dur_1.count()*1e-6<<"\n";
+
             //Receive mu and v from C
             auto start_recv = std::chrono::high_resolution_clock::now();
             NTL::GF2E mu = p1.recv_GF2E(entry_size-1, 3);
@@ -96,19 +102,14 @@ int main() {
             auto end_recv = std::chrono::high_resolution_clock::now();
             auto duration_recv = std::chrono::duration_cast<std::chrono::microseconds>(end_recv-start_recv);
             std::cout<<"Time taken for receiving mu and v "<<duration_recv.count()*1e-6<<"\n";
+
             //Transform db
-            auto start_t = std::chrono::high_resolution_clock::now();
+            auto st = std::chrono::high_resolution_clock::now();
             transformdb(&database, databaseB, mu, v, database_size);
-            delete[] databaseB;
-            auto end_t = std::chrono::high_resolution_clock::now();
-            auto duration_t = std::chrono::duration_cast<std::chrono::microseconds>(end_t-start_t);
-            std::cout<<"Time taken for transforming database "<<duration_t.count()*1e-6<<"\n";
-            // database = (GroupElement*)malloc(database_size*sizeof(GroupElement));
-            // #pragma omp parallel for num_threads(8) schedule(static, 1)
-            // for(int i=0; i<database_size; i++) {
-            //     database[i] = transformelem(databaseB[i], mu, v);
-            // }
-            // delete[] databaseB;
+            auto et = std::chrono::high_resolution_clock::now();
+            auto dt = std::chrono::duration_cast<std::chrono::microseconds>(et-st);
+            std::cout<<"Time taken for transforming database "<<dt.count()*1e-6<<"\n";
+
 
             //Compute hato on hashed database.
             auto start_hato = std::chrono::high_resolution_clock::now();
@@ -133,6 +134,7 @@ int main() {
     free_input_check_pack(icp1);
     free_dpf_key(k1);
     delete[] database;
+    delete[] databaseB;
     p1.close(0);
     p1.close(1);
     std::cout << "P1: Time taken for EvalAll: " << duration.count()*1e-6 <<"\n";

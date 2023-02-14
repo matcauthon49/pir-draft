@@ -27,8 +27,6 @@ int main() {
         for(int i=0; i<database_size; i++) {
             databaseB[i] = NTL::random_GF2E();
         }
-
-        // database = new GroupElement[database_size];
     }
     else {
         for(int i=0; i<database_size; i++)
@@ -87,25 +85,15 @@ int main() {
             NTL::GF2E o = compute_o(database_size, rotated_index, databaseB, t, 0);
             p0.send_GF2E(o, entry_size-1, 3);
             //Receive mu and v from C
-            NTL::GF2E mu = p0.recv_GF2E(entry_size-1, 3);
+            NTL::GF2E mu = p0.recv_GF2E(entry_size-1, 3); 
             NTL::GF2E v = p0.recv_GF2E(entry_size-1, 3);
 
-            //Transform database
-            // database = (GroupElement*)malloc(database_size*sizeof(GroupElement));
-            // #pragma omp parallel for num_threads(8) schedule(static, 1)
-            // for(int i=0; i<database_size; i++) {
-            //     database[i] = transformelem(databaseB[i], mu, v);
-            // }
-            // delete[] databaseB;
             transformdb(&database, databaseB, mu, v, database_size);
-            // transformdb(database_size, &database, databaseB, mu, v);
-            delete[] databaseB;
             GroupElement hato = compute_hato(database_size, rotated_index, database, out0, 0);
             p0.send_ge(hato, bitlength, 3);
 
             auto end2 = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end2-start2);
-            // std::cout << "Time taken for DB Parse-Through: " << duration.count()*1e-6 <<"\n";
             
             
         }
@@ -121,6 +109,7 @@ int main() {
     free_input_check_pack(icp0);
     free_dpf_key(k0);
     delete[] database;
+    delete[] databaseB;
     p0.close(0);
     p0.close(1);
 

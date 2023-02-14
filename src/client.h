@@ -42,7 +42,7 @@ public:
     void send_ge(GroupElement &ge, int bitwidth, int party);
     void send_uint8(uint8_t &i, int party);
     void send_GF2E(NTL::GF2E &x, int deg, int party);
-
+    void send_int(int &i, int party);
     GroupElement recv_ge(int bl, int party);
     block recv_block(int party);
     size_t recv_size(int party);

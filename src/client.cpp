@@ -443,35 +443,44 @@ input_check_pack_2 Client::recv_input_check_pack_2(int bl, int bw, int party) {
     return icp;
 }
 
-
+void Client::send_int(int &i, int party) {
+    char *buf = (char *)(&i);
+    send(sendsocket[party], buf, sizeof(int), 0);
+    bytes_sent += sizeof(int);
+}
 NTL::GF2E Client::recv_GF2E(int deg, int party) {
     NTL::GF2X poly;
-    uint8_t cf = 0;
     int cnt = 0;
-    for(int i=0; i<=deg; i++) {
-        cf = recv_uint8(party);
+    for(int i=0; i<=deg; i += 4*sizeof(int)) {
+        int cf = recv_int(party);
         cnt++;
-        if(cnt==8) {
-            bytes_recieved -= 7;
-            cnt=0;
+        for(int j=0; j<4*sizeof(int); j++) {
+            int coeff = cf % 2;
+            cf = cf>>1;
+            if((i+j) <= deg) NTL::SetCoeff(poly, i+j, coeff);
         }
-        NTL::SetCoeff(poly, i, cf);
     }
-
+    bytes_recieved -= (cnt*sizeof(int))/2;
     return NTL::conv<NTL::GF2E>(poly);
 }
 
 void Client::send_GF2E(NTL::GF2E &x, int deg, int party) {
     NTL::GF2X xpoly = NTL::conv<NTL::GF2X>(x);
     int cnt = 0;
-    for(int i=0; i<=deg; i++) {
-        uint8_t cf = static_cast<uint8_t>(NTL::rep(NTL::coeff(xpoly, i)));
-        send_uint8(cf, party);
-        cnt++;
-        if(cnt==8) {
-            bytes_sent -= 7;
-            cnt=0;
+    for(int i=0; i<=deg; i = i+ 4*sizeof(int)) {
+        int cf = 0;
+
+        for(int j=0; j<4*sizeof(int); j++) {
+            int coeff = 0;
+            if((i+j) <= deg) coeff = static_cast<int>(NTL::rep(NTL::coeff(xpoly, i+j)));
+
+            cf = cf + (coeff<<j);
+
         }
-        // bytes_sent -= 7;
+
+        send_int(cf, party);
+        cnt++;
     }
+
+    bytes_sent -= (cnt*sizeof(int))/2;
 }

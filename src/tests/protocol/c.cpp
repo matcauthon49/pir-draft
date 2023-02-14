@@ -16,7 +16,7 @@ int main() {
     int entry_size = 8192;
     //Initializing GF2E if entry size is 1KB.
     if(entry_size>bitlength) {
-        NTL::GF2X irredpol_13;
+        NTL::GF2X irredpol_13 ;
         std::ifstream myfile("irredpol_13_c.txt");
         myfile>>irredpol_13;
         myfile.close();
@@ -68,7 +68,6 @@ int main() {
             NTL::GF2E o0 = c.recv_GF2E(entry_size-1, 0);
             NTL::GF2E o1 = c.recv_GF2E(entry_size-1, 1);
             
-
             //Send random mu and v to P0, P1
             NTL::SetSeed(NTL::conv<NTL::ZZ>((long)time(NULL)));
             NTL::GF2E mu = NTL::random_GF2E();

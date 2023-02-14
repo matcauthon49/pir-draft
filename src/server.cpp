@@ -347,24 +347,31 @@ dpf_key Server::recv_dpf_key(int bl, int party) {
 
 void Server::send_GF2E(NTL::GF2E &x, int deg, int party) {
     NTL::GF2X xpoly = NTL::conv<NTL::GF2X>(x);
-    for(int i=0; i<=deg; i++) {
-        uint8_t cf;
-        if(i <= NTL::deg(xpoly))
-            cf = static_cast<uint8_t>(NTL::rep(NTL::coeff(xpoly, i)));
-        else cf = 0;
-        
-        send_uint8(cf, party);
-        // bytes_sent -= 7;
+    int cnt = 0;
+    for(int i=0; i<=deg; i = i+ 4*sizeof(int)) {
+        int cf = 0;
+
+        for(int j=0; j<4*sizeof(int); j++) {
+            int coeff = 0;
+            if((i+j) <= deg) coeff = static_cast<int>(NTL::rep(NTL::coeff(xpoly, i+j)));
+
+            cf = cf + (coeff<<j);
+        }
+        cnt++;
+        send_int(cf, party);
     }
 }
 
 NTL::GF2E Server::recv_GF2E(int deg, int party) {
     NTL::GF2X poly;
-    uint8_t cf = 0;
-    for(int i=0; i<=deg; i++) {
-        cf = recv_uint8(party);
-        // bytes_recieved -= 7;
-        NTL::SetCoeff(poly, i, cf);
+
+    for(int i=0; i<=deg; i += 4*sizeof(int)) {
+        int cf = recv_int(party);
+        for(int j=0; j<4*sizeof(int); j++) {
+            int coeff = cf % 2;
+            cf = cf>>1;
+            if((i+j) <= deg) NTL::SetCoeff(poly, i+j, coeff);
+        }
     }
 
     return NTL::conv<NTL::GF2E>(poly);
