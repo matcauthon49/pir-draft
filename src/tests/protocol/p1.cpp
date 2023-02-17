@@ -4,34 +4,34 @@
 #include "server.h"
 #include "server_trusted.h"
 #include <chrono>
-#include<NTL/GF2E.h>
-#include<NTL/GF2X.h>
-#include<NTL/GF2XFactoring.h>
 #include<fstream>
 
 int main() {
-    int input_size = 21;
+    int input_size = 18;
     int database_size = (1<<input_size);
     int entry_size = 8192;
 
-    //Creating database for both cases when entry size < 40 bits and 1KB.
-    NTL::GF2E *databaseB = new NTL::GF2E[database_size];
-    GroupElement *database = new GroupElement[database_size];
-    if(entry_size>bitlength) {
-        NTL::GF2X irredpol;
-        std::ifstream myfile("irredpol_13_1.txt");
-        myfile>>irredpol;
-        myfile.close();
-        NTL::GF2E::init(irredpol);
+    int block;
+    if(entry_size%bitlength!=0) block = entry_size/bitlength + 1;
+    else block = entry_size/bitlength;
+    prng.SetSeed(toBlock(0, 0), sizeof(block));
 
-        NTL::SetSeed(NTL::conv<NTL::ZZ>((long)0));
-        for(int i=0; i<database_size; i++) {
-            databaseB[i] = NTL::random_GF2E();
-        }
+    //Creating database for both cases when entry size < 40 bits and 1KB.
+    GroupElement *database = NULL;
+    GroupElement **databaseB = NULL;
+    if(entry_size<= bitlength) {
+        database = new GroupElement[database_size];
+        for(int i=0; i<database_size; i++)
+            database[i] = random_ge(bitlength);
     }
     else {
-        for(int i=0; i<database_size; i++)
-        database[i] = GroupElement(i, bitlength);
+        databaseB = (GroupElement**)malloc(block*sizeof(GroupElement*));
+        for(int i=0; i<block; i++) {
+            databaseB[i] = (GroupElement*)malloc(database_size*sizeof(GroupElement));
+            for(int j=0; j<database_size; j++)
+                databaseB[i][j] = random_ge(bitlength);
+        }
+
     }
 
 
@@ -66,10 +66,9 @@ int main() {
 
     if (accept) {
         GroupElement rotated_index = p1.recv_ge(icp1.size, 3);
-        GroupElement hato;
         if(entry_size<=bitlength) {
             auto start2 = std::chrono::high_resolution_clock::now();
-            GroupElement o;
+            GroupElement o, hato;
             std::tie(o, hato) = inner_prod(database_size, rotated_index, database, out1);
             auto end2 = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end2-start2);
@@ -79,44 +78,22 @@ int main() {
         }
         else {
             auto start2 = std::chrono::high_resolution_clock::now();
-            //Computing o0
             auto start_0 = std::chrono::high_resolution_clock::now();
-            NTL::GF2E o = compute_o(database_size, rotated_index, databaseB, t, 1);
+            GroupElement *o, *hato;
+            std::tie(o, hato) = compute_inner_prod_Zp(database_size, rotated_index, databaseB, out1, block, 0);
             auto end_0 = std::chrono::high_resolution_clock::now();
             auto dur_0 = std::chrono::duration_cast<std::chrono::microseconds>(end_0-start_0);
 
-            //Sending o0 to C
+            //Sending o0, hato0 to C
             auto start_1 = std::chrono::high_resolution_clock::now();
-            p1.send_GF2E(o, entry_size-1, 3);
+            for(int i=0; i<block; i++) {
+                p1.send_ge(o[i], bitlength, 3);
+            }
+            for(int i=0; i<block; i++) {
+                p1.send_ge(hato[i], bitlength, 3);
+            }
             auto end_1 = std::chrono::high_resolution_clock::now();
             auto dur_1 = std::chrono::duration_cast<std::chrono::microseconds>(end_1-start_1);
-
-            //Receive mu and v from C
-            auto start_recv = std::chrono::high_resolution_clock::now();
-            // NTL::GF2E mu = p1.recv_GF2E(entry_size-1, 3);
-            // NTL::GF2E v = p1.recv_GF2E(entry_size-1, 3);
-            long seed = p1.recv_long(3);
-            NTL::SetSeed(NTL::conv<NTL::ZZ>(seed));
-            NTL::GF2E mu = NTL::random_GF2E();
-            NTL::GF2E v = NTL::random_GF2E();
-            auto end_recv = std::chrono::high_resolution_clock::now();
-            auto duration_recv = std::chrono::duration_cast<std::chrono::microseconds>(end_recv-start_recv);
-            
-
-            //Transform db
-            auto st = std::chrono::high_resolution_clock::now();
-            transformdb(&database, databaseB, mu, v, database_size);
-            auto et = std::chrono::high_resolution_clock::now();
-            auto dt = std::chrono::duration_cast<std::chrono::microseconds>(et-st);
-            
-
-
-            //Compute hato on hashed database.
-            auto start_hato = std::chrono::high_resolution_clock::now();
-            GroupElement hato = compute_hato(database_size, rotated_index, database, out1, 1);
-            p1.send_ge(hato, bitlength, 3);
-            auto end_hato = std::chrono::high_resolution_clock::now();
-            auto dur_hato = std::chrono::duration_cast<std::chrono::microseconds>(end_hato-start_hato);
 
             auto end2 = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end2-start2);
@@ -127,9 +104,6 @@ int main() {
             std::cout << "P1: Time taken for EvalAll: " << duration.count()*1e-6 <<"\n";
             std::cout<<"Time taken for computing o1 "<<dur_0.count()*1e-6<<"\n";
             std::cout<<"Time taken for sending o1 "<<dur_1.count()*1e-6<<"\n";
-            std::cout<<"Time taken for receiving mu and v "<<duration_recv.count()*1e-6<<"\n";
-            std::cout<<"Time taken for transforming database "<<dt.count()*1e-6<<"\n";
-            std::cout<<"Time taken for computing hato "<<dur_hato.count()*1e-6<<"\n";
             std::cout << "Time taken for DB Parse-Through: " << duration.count()*1e-6 <<"\n"; 
             std::cout<<"P1: Time Taken for Online Phase: "<<duration_online.count()*1e-6 <<"\n";
         }
@@ -143,8 +117,12 @@ int main() {
 
     free_input_check_pack(icp1);
     free_dpf_key(k1);
-    delete[] database;
-    delete[] databaseB;
+    if(database != NULL)  free(database);
+    if(databaseB != NULL) {
+        for(int i=0; i<block; i++)
+            free(databaseB[i]);
+        free(databaseB);
+    }
     p1.close(0);
     p1.close(1);
     

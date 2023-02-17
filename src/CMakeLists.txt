@@ -30,7 +30,7 @@ target_include_directories(dpf PRIVATE
 deps/cryptoTools
 deps/EzPC)
 
-target_compile_options(dpf PRIVATE -pthread -std=c++17 -Wall -Wno-parentheses-equality -Wno-ignored-attributes  -mpclmul -fopenmp -maes -msse2 -msse4.1)
+target_compile_options(dpf PRIVATE -pthread -std=c++17 -Wall -Wno-parentheses-equality -Wno-ignored-attributes  -mpclmul -fopenmp -maes -msse2 -msse4.1 -g)
 install(
     TARGETS dpf 
     EXPORT DPFTargets
@@ -64,7 +64,7 @@ target_link_libraries(test PRIVATE dpf ntl gf2x gmp m)
 if(OpenMP_CXX_FOUND)
     target_link_libraries(test PUBLIC OpenMP::OpenMP_CXX)
 endif()
-target_compile_options(test PRIVATE -pthread -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -mpclmul -fopenmp -maes -msse2 -msse4.1 )
+target_compile_options(test PRIVATE -pthread -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -mpclmul -fopenmp -maes -msse2 -msse4.1 -g)
 
 
 add_executable(p0)
@@ -78,7 +78,7 @@ target_link_libraries(p0 PRIVATE dpf ntl gf2x gmp m)
 if(OpenMP_CXX_FOUND)
     target_link_libraries(p0 PUBLIC OpenMP::OpenMP_CXX)
 endif()
-target_compile_options(p0 PRIVATE -pthread -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -mpclmul -fopenmp -maes -msse2 -msse4.1 )
+target_compile_options(p0 PRIVATE -pthread -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -mpclmul -fopenmp -maes -msse2 -msse4.1 -g)
 
 add_executable(p1)
 target_sources(p1 PRIVATE ${PROJECT_SOURCE_DIR}/tests/protocol/p1.cpp)
@@ -91,7 +91,7 @@ target_link_libraries(p1 PRIVATE dpf ntl gf2x gmp m)
 if(OpenMP_CXX_FOUND)
     target_link_libraries(p1 PUBLIC OpenMP::OpenMP_CXX)
 endif()
-target_compile_options(p1 PRIVATE -pthread -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -mpclmul -fopenmp -maes -msse2 -msse4.1 )
+target_compile_options(p1 PRIVATE -pthread -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -mpclmul -fopenmp -maes -msse2 -msse4.1 -g)
 
 add_executable(p2)
 target_sources(p2 PRIVATE ${PROJECT_SOURCE_DIR}/tests/protocol/p2.cpp)
@@ -104,7 +104,7 @@ target_link_libraries(p2 PRIVATE dpf ntl gf2x gmp m)
 if(OpenMP_CXX_FOUND)
     target_link_libraries(p2 PUBLIC OpenMP::OpenMP_CXX)
 endif()
-target_compile_options(p2 PRIVATE -pthread -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -mpclmul -fopenmp -maes -msse2 -msse4.1)
+target_compile_options(p2 PRIVATE -pthread -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -mpclmul -fopenmp -maes -msse2 -msse4.1 -g)
 
 add_executable(c)
 target_sources(c PRIVATE ${PROJECT_SOURCE_DIR}/tests/protocol/c.cpp)
@@ -117,4 +117,4 @@ target_link_libraries(c PRIVATE dpf ntl gf2x gmp m)
 if(OpenMP_CXX_FOUND)
     target_link_libraries(c PUBLIC OpenMP::OpenMP_CXX)
 endif()
-target_compile_options(c PRIVATE -pthread -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -mpclmul -fopenmp -maes -msse2 -msse4.1)
+target_compile_options(c PRIVATE -pthread -std=c++17 -Wno-parentheses-equality -Wno-ignored-attributes -mpclmul -fopenmp -maes -msse2 -msse4.1 -g)

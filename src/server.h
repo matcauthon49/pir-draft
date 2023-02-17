@@ -17,8 +17,6 @@
 #include "deps/cryptoTools/cryptoTools/Common/Defines.h"
 #include "deps/EzPC/group_element.h"
 #include "keys.h"
-#include<NTL/GF2E.h>
-#include<NTL/GF2X.h>
 
 #define PARTY0 0
 #define PARTY1 1
@@ -45,7 +43,6 @@ public:
     void send_uint8(uint8_t &i, int party);
     void send_size(size_t &i, int party);
     void send_int(int &i, int party);
-    void send_GF2E(NTL::GF2E &x, int deg, int party);
     void send_input_check_pack(input_check_pack icp, int bw, int bl, int party);
 
     GroupElement recv_ge(int bl, int party);
@@ -56,5 +53,4 @@ public:
     long recv_long(int party);
     char recv_char(int party);
     dpf_key recv_dpf_key(int bl, int party);
-    NTL::GF2E recv_GF2E(int deg, int party);
 };

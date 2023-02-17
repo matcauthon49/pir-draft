@@ -6,7 +6,7 @@
 
 using namespace osuCrypto;
 PRNG prng;
-int nt = 16;
+int nt = 4;
 void free_dpf_layer(dpf_layer *dpfl) {
     free(dpfl->nodes);
     free(dpfl->prevt);
@@ -584,42 +584,44 @@ std::pair<GroupElement, GroupElement> inner_prod(int database_size, GroupElement
     return std::pair<GroupElement, GroupElement>(o, hato);
 };
 
-NTL::GF2E compute_o(int database_size, GroupElement rotated_index, NTL::GF2E *db, uint8_t* t, int p) {
-    NTL::GF2E ovalue = NTL::GF2E();
-    NTL::SetNumThreads(nt);
-    // NTL::PartitionInfo pinfo(database_size);
-    int range = database_size/nt;
-    NTL::GF2E thread_ovalue[nt] = {NTL::GF2E()};
-    NTL::GF2EContext context;
-    context.save();
+std::pair<GroupElement*, GroupElement*> compute_inner_prod_Zp(int database_size, GroupElement rotated_index, GroupElement **db, GroupElement **out, int blocks, int p) {
+    GroupElement *o = (GroupElement*)malloc(blocks*sizeof(GroupElement));
+    GroupElement *hato = (GroupElement*)malloc(blocks*sizeof(GroupElement));
 
-    NTL_EXEC_INDEX(nt, index)
-        context.restore();
-        int first = index*range;
-        int last = (index+1)*range;
+    #pragma omp parallel for num_threads(nt) schedule(static, 1)
+    for(size_t i = 0; i<blocks; i++) {
+        std::tie(o[i], hato[i]) = inner_prod(database_size, rotated_index, db[i], out);
+    }
+    // for(size_t i=0; i<database_size; i++) {
+    //     // std::cout<<"i "<<i<<" out "<<out[i][0].value<<"\n";
+
+    //     int ind = (i + rotated_index.value) & ((int(1) << rotated_index.bitsize) - 1);
+    //     // std::cout<<"ind "<<ind<<"\n";
+    //     for(size_t j=0; j<blocks; j++) {
+    //         ovalue[j] = (ovalue[j] + (((__uint128_t)out[i][0].value * db[ind][j].value) & ((__uint128_t(1) << bitlength) - 1))) & ((__uint128_t(1) << bitlength) - 1);
+    //         hatovalue[j] = (hatovalue[j] + (((__uint128_t)out[i][1].value * db[ind][j].value) & ((__uint128_t(1) << bitlength) - 1))) & ((__uint128_t(1) << bitlength) - 1);
+    //         // std::cout<<"j "<<j<<" ovalue "<<ovalue[j]<<"\n";
+    //     }
+    // }
+    // GroupElement *o = (GroupElement*)malloc(blocks*sizeof(GroupElement));
+    // GroupElement *hato = (GroupElement*)malloc(blocks*sizeof(GroupElement));
+
+    
+    // for(size_t j=0; j<blocks; j++) {
+    //     o[j] = GroupElement(ovalue[j], bitlength);
+    //     hato[j] = GroupElement(hatovalue[j], bitlength);
+    //     // std::cout<<"j "<<j<<" o "<<o[j].value<<" hato "<<hato[j].value<<"\n";
+    // }
+
+    // free(ovalue);
+    // free(hatovalue);
+    
+    return std::pair<GroupElement*, GroupElement*> (o, hato);
         
-        int ind;
-        for(size_t i=first; i<last; i++) {
-            ind = (i + rotated_index.value) & ((int(1) << rotated_index.bitsize) - 1);
-            if(t[i]) thread_ovalue[index] = thread_ovalue[index] + db[ind];
-        }
-    NTL_EXEC_INDEX_END
-
-    for(size_t i=0; i<nt; i++) ovalue = ovalue + thread_ovalue[i];
-
-    return ovalue;
+    
 };
 
-GroupElement reducesize(NTL::GF2E dbe) {
-    uint64_t val = 0;
-    NTL::GF2X xpoly = NTL::conv<NTL::GF2X>(dbe);
-    for(int i=bitlength-1; i>=0; i--) {
-        val = ((val<<1) + static_cast<uint8_t>(NTL::rep(NTL::coeff(xpoly, i)))) & (((uint64_t)(1) << bitlength) - 1);
-    }
 
-    return GroupElement(val, bitlength);
-
-}
 GroupElement compute_hato(int database_size, GroupElement rotated_index, GroupElement *db, GroupElement **out, int p) {
     uint64_t hatovalue = 0;
     uint64_t thread_hatovalue[nt] = {0};
@@ -640,24 +642,4 @@ GroupElement compute_hato(int database_size, GroupElement rotated_index, GroupEl
     return GroupElement(hatovalue, bitlength);
 };
 
-GroupElement transformelem(NTL::GF2E &dbe, NTL::GF2E &mu, NTL::GF2E &v) {
-    NTL::GF2E t = mu*dbe + v;
-    return reducesize(t);
-};
 
-
-void transformdb(GroupElement **db, NTL::GF2E *dbb, NTL::GF2E mu, NTL::GF2E v, int database_size) {
-    NTL::SetNumThreads(nt);
-    NTL::GF2EContext context;
-    context.save();
-
-    NTL_EXEC_RANGE(database_size, first, last)
-        context.restore();
-        NTL::GF2E temp;
-        for(size_t i=first; i<last; i++) {
-            temp = dbb[i]*mu + v;
-            (*db)[i] = reducesize(temp);
-        }
-
-    NTL_EXEC_RANGE_END
-}

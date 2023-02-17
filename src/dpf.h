@@ -9,9 +9,6 @@
 #include <group_element.h>
 #include <keys.h>
 #include <omp.h>
-#include<NTL/GF2E.h>
-#include<NTL/GF2X.h>
-#include<NTL/BasicThreadPool.h>
 
 using namespace osuCrypto;
 struct dpf_layer {
@@ -54,7 +51,7 @@ void free_dpf_input_pack(dpf_input_pack dpfip);
 void prg_eval_all_and_xor(dpf_layer *dpfl, block* keynodes);
 
 std::pair<GroupElement, GroupElement> inner_prod(int database_size, GroupElement rotated_index, GroupElement* db, GroupElement** out);
-NTL::GF2E compute_o(int database_size, GroupElement rotated_index, NTL::GF2E *db, uint8_t* t, int p);
+
 GroupElement compute_hato(int database_size, GroupElement rotated_index, GroupElement *db, GroupElement **out, int p);
-GroupElement transformelem(NTL::GF2E &dbe, NTL::GF2E &mu, NTL::GF2E &v);
-void transformdb(GroupElement **db, NTL::GF2E *dbb, NTL::GF2E mu, NTL::GF2E v, int database_size);
+
+std::pair<GroupElement*, GroupElement*> compute_inner_prod_Zp(int database_size, GroupElement rotated_index, GroupElement **db, GroupElement **out, int blocks, int p);

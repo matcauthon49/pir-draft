@@ -18,7 +18,7 @@ int main() {
     std::cout<<"----------------Running Key Gen-----------------\n";
 
     int Bout = bitlength;
-    int Bin = 21;
+    int Bin = 18;
     dpf_input_pack *dpfip[2];
 
     dpfip[0] = (dpf_input_pack*)malloc(sizeof(dpf_input_pack));
